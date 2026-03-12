@@ -1,0 +1,9 @@
+Experiment summary (devel)
+
+Run	Model	Params	m.avg F1	m.avg(no class) F1
+---	-----	------	--------	-----------------
+devel-CRF-c1_0.1-c2_0.5-it50.stats	CRF	c1=0.1 c2=0.5 it=50	87.3%	88.9%
+devel-CRF-c1_0.05-c2_0.1-it100.stats	CRF	c1=0.05 c2=0.1 it=100	86.9%	88.7%
+devel-CRF-c1_0.2-c2_0.7-it100.stats	CRF	c1=0.2 c2=0.7 it=100	87.1%	88.8%
+devel-MEM-C1-lbfgs-1500.stats	MEM	C=1 solver=lbfgs max_iter=1500	86.1%	87.8%
+devel-MEM-C2-lbfgs-2000.stats	MEM	C=2 solver=lbfgs max_iter=2000	85.9%	87.7%
