@@ -20,7 +20,7 @@ def get_label(tks, tke, spans) :
 ## -- Extract features for each token in given sentence
 
 def extract_sentence_features(tokens, dicts) :
-
+   # -- ADDITION 1 --
    def word_shape(txt) :
       shape = []
       for ch in txt :
@@ -29,6 +29,7 @@ def extract_sentence_features(tokens, dicts) :
          elif ch.isdigit() : shape.append('d')
          else : shape.append(ch)
       return "".join(shape)
+   # ----------------
 
    # for each token, generate list of features and add it to the result
    sentenceFeatures = {}
@@ -38,36 +39,44 @@ def extract_sentence_features(tokens, dicts) :
 
       tokenFeatures.append("form="+t)
       tokenFeatures.append("formlower="+t.lower())
+
+      # -- ADDITION 1 --
       tokenFeatures.append("pref2="+t[:2])
       tokenFeatures.append("pref3="+t[:3])
       tokenFeatures.append("pref4="+t[:4])
+
+      tokenFeatures.append("suf2="+t[-2:])
+      # ----------------
       tokenFeatures.append("suf3="+t[-3:])
       tokenFeatures.append("suf4="+t[-4:])
+
+      # -- ADDITION 1 --
       tokenFeatures.append("shape="+word_shape(t))
       tl = len(t)
       if tl <= 3 : tokenFeatures.append("len<=3")
       elif tl <= 6 : tokenFeatures.append("len<=6")
       elif tl <= 10 : tokenFeatures.append("len<=10")
       else : tokenFeatures.append("len>10")
-      if len(t) >= 2 :
-         tokenFeatures.append("ch2="+t[:2])
-         tokenFeatures.append("ch2="+t[-2:])
-      if len(t) >= 3 :
-         tokenFeatures.append("ch3="+t[:3])
-         tokenFeatures.append("ch3="+t[-3:])
+      # ----------------
       if t.isupper() : tokenFeatures.append("isUpper")
       if t.istitle() : tokenFeatures.append("isTitle")
       if t.isdigit() : tokenFeatures.append("isDigit")
       if '-' in t : tokenFeatures.append("hasDash")
       if re.search('[0-9]',t) : tokenFeatures.append("hasDigit")
+
+      # -- ADDITION 1 --
       if '(' in t or ')' in t : tokenFeatures.append("hasParen")
       if '/' in t : tokenFeatures.append("hasSlash")
       if '.' in t : tokenFeatures.append("hasDot")
       if '+' in t : tokenFeatures.append("hasPlus")
       if ',' in t : tokenFeatures.append("hasComma")
+      # ----------------
+
       found,val = dicts.find(t.lower(), 'external')
       if found:
+         # -- ADDITION 1 --
          tokenFeatures.append("inDictFull")
+         # ----------------
          for c in val : tokenFeatures.append("external="+c)
       found,val = dicts.find(t.lower(), 'externalpart')
       if found:
@@ -78,29 +87,39 @@ def extract_sentence_features(tokens, dicts) :
          tPrev = tokens[i-1].text
          tokenFeatures.append("formPrev="+tPrev)
          tokenFeatures.append("formlowerPrev="+tPrev.lower())
+         # -- ADDITION 1 --
          tokenFeatures.append("pref2Prev="+tPrev[:2])
          tokenFeatures.append("pref3Prev="+tPrev[:3])
          tokenFeatures.append("pref4Prev="+tPrev[:4])
+         # -----------------
          tokenFeatures.append("suf3Prev="+tPrev[-3:])
          tokenFeatures.append("suf4Prev="+tPrev[-4:])
+         # -- ADDITION 1 --
          tokenFeatures.append("shapePrev="+word_shape(tPrev))
+         # -----------------
          if tPrev.isupper() : tokenFeatures.append("isUpperPrev")
          if tPrev.istitle() : tokenFeatures.append("isTitlePrev")
          if tPrev.isdigit() : tokenFeatures.append("isDigitPrev")
          if '-' in tPrev : tokenFeatures.append("hasDashPrev")
          if re.search('[0-9]',tPrev) : tokenFeatures.append("hasDigitPrev")
+         # -- ADDITION 1 --
          if '(' in tPrev or ')' in tPrev : tokenFeatures.append("hasParenPrev")
          if '/' in tPrev : tokenFeatures.append("hasSlashPrev")
          if '.' in tPrev : tokenFeatures.append("hasDotPrev")
          if '+' in tPrev : tokenFeatures.append("hasPlusPrev")
          if ',' in tPrev : tokenFeatures.append("hasCommaPrev")
+         # -----------------
          found,val = dicts.find(tPrev.lower(), 'external')
          if found:
+             # -- ADDITION 1 --
              tokenFeatures.append("inDictFullPrev")
+             # -----------------
              for c in val : tokenFeatures.append("externalPrev="+c)
          found,val = dicts.find(tPrev.lower(), 'externalpart')
          if found:
+             # -- ADDITION 1 --
              tokenFeatures.append("inDictPartPrev")
+             # -----------------
              for c in val : tokenFeatures.append("externalpartPrev="+c)
       else :
          tokenFeatures.append("BoS")
@@ -109,9 +128,11 @@ def extract_sentence_features(tokens, dicts) :
          tNext = tokens[i+1].text
          tokenFeatures.append("formNext="+tNext)
          tokenFeatures.append("formlowerNext="+tNext.lower())
+         # -- ADDITION 1 --
          tokenFeatures.append("pref2Next="+tNext[:2])
          tokenFeatures.append("pref3Next="+tNext[:3])
          tokenFeatures.append("pref4Next="+tNext[:4])
+         # -----------------
          tokenFeatures.append("suf3Next="+tNext[-3:])
          tokenFeatures.append("suf4Next="+tNext[-4:])
          tokenFeatures.append("shapeNext="+word_shape(tNext))
@@ -120,26 +141,34 @@ def extract_sentence_features(tokens, dicts) :
          if tNext.isdigit() : tokenFeatures.append("isDigitNext")
          if '-' in tNext : tokenFeatures.append("hasDashNext")
          if re.search('[0-9]',tNext) : tokenFeatures.append("hasDigitNext")
+         # -- ADDITION 1 --
          if '(' in tNext or ')' in tNext : tokenFeatures.append("hasParenNext")
          if '/' in tNext : tokenFeatures.append("hasSlashNext")
          if '.' in tNext : tokenFeatures.append("hasDotNext")
          if '+' in tNext : tokenFeatures.append("hasPlusNext")
          if ',' in tNext : tokenFeatures.append("hasCommaNext")
+         # -----------------
          found,val = dicts.find(tNext.lower(), 'external')
          if found:
+            # -- ADDITION 1 --
             tokenFeatures.append("inDictFullNext")
+            # -----------------
             for c in val : tokenFeatures.append("externalNext="+c)
          found,val = dicts.find(tNext.lower(), 'externalpart')
          if found:
+            # -- ADDITION 1 --
             tokenFeatures.append("inDictPartNext")
+            # -----------------
             for c in val : tokenFeatures.append("externalpartNext="+c)
       else:
          tokenFeatures.append("EoS")
 
+      # -- ADDITION 1 --
       if i == 0 : tokenFeatures.append("isFirst")
       if i == 1 : tokenFeatures.append("isSecond")
       if i == len(tokens)-2 : tokenFeatures.append("isSecondLast")
       if i == len(tokens)-1 : tokenFeatures.append("isLast")
+      # -----------------
     
       sentenceFeatures[i] = tokenFeatures
     
