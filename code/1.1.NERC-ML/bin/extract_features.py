@@ -20,6 +20,11 @@ def get_label(tks, tke, spans) :
 ## -- Extract features for each token in given sentence
 
 def extract_sentence_features(tokens, dicts) :
+   # Ablation toggles (requested): keep ADDITION 2/3/4/5 and 6 enabled,
+   # but DISABLE ADDITION 7 and 8 to test ADDITION 6 impact in isolation.
+   ENABLE_ADDITION_7 = False
+   ENABLE_ADDITION_8 = False
+
    # -- ADDITION 1 --
    def word_shape(txt) :
       shape = []
@@ -29,6 +34,89 @@ def extract_sentence_features(tokens, dicts) :
          elif ch.isdigit() : shape.append('d')
          else : shape.append(ch)
       return "".join(shape)
+   # ----------------
+
+   # -- ADDITION 6 --
+   # Text normalization & biomedical regex/pattern flags.
+   # These help generalize to unseen tokens (especially drug_n-like strings)
+   # that include digits, punctuation, Greek letters, or chemical patterns.
+   def norm_digits(txt) :
+      return re.sub(r"[0-9]", "0", txt)
+
+   def has_greek(txt) :
+      # Common Greek letters in biomedical text (α β γ δ etc.)
+      return re.search(r"[\u0370-\u03FF]", txt) is not None
+
+   def is_roman_numeral(txt) :
+      return re.fullmatch(r"[IVXLCDM]+", txt) is not None
+
+   def is_chem_like(txt) :
+      # Heuristic: token with mixture of letters+digits and some chemical punctuation.
+      # Examples: 5-FU, H2O2, IL-2, TNF-α, N-acetylcysteine
+      if re.search(r"[A-Za-z]", txt) is None :
+         return False
+      if re.search(r"[0-9]", txt) is None :
+         return False
+      return re.search(r"[-+/().,]", txt) is not None
+
+   def has_stereo(txt) :
+      # (R) / (S) stereochemistry marker
+      return re.fullmatch(r"\([RS]\)", txt) is not None
+
+   def is_dose_unit(txt) :
+      # Keep small on purpose; add more if needed.
+      return txt in {
+         "mg", "g", "mcg", "ug", "µg", "kg",
+         "ml", "l", "mm", "cm",
+         "%", "mmhg"
+      }
+   # ----------------
+
+   # -- ADDITION 7 --
+   # Character n-grams (c3/c4/c5) for current token.
+   # This is a strong feature family for biomedical NER.
+   def limited_char_ngrams(txt, n, limit=8) :
+      if len(txt) < n :
+         return []
+      grams = []
+      for j in range(0, len(txt) - n + 1) :
+         grams.append(txt[j:j+n])
+      if len(grams) <= limit :
+         return grams
+      # keep a few from start + end to cap feature explosion
+      keep = grams[:limit//2] + grams[-(limit - limit//2):]
+      return keep
+   # ----------------
+
+   # -- ADDITION 8 --
+   # Multi-token dictionary span matches.
+   # Token-level dictionary hits miss multiword drug names (e.g., "acetyl salicylic acid").
+   # We precompute span-level marks (Begin/Inside/End) for 2..5 token spans.
+   span_marks = {i: [] for i in range(len(tokens))}
+   if ENABLE_ADDITION_8 :
+      max_span_len = 5
+      for start in range(len(tokens)) :
+         for span_len in range(2, max_span_len+1) :
+            end = start + span_len - 1
+            if end >= len(tokens) :
+               break
+            phrase = " ".join(tokens[k].text.lower() for k in range(start, end+1))
+            found, val = dicts.find(phrase, 'external')
+            if not found :
+               continue
+            # begin token
+            span_marks[start].append(f"dictSpanBeginLen={span_len}")
+            for c in val :
+               span_marks[start].append(f"dictSpanBeginType={c}")
+            # inside tokens
+            for mid in range(start+1, end) :
+               span_marks[mid].append(f"dictSpanInsideLen={span_len}")
+               for c in val :
+                  span_marks[mid].append(f"dictSpanInsideType={c}")
+            # end token
+            span_marks[end].append(f"dictSpanEndLen={span_len}")
+            for c in val :
+               span_marks[end].append(f"dictSpanEndType={c}")
    # ----------------
 
    # for each token, generate list of features and add it to the result
@@ -52,6 +140,16 @@ def extract_sentence_features(tokens, dicts) :
 
       # -- ADDITION 1 --
       tokenFeatures.append("shape="+word_shape(t))
+      # -- ADDITION 6 --
+      t_norm = norm_digits(t.lower())
+      tokenFeatures.append("normDigits="+t_norm)
+      if has_greek(t) : tokenFeatures.append("hasGreek")
+      if is_roman_numeral(t) : tokenFeatures.append("isRoman")
+      if is_chem_like(t) : tokenFeatures.append("isChemLike")
+      if has_stereo(t) : tokenFeatures.append("hasStereo")
+      if is_dose_unit(t.lower()) : tokenFeatures.append("isDoseUnit")
+      # ----------------
+
       tl = len(t)
       if tl <= 3 : tokenFeatures.append("len<=3")
       elif tl <= 6 : tokenFeatures.append("len<=6")
@@ -91,6 +189,13 @@ def extract_sentence_features(tokens, dicts) :
           tokenFeatures.append("inDictPart")
           for c in val : tokenFeatures.append("externalpart="+c)
 
+      # -- ADDITION 8 --
+      # Add span-level dictionary marks for this token position.
+      if ENABLE_ADDITION_8 :
+         for m in span_marks.get(i, []) :
+            tokenFeatures.append(m)
+      # -----------------
+
       if i>0 :
          tPrev_obj = tokens[i-1]
          tPrev = tPrev_obj.text
@@ -120,8 +225,20 @@ def extract_sentence_features(tokens, dicts) :
          # -----------------
 
          # -- ADDITION 4 ---
-         # tokenFeatures.append("posPrev=" + tPrev_obj.tag_)
-         # tokenFeatures.append("uniposPrev=" + tPrev_obj.pos_)
+         # Add POS/lemma for context tokens too (helps boundary decisions).
+         tokenFeatures.append("posPrev=" + tPrev_obj.tag_)
+         tokenFeatures.append("uniposPrev=" + tPrev_obj.pos_)
+         tokenFeatures.append("lemmaPrev=" + tPrev_obj.lemma_)
+         # -----------------
+
+         # -- ADDITION 6 --
+         tPrev_norm = norm_digits(tPrev.lower())
+         tokenFeatures.append("normDigitsPrev="+tPrev_norm)
+         if has_greek(tPrev) : tokenFeatures.append("hasGreekPrev")
+         if is_roman_numeral(tPrev) : tokenFeatures.append("isRomanPrev")
+         if is_chem_like(tPrev) : tokenFeatures.append("isChemLikePrev")
+         if has_stereo(tPrev) : tokenFeatures.append("hasStereoPrev")
+         if is_dose_unit(tPrev.lower()) : tokenFeatures.append("isDoseUnitPrev")
          # -----------------
 
          found,val = dicts.find(tPrev.lower(), 'external')
@@ -169,8 +286,20 @@ def extract_sentence_features(tokens, dicts) :
          # -----------------
 
          # -- ADDITION 4 ---
-         # tokenFeatures.append("posPrev=" + tPrev_obj.tag_)
-         # tokenFeatures.append("uniposPrev=" + tPrev_obj.pos_)
+         # Add POS/lemma for context tokens too (window -2).
+         tokenFeatures.append("posPrev2=" + tPrev2_obj.tag_)
+         tokenFeatures.append("uniposPrev2=" + tPrev2_obj.pos_)
+         tokenFeatures.append("lemmaPrev2=" + tPrev2_obj.lemma_)
+         # -----------------
+
+         # -- ADDITION 6 --
+         tPrev2_norm = norm_digits(tPrev2.lower())
+         tokenFeatures.append("normDigitsPrev2="+tPrev2_norm)
+         if has_greek(tPrev2) : tokenFeatures.append("hasGreekPrev2")
+         if is_roman_numeral(tPrev2) : tokenFeatures.append("isRomanPrev2")
+         if is_chem_like(tPrev2) : tokenFeatures.append("isChemLikePrev2")
+         if has_stereo(tPrev2) : tokenFeatures.append("hasStereoPrev2")
+         if is_dose_unit(tPrev2.lower()) : tokenFeatures.append("isDoseUnitPrev2")
          # -----------------
 
          found,val = dicts.find(tPrev2.lower(), 'external')
@@ -215,9 +344,21 @@ def extract_sentence_features(tokens, dicts) :
          # -----------------
 
          # -- ADDITION 4 --
-         # tokenFeatures.append("posNext=" + tNext_obj.tag_)
-         # tokenFeatures.append("uniposNext=" + tNext_obj.pos_)
+         # Add POS/lemma for context tokens too.
+         tokenFeatures.append("posNext=" + tNext_obj.tag_)
+         tokenFeatures.append("uniposNext=" + tNext_obj.pos_)
+         tokenFeatures.append("lemmaNext=" + tNext_obj.lemma_)
          # ----------------
+
+         # -- ADDITION 6 --
+         tNext_norm = norm_digits(tNext.lower())
+         tokenFeatures.append("normDigitsNext="+tNext_norm)
+         if has_greek(tNext) : tokenFeatures.append("hasGreekNext")
+         if is_roman_numeral(tNext) : tokenFeatures.append("isRomanNext")
+         if is_chem_like(tNext) : tokenFeatures.append("isChemLikeNext")
+         if has_stereo(tNext) : tokenFeatures.append("hasStereoNext")
+         if is_dose_unit(tNext.lower()) : tokenFeatures.append("isDoseUnitNext")
+         # -----------------
 
          found,val = dicts.find(tNext.lower(), 'external')
          if found:
@@ -252,7 +393,7 @@ def extract_sentence_features(tokens, dicts) :
             if tNext2.isupper() : tokenFeatures.append("isUpperNext2")
             if tNext2.istitle() : tokenFeatures.append("isTitleNext2")
             if tNext2.isdigit() : tokenFeatures.append("isDigitNext2")
-            if '-' in tNext2 : tokenFeatures.append("hasDashNext")
+            if '-' in tNext2 : tokenFeatures.append("hasDashNext2")
             if re.search('[0-9]',tNext2) : tokenFeatures.append("hasDigitNext2")
             # -- ADDITION 1 --
             if '(' in tNext2 or ')' in tNext2 : tokenFeatures.append("hasParenNext2")
@@ -263,9 +404,21 @@ def extract_sentence_features(tokens, dicts) :
             # -----------------
 
             # -- ADDITION 4 --
-            # tokenFeatures.append("posNext=" + tNext2_obj.tag_)
-            # tokenFeatures.append("uniposNext=" + tNext2_obj.pos_)
+            # Add POS/lemma for context tokens too (window +2).
+            tokenFeatures.append("posNext2=" + tNext2_obj.tag_)
+            tokenFeatures.append("uniposNext2=" + tNext2_obj.pos_)
+            tokenFeatures.append("lemmaNext2=" + tNext2_obj.lemma_)
             # ----------------
+
+            # -- ADDITION 6 --
+            tNext2_norm = norm_digits(tNext2.lower())
+            tokenFeatures.append("normDigitsNext2="+tNext2_norm)
+            if has_greek(tNext2) : tokenFeatures.append("hasGreekNext2")
+            if is_roman_numeral(tNext2) : tokenFeatures.append("isRomanNext2")
+            if is_chem_like(tNext2) : tokenFeatures.append("isChemLikeNext2")
+            if has_stereo(tNext2) : tokenFeatures.append("hasStereoNext2")
+            if is_dose_unit(tNext2.lower()) : tokenFeatures.append("isDoseUnitNext2")
+            # -----------------
 
             found,val = dicts.find(tNext2.lower(), 'external')
             if found:
@@ -300,36 +453,61 @@ def extract_sentence_features(tokens, dicts) :
 
 def extract_features(datafile, outfile) :
 
-    # load dictionaries
-    dicts = Dictionaries(os.path.join(paths.RESOURCES,"dictionaries.json"))
+   # load dictionaries
+   dicts = Dictionaries(os.path.join(paths.RESOURCES, "dictionaries.json"))
 
-    # open output file
-    outf = open(outfile, "w")
-    
-    # create analyzer. We don't need the parser now, it will be faster if disabled
-    # -- ADDITION 2, 3 -- 
-    # 2: add the tagger
-    # 3: add the lemmatizer and attribute ruler
-    nlp = spacy.load("en_core_web_trf", enable=["tokenizer", "tagger", "attribute_ruler", "lemmatizer"])
-    # -----------------
-    
-    # parse XML file, obtaining a DOM tree
-    tree = parse(datafile)
+   # open output file
+   outf = open(outfile, "w")
 
-    # process each sentence in the file
-    sentences = tree.getElementsByTagName("sentence")
-    for s in sentences :
-      sid = s.attributes["id"].value   # get sentence id
+   # create analyzer. We don't need parser/ner here; disabling them speeds up feature extraction.
+   # -- ADDITION 2, 3 --
+   # 2: add the tagger
+   # 3: add the lemmatizer and attribute ruler
+   #
+   # NOTE: spaCy language models are separate packages. If the transformer model
+   # is not installed, fall back to the small model so experiments can run.
+   # Install with (inside your venv):
+   #   python -m spacy download en_core_web_trf
+   #   python -m spacy download en_core_web_sm
+   model_candidates = ["en_core_web_trf", "en_core_web_sm"]
+   nlp = None
+   last_err = None
+   for model_name in model_candidates:
+      try:
+         nlp = spacy.load(
+            model_name,
+            enable=["tokenizer", "tagger", "attribute_ruler", "lemmatizer"],
+            disable=["parser", "ner"],
+         )
+         break
+      except OSError as e:
+         last_err = e
+         continue
+
+   if nlp is None:
+      print("ERROR: No spaCy English model found.", file=sys.stderr)
+      print("Tried: " + ", ".join(model_candidates), file=sys.stderr)
+      print("Install one of them with: python -m spacy download <model>", file=sys.stderr)
+      raise last_err
+   # -----------------
+
+   # parse XML file, obtaining a DOM tree
+   tree = parse(datafile)
+
+   # process each sentence in the file
+   sentences = tree.getElementsByTagName("sentence")
+   for s in sentences:
+      sid = s.attributes["id"].value  # get sentence id
       print(f"extracting sentence {sid}        \r", end="")
       spans = []
-      stext = s.attributes["text"].value   # get sentence text
-      entities = s.getElementsByTagName("entity") # get gold standard entities
-      for e in entities :
+      stext = s.attributes["text"].value  # get sentence text
+      entities = s.getElementsByTagName("entity")  # get gold standard entities
+      for e in entities:
          # for discontinuous entities, we only get the first span
          # (will not work, but there are few of them)
-         (start,end) = e.attributes["charOffset"].value.split(";")[0].split("-")
-         typ =  e.attributes["type"].value
-         spans.append((int(start),int(end),typ))
+         (start, end) = e.attributes["charOffset"].value.split(";")[0].split("-")
+         typ = e.attributes["type"].value
+         spans.append((int(start), int(end), typ))
 
       # convert the sentence to a list of tokens
       tokens = nlp(stext)
@@ -337,19 +515,28 @@ def extract_features(datafile, outfile) :
       features = extract_sentence_features(tokens, dicts)
 
       # print features in format expected by CRF/SVM/MEM trainers
-      for i,tk in enumerate(tokens) :
+      for i, tk in enumerate(tokens):
          # see if the token is part of an entity
-         tks,tke = tk.idx, tk.idx+len(tk.text)
+         tks, tke = tk.idx, tk.idx + len(tk.text)
          # get gold standard tag for this token
          tag = get_label(tks, tke, spans)
          # print feature vector for this token
-         print (sid, tk.text, tks, tke-1, tag, "\t".join(features[i]), sep='\t', file=outf)
+         print(
+            sid,
+            tk.text,
+            tks,
+            tke - 1,
+            tag,
+            "\t".join(features[i]),
+            sep="\t",
+            file=outf,
+         )
 
       # blank line to separate sentences
       print(file=outf)
 
-    # close output file
-    outf.close()
+   # close output file
+   outf.close()
 
 ## --------- MAIN PROGRAM ----------- 
 ## --

@@ -47,6 +47,14 @@ Changes:
 **SVM**: 67.1%  
 **CRF**: 67.8%
 
+## Sixth Modification
+Changes:
+- Text normalization & biomedical regex/pattern flags.
+**MEM**: 66.5%
+**CRF**: 68.3%
+
+
+
 
 ---
 
