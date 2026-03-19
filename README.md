@@ -35,6 +35,14 @@ Changes:
 ## Fourth Modification
 Changes:
 - added prevPos, prevUniPos, postPos, postUniPos
+**MEM**: 65.8%  
+**SVM**: 67.4%  
+**CRF**: 67.5%
+
+## Fifth Modification
+Changes:
+- brought back to first modification
+**MEM**: 
 
 ---
 
