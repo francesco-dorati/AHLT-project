@@ -73,11 +73,11 @@ def extract_sentence_features(tokens, dicts) :
       # ----------------
 
       # -- ADDITION 2 ---
-      # tokenFeatures.append("pos=" + tk.tag_) # Detailed tag (e.g., NNP)
-      # tokenFeatures.append("unipos=" + tk.pos_) # Universal tag (e.g., PROPN)
+      tokenFeatures.append("pos=" + tk.tag_) # Detailed tag (e.g., NNP)
+      tokenFeatures.append("unipos=" + tk.pos_) # Universal tag (e.g., PROPN)
       # -----------------
       # -- ADDITION 3 ---
-      # tokenFeatures.append("lemma=" + tk.lemma_)
+      tokenFeatures.append("lemma=" + tk.lemma_)
       # -----------------
 
       found,val = dicts.find(t.lower(), 'external')
@@ -209,11 +209,10 @@ def extract_features(datafile, outfile) :
     outf = open(outfile, "w")
     
     # create analyzer. We don't need the parser now, it will be faster if disabled
-    # -- ADDITION 2, 3, 5 -- 
+    # -- ADDITION 2, 3 -- 
     # 2: add the tagger
-    # 3: add the lemmatizer and attribute_ruler
-    # 4: removed tagger, lemmatizer and attribute_ruler
-    nlp = spacy.load("en_core_web_trf", enable=["tokenizer"])
+    # 3: add the lemmatizer and attribute ruler
+    nlp = spacy.load("en_core_web_trf", enable=["tokenizer", "tagger", "attribute_ruler", "lemmatizer"])
     # -----------------
     
     # parse XML file, obtaining a DOM tree
