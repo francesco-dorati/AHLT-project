@@ -72,6 +72,14 @@ def extract_sentence_features(tokens, dicts) :
       if ',' in t : tokenFeatures.append("hasComma")
       # ----------------
 
+      # -- ADDITION 2 ---
+      tokenFeatures.append("pos=" + tk.tag_) # Detailed tag (e.g., NNP)
+      tokenFeatures.append("unipos=" + tk.pos_) # Universal tag (e.g., PROPN)
+      # -----------------
+      # -- ADDITION 3 ---
+      tokenFeatures.append("lemma=" + tk.lemma_)
+      # -----------------
+
       found,val = dicts.find(t.lower(), 'external')
       if found:
          # -- ADDITION 1 --
@@ -84,7 +92,8 @@ def extract_sentence_features(tokens, dicts) :
           for c in val : tokenFeatures.append("externalpart="+c)
 
       if i>0 :
-         tPrev = tokens[i-1].text
+         tPrev_obj = tokens[i-1]
+         tPrev = tPrev_obj.text
          tokenFeatures.append("formPrev="+tPrev)
          tokenFeatures.append("formlowerPrev="+tPrev.lower())
          # -- ADDITION 1 --
@@ -109,6 +118,12 @@ def extract_sentence_features(tokens, dicts) :
          if '+' in tPrev : tokenFeatures.append("hasPlusPrev")
          if ',' in tPrev : tokenFeatures.append("hasCommaPrev")
          # -----------------
+
+         # -- ADDITION 4 ---
+         tokenFeatures.append("posPrev=" + tPrev_obj.tag_)
+         tokenFeatures.append("uniposPrev=" + tPrev_obj.pos_)
+         # -----------------
+
          found,val = dicts.find(tPrev.lower(), 'external')
          if found:
              # -- ADDITION 1 --
@@ -125,7 +140,8 @@ def extract_sentence_features(tokens, dicts) :
          tokenFeatures.append("BoS")
 
       if i<len(tokens)-1 :
-         tNext = tokens[i+1].text
+         tNext_obj = tokens[i+1]
+         tNext = tNext_obj.text
          tokenFeatures.append("formNext="+tNext)
          tokenFeatures.append("formlowerNext="+tNext.lower())
          # -- ADDITION 1 --
@@ -148,6 +164,12 @@ def extract_sentence_features(tokens, dicts) :
          if '+' in tNext : tokenFeatures.append("hasPlusNext")
          if ',' in tNext : tokenFeatures.append("hasCommaNext")
          # -----------------
+
+         # -- ADDITION 4 --
+         tokenFeatures.append("posNext=" + tNext_obj.tag_)
+         tokenFeatures.append("uniposNext=" + tNext_obj.pos_)
+         # ----------------
+
          found,val = dicts.find(tNext.lower(), 'external')
          if found:
             # -- ADDITION 1 --
@@ -187,7 +209,11 @@ def extract_features(datafile, outfile) :
     outf = open(outfile, "w")
     
     # create analyzer. We don't need the parser now, it will be faster if disabled
-    nlp = spacy.load("en_core_web_trf", enable=["tokenizer"])
+    # -- ADDITION 2, 3 -- 
+    # 2: add the tagger
+    # 3: add the lemmatizer and attribute ruler
+    nlp = spacy.load("en_core_web_trf", enable=["tokenizer", "tagger", "attribute_ruler", "lemmatizer"])
+    # -----------------
     
     # parse XML file, obtaining a DOM tree
     tree = parse(datafile)

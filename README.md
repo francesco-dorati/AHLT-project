@@ -4,7 +4,7 @@
 **CRF**: 67.9%  
 
 ## First Modification
-Added features:
+Changes:
 - prefixes 2, 3, 4
 - suffixes 2
 - word shape
@@ -15,6 +15,26 @@ Added features:
 **MEM**: 65.9%  
 **SVM**: 67.5%  
 **CRF**: 67.9%  
+
+## Second Modification
+Changes:
+- added tagger 
+- added pos, unipos features
+**MEM**: 65.6%  
+**SVM**: 67.4%  
+**CRF**: 67.9%  
+
+## Third Modification
+Changes:
+- added lemma and attribute_ruler
+- added lemma feature
+**MEM**: 66.2%  
+**SVM**: 67.5%  
+**CRF**: 67.9%
+
+## Fourth Modification
+Changes:
+- added prevPos, prevUniPos, postPos, postUniPos
 
 ---
 
