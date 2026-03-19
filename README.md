@@ -44,6 +44,9 @@ Changes:
 - brought back to third modification
 - improved context: added prev2 and next2 features 
 **MEM**: 66.3%
+**SVM**: 67.1%  
+**CRF**: 67.8%
+
 
 ---
 
