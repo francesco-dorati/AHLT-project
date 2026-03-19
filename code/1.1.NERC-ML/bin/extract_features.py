@@ -20,10 +20,11 @@ def get_label(tks, tke, spans) :
 ## -- Extract features for each token in given sentence
 
 def extract_sentence_features(tokens, dicts) :
-   # Ablation toggles (requested): keep ADDITION 2/3/4/5 and 6 enabled,
-   # but DISABLE ADDITION 7 and 8 to test ADDITION 6 impact in isolation.
-   ENABLE_ADDITION_7 = False
-   ENABLE_ADDITION_8 = False
+   # Ablation toggles (requested): keep ADDITION 2/3/4/5 and 6 enabled.
+   # Current experiment: ENABLE ADDITION 7 (char n-grams) while keeping ADDITION 6 on.
+   # Now also ENABLE ADDITION 8 (multi-token dictionary span matches).
+   ENABLE_ADDITION_7 = True
+   ENABLE_ADDITION_8 = True
 
    # -- ADDITION 1 --
    def word_shape(txt) :
