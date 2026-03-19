@@ -42,7 +42,8 @@ Changes:
 ## Fifth Modification
 Changes:
 - brought back to third modification
-**MEM**: 
+- improved context: added prev2 and next2 features 
+**MEM**: 66.3%
 
 ---
 

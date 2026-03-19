@@ -139,6 +139,55 @@ def extract_sentence_features(tokens, dicts) :
       else :
          tokenFeatures.append("BoS")
 
+      # -- ADDITION 5: Window -2 ---
+      if i>1 :
+         tPrev2_obj = tokens[i-2]
+         tPrev2 = tPrev2_obj.text
+         tokenFeatures.append("formPrev2="+tPrev2)
+         tokenFeatures.append("formlowerPrev2="+tPrev2.lower())
+         # -- ADDITION 1 --
+         tokenFeatures.append("pref2Prev2="+tPrev2[:2])
+         tokenFeatures.append("pref3Prev2="+tPrev2[:3])
+         tokenFeatures.append("pref4Prev2="+tPrev2[:4])
+         # -----------------
+         tokenFeatures.append("suf3Prev2="+tPrev2[-3:])
+         tokenFeatures.append("suf4Prev2="+tPrev2[-4:])
+         # -- ADDITION 1 --
+         tokenFeatures.append("shapePrev2="+word_shape(tPrev2))
+         # -----------------
+         if tPrev2.isupper() : tokenFeatures.append("isUpperPrev2")
+         if tPrev2.istitle() : tokenFeatures.append("isTitlePrev2")
+         if tPrev2.isdigit() : tokenFeatures.append("isDigitPrev2")
+         if '-' in tPrev2 : tokenFeatures.append("hasDashPrev2")
+         if re.search('[0-9]',tPrev2) : tokenFeatures.append("hasDigitPrev2")
+         # -- ADDITION 1 --
+         if '(' in tPrev2 or ')' in tPrev2 : tokenFeatures.append("hasParenPrev2")
+         if '/' in tPrev2 : tokenFeatures.append("hasSlashPrev2")
+         if '.' in tPrev2 : tokenFeatures.append("hasDotPrev2")
+         if '+' in tPrev2 : tokenFeatures.append("hasPlusPrev2")
+         if ',' in tPrev2 : tokenFeatures.append("hasCommaPrev2")
+         # -----------------
+
+         # -- ADDITION 4 ---
+         # tokenFeatures.append("posPrev=" + tPrev_obj.tag_)
+         # tokenFeatures.append("uniposPrev=" + tPrev_obj.pos_)
+         # -----------------
+
+         found,val = dicts.find(tPrev2.lower(), 'external')
+         if found:
+             # -- ADDITION 1 --
+             tokenFeatures.append("inDictFullPrev2")
+             # -----------------
+             for c in val : tokenFeatures.append("externalPrev2="+c)
+         found,val = dicts.find(tPrev2.lower(), 'externalpart')
+         if found:
+             # -- ADDITION 1 --
+             tokenFeatures.append("inDictPartPrev2")
+             # -----------------
+             for c in val : tokenFeatures.append("externalpartPrev2="+c)
+      else :
+         tokenFeatures.append("BoS2")
+
       if i<len(tokens)-1 :
          tNext_obj = tokens[i+1]
          tNext = tNext_obj.text
@@ -184,6 +233,55 @@ def extract_sentence_features(tokens, dicts) :
             for c in val : tokenFeatures.append("externalpartNext="+c)
       else:
          tokenFeatures.append("EoS")
+
+   
+      # -- ADDITION 5: Window +2 ---
+      if i < len(tokens) - 2 :
+            tNext2_obj = tokens[i+2]
+            tNext2 = tNext2_obj.text
+            tokenFeatures.append("formNext2="+tNext2)
+            tokenFeatures.append("formlowerNext2="+tNext2.lower())
+            # -- ADDITION 1 --
+            tokenFeatures.append("pref2Next2="+tNext2[:2])
+            tokenFeatures.append("pref3Next2="+tNext2[:3])
+            tokenFeatures.append("pref4Next2="+tNext2[:4])
+            # -----------------
+            tokenFeatures.append("suf3Next2="+tNext2[-3:])
+            tokenFeatures.append("suf4Next2="+tNext2[-4:])
+            tokenFeatures.append("shapeNext2="+word_shape(tNext2))
+            if tNext2.isupper() : tokenFeatures.append("isUpperNext2")
+            if tNext2.istitle() : tokenFeatures.append("isTitleNext2")
+            if tNext2.isdigit() : tokenFeatures.append("isDigitNext2")
+            if '-' in tNext2 : tokenFeatures.append("hasDashNext")
+            if re.search('[0-9]',tNext2) : tokenFeatures.append("hasDigitNext2")
+            # -- ADDITION 1 --
+            if '(' in tNext2 or ')' in tNext2 : tokenFeatures.append("hasParenNext2")
+            if '/' in tNext2 : tokenFeatures.append("hasSlashNext2")
+            if '.' in tNext2 : tokenFeatures.append("hasDotNext2")
+            if '+' in tNext2 : tokenFeatures.append("hasPlusNext2")
+            if ',' in tNext2 : tokenFeatures.append("hasCommaNext2")
+            # -----------------
+
+            # -- ADDITION 4 --
+            # tokenFeatures.append("posNext=" + tNext2_obj.tag_)
+            # tokenFeatures.append("uniposNext=" + tNext2_obj.pos_)
+            # ----------------
+
+            found,val = dicts.find(tNext2.lower(), 'external')
+            if found:
+               # -- ADDITION 1 --
+               tokenFeatures.append("inDictFullNext2")
+               # -----------------
+               for c in val : tokenFeatures.append("externalNext2="+c)
+            found,val = dicts.find(tNext2.lower(), 'externalpart')
+            if found:
+               # -- ADDITION 1 --
+               tokenFeatures.append("inDictPartNext2")
+               # -----------------
+               for c in val : tokenFeatures.append("externalpartNext2="+c)
+      else:
+            tokenFeatures.append("EoS2")
+
 
       # -- ADDITION 1 --
       if i == 0 : tokenFeatures.append("isFirst")
