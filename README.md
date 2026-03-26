@@ -52,6 +52,22 @@ Changes:
 - Text normalization & biomedical regex/pattern flags.
 **MEM**: 66.5%
 **CRF**: 68.3%
+**SVM**: 67.2%  
+
+## Seventh Modification
+Changes:
+- Character n-grams (c3/c4/c5) for current token.
+**MEM**: 66.5%
+**CRF**: 68.0%
+**SVM**: 67.2%  
+
+## Eighth Modification
+Changes:
+- Multi-token dictionary span matches.
+- Token-level dictionary hits miss multiword drug names (e.g., "acetyl salicylic acid")..
+**MEM**: 66.1%
+**CRF**: 67.5%
+**SVM**: missing  
 
 
 
