@@ -1,0 +1,30 @@
+read params
+Training SVM model...
+[LibSVM]..*.*
+optimization finished, #iter = 3320
+obj = -228.708788, rho = 0.465637
+nSV = 1835, nBSV = 269
+.*
+optimization finished, #iter = 1676
+obj = -115.935179, rho = 0.137083
+nSV = 980, nBSV = 138
+.*.*
+optimization finished, #iter = 2100
+obj = -132.518520, rho = 0.216703
+nSV = 1253, nBSV = 146
+*
+optimization finished, #iter = 519
+obj = -38.235256, rho = -0.432004
+nSV = 369, nBSV = 64
+*.*
+optimization finished, #iter = 1120
+obj = -67.617702, rho = 0.219305
+nSV = 707, nBSV = 63
+*
+optimization finished, #iter = 828
+obj = -51.958199, rho = -0.019161
+nSV = 528, nBSV = 65
+*.*
+optimization finished, #iter = 1476
+obj = -77.248408, rho = 0.213993
+nSV = 907, nBSV = 56

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/khairallah/Work_Environment/UPC/Advanced_Human_Tech/AHLT-project/code/1.1.NERC-ML/bin/run.py", line 5, in <module>
+    from extract_features import extract_features
+  File "/home/khairallah/Work_Environment/UPC/Advanced_Human_Tech/AHLT-project/code/1.1.NERC-ML/bin/extract_features.py", line 6, in <module>
+    import spacy
+ModuleNotFoundError: No module named 'spacy'

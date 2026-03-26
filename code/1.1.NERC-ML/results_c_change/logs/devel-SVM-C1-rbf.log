@@ -1,0 +1,148 @@
+read params
+Training SVM model...
+[LibSVM]..*.*
+optimization finished, #iter = 3631
+obj = -245.589521, rho = 0.487556
+nSV = 1755, nBSV = 59
+.*
+optimization finished, #iter = 1903
+obj = -121.003284, rho = 0.155602
+nSV = 950, nBSV = 17
+.*.*
+optimization finished, #iter = 2343
+obj = -137.783566, rho = 0.234615
+nSV = 1198, nBSV = 22
+*
+optimization finished, #iter = 661
+obj = -43.146296, rho = -0.331649
+nSV = 389, nBSV = 15
+*.*
+optimization finished, #iter = 1218
+obj = -70.162273, rho = 0.249779
+nSV = 681, nBSV = 9
+*
+optimization finished, #iter = 920
+obj = -54.283942, rho = 0.008725
+nSV = 514, nBSV = 7
+.*
+optimization finished, #iter = 1526
+obj = -79.535854, rho = 0.215117
+nSV = 877, nBSV = 5
+..*.*
+optimization finished, #iter = 3447
+obj = -339.191920, rho = 0.718051
+nSV = 1828, nBSV = 118
+.*.*
+optimization finished, #iter = 2561
+obj = -255.306912, rho = -0.230326
+nSV = 1359, nBSV = 130
+..*..*
+optimization finished, #iter = 4042
+obj = -449.784206, rho = -0.300545
+nSV = 2059, nBSV = 229
+*
+optimization finished, #iter = 756
+obj = -50.075974, rho = -0.572338
+nSV = 459, nBSV = 22
+.*
+optimization finished, #iter = 1806
+obj = -160.963146, rho = -0.012536
+nSV = 1019, nBSV = 65
+*.*
+optimization finished, #iter = 1087
+obj = -89.768956, rho = -0.247375
+nSV = 629, nBSV = 31
+.*.*
+optimization finished, #iter = 2205
+obj = -191.685493, rho = -0.069535
+nSV = 1212, nBSV = 74
+.....*...*
+optimization finished, #iter = 8472
+obj = -1054.498119, rho = 0.186037
+nSV = 4520, nBSV = 678
+.*.*
+optimization finished, #iter = 2195
+obj = -181.778072, rho = -0.092742
+nSV = 1098, nBSV = 49
+*
+optimization finished, #iter = 476
+obj = -42.446380, rho = -0.350414
+nSV = 263, nBSV = 15
+*
+optimization finished, #iter = 955
+obj = -90.295862, rho = 0.176351
+nSV = 514, nBSV = 25
+*
+optimization finished, #iter = 748
+obj = -78.519230, rho = -0.103701
+nSV = 408, nBSV = 25
+*.*
+optimization finished, #iter = 1337
+obj = -105.211504, rho = 0.055725
+nSV = 759, nBSV = 22
+..*..*
+optimization finished, #iter = 4241
+obj = -340.956124, rho = 0.533108
+nSV = 2464, nBSV = 193
+*
+optimization finished, #iter = 734
+obj = -47.550585, rho = -0.500454
+nSV = 428, nBSV = 17
+*.*
+optimization finished, #iter = 1489
+obj = -126.982552, rho = 0.096252
+nSV = 823, nBSV = 38
+*.*
+optimization finished, #iter = 1185
+obj = -77.623396, rho = -0.117152
+nSV = 662, nBSV = 18
+.*.*
+optimization finished, #iter = 2699
+obj = -283.598545, rho = 0.163339
+nSV = 1405, nBSV = 140
+....*...*
+optimization finished, #iter = 7151
+obj = -1016.090291, rho = 0.292304
+nSV = 3926, nBSV = 745
+*.*
+optimization finished, #iter = 682
+obj = -60.399345, rho = 0.619631
+nSV = 361, nBSV = 30
+*
+optimization finished, #iter = 476
+obj = -50.056812, rho = 0.379072
+nSV = 256, nBSV = 25
+*
+optimization finished, #iter = 829
+obj = -57.270152, rho = 0.523217
+nSV = 480, nBSV = 29
+*.*
+optimization finished, #iter = 1413
+obj = -85.533810, rho = 0.938781
+nSV = 951, nBSV = 55
+*.*
+optimization finished, #iter = 1008
+obj = -138.745245, rho = -0.196956
+nSV = 537, nBSV = 82
+.*.*
+optimization finished, #iter = 2062
+obj = -243.792809, rho = -0.275086
+nSV = 1073, nBSV = 127
+..*.*
+optimization finished, #iter = 3955
+obj = -374.037093, rho = 0.348004
+nSV = 2261, nBSV = 226
+*.*
+optimization finished, #iter = 1418
+obj = -123.621675, rho = -0.118906
+nSV = 746, nBSV = 38
+.*.*
+optimization finished, #iter = 2210
+obj = -257.954079, rho = 0.692554
+nSV = 1299, nBSV = 172
+....*..*
+optimization finished, #iter = 6650
+obj = -1014.357918, rho = 0.249949
+nSV = 3647, nBSV = 775
+Total nSV = 18449
+Running SVM model...

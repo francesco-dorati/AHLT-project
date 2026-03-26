@@ -7,3 +7,12 @@ devel-CRF-c1_0.05-c2_0.1-it100.stats	CRF	c1=0.05 c2=0.1 it=100	86.9%	88.7%
 devel-CRF-c1_0.2-c2_0.7-it100.stats	CRF	c1=0.2 c2=0.7 it=100	87.1%	88.8%
 devel-MEM-C1-lbfgs-1500.stats	MEM	C=1 solver=lbfgs max_iter=1500	86.1%	87.8%
 devel-MEM-C2-lbfgs-2000.stats	MEM	C=2 solver=lbfgs max_iter=2000	85.9%	87.7%
+devel-CRF-c1_0.1-c2_1-it100.stats	CRF	c1=0.1 c2=1 max_iterations=100	74.1%	75.4%
+devel-CRF-c1_0.05-c2_0.5-it100.stats	CRF	c1=0.05 c2=0.5 max_iterations=100	74.0%	75.2%
+devel-CRF-c1_0.2-c2_1-it100.stats	CRF	c1=0.2 c2=1 max_iterations=100	74.3%	75.4%
+devel-MEM-C0.5-lbfgs-2000.stats	MEM	C=0.5 solver=lbfgs max_iter=2000	86.1%	87.5%
+devel-MEM-C1-lbfgs-2000.stats	MEM	C=1 solver=lbfgs max_iter=2000	86.1%	87.5%
+devel-MEM-C5-lbfgs-2000.stats	MEM	C=5 solver=lbfgs max_iter=2000	86.1%	87.5%
+devel-SVM-C0.5-rbf.stats	SVM	C=0.5 kernel=rbf	74.4%	75.5%
+devel-SVM-C1-rbf.stats	SVM	C=1 kernel=rbf	74.7%	75.7%
+devel-SVM-C5-rbf.stats	SVM	C=5 kernel=rbf	74.6%	75.8%

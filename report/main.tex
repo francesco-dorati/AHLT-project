@@ -1,0 +1,679 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{lmodern}
+\usepackage{tocloft}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage[outputdir=.]{minted}
+\usepackage{minted}
+
+\usepackage[normalem]{ulem}
+\newcommand{\redsout}[1]{\textcolor{red}{\sout{\textcolor{black}{#1}}}}
+
+\definecolor{mintedbg}{RGB}{245,245,240}
+\definecolor{mintedframe}{RGB}{210,210,210}
+\usemintedstyle{friendly}
+\setminted{
+    bgcolor=mintedbg,
+    frame=single,
+    framesep=2mm,
+    rulecolor=\color{mintedframe},
+    breaklines=true,
+    fontsize=\small
+}
+
+\pagestyle{fancy}
+\fancyfoot[C]{\thepage}
+\fancyhead[L]{\textit{Facultat d'Informàtica de Barcelona — Master's in Artificial Intelligence}\\ \textbf{Advanced Human Language Technologies (AHLT)}}
+\fancyhead[R]{2025--2026}
+\makeatletter
+\let\ps@plain\ps@fancy
+\makeatother
+
+\begin{document}
+\begin{titlepage}
+    \thispagestyle{fancy}
+    \centering
+    \vspace*{-0.8cm}
+
+    \begin{center}
+\begin{minipage}[c]{0.35\linewidth}
+    \centering
+    \includegraphics[height=1.8cm,keepaspectratio]{UPC-2.png}
+\end{minipage}%
+\begin{minipage}[c]{0.35\linewidth}
+    \centering
+    \includegraphics[height=1.8cm,keepaspectratio]{fib.png}
+\end{minipage}
+\end{center}
+
+
+  \vspace{0.2cm}
+{\LARGE\bfseries AHLT Lab Project Report \\[0.2cm]
+\textit{Task 1 — NERC (Named Entity Recognition and Classification)}}\\[0.6cm]
+
+
+\begin{center}
+    \textbf{\huge\scshape Contents}
+\end{center}
+
+\vspace{-0.8cm} 
+
+    \renewcommand{\contentsname}{}
+    \tableofcontents
+    \renewcommand{\cftsecfont}{\bfseries\Large}
+    \renewcommand{\cftsubsecfont}{\normalfont\large}
+    \setlength{\cftbeforesecskip}{10pt}
+    \setlength{\cftbeforesubsecskip}{5pt}
+
+   \vfill
+\begin{center}
+\begin{tabular}{@{}l @{\hspace{3cm}} l @{\hspace{3cm}} l@{}}
+\textbf{Authored by:} & \textbf{Lab Group:} & \textbf{Date:} \\
+Ralph Khairallah (Exchange)      & 10                     & \today \\
+\end{tabular}
+\end{center}
+
+\end{titlepage}
+
+\setcounter{page}{2}
+
+% =============================
+% AHLT Lab Project (Task 1: NERC)
+% Structure + table of contents aligned with AHLTLabProject.pdf.
+% Only System 1.1 is completed at this stage.
+% =============================
+
+\section{Introduction}
+\subsection{Context and objective}
+This project is based on SemEval-2013 Task 9 (biomedical information extraction).
+Task 1 is \textbf{Named Entity Recognition and Classification (NERC)}: identify drug mentions and classify them into the provided entity types.
+
+\subsection{Task 1 deliverables}
+The Task 1 report requires documenting experiments and best results for:
+\begin{itemize}
+    \item System 1.1: NERC with feature-based Machine Learning (features, algorithms, hyperparameters).
+    \item System 1.2: NERC with Neural Networks (input representations, architecture variants, hyperparameters).
+    \item System 1.3: NERC with LLMs (prompt adaptation, few-shot, fine-tuning).
+\end{itemize}
+and a final comparison (effort, computational cost, explainability/controllability, and performance).
+
+\section{Data, evaluation, and reproducibility}
+\subsection{Dataset}
+Briefly describe train/devel/test splits and label set.
+
+\subsection{Evaluation protocol}
+Briefly describe the official evaluator and the reported metrics.
+
+\subsection{Reproducibility}
+Summarize how to run the pipeline and where results are stored (e.g., \texttt{code/1.1.NERC-ML/results/} and \texttt{code/1.1.NERC-ML/results\_c\_change/}).
+
+\section{System 1.1 — NERC with Machine Learning (done)}
+\subsection{Baseline}
+\subsection{Feature engineering experiments}
+\subsection{Algorithm comparison (CRF, MEM, SVM)}
+\subsection{Hyperparameter experiments}
+\subsection{Best obtained results and discussion}
+
+\section{System 1.2 — NERC with Neural Networks (pending)}
+This section will be completed once the NN system experiments are done.
+
+\section{System 1.3 — NERC with LLMs (pending)}
+This section will be completed once the LLM prompt/few-shot/fine-tuning experiments are done.
+
+\section{Conclusions (pending)}
+Final comparison across 1.1/1.2/1.3 will be completed once all systems are implemented.
+
+\clearpage
+\iffalse
+% =============================
+% OLD TEMPLATE CONTENT (disabled)
+% =============================
+
+\section{Introduction}
+\subsection{Context}
+Agriculture monitoring increasingly relies on aerial imagery to assess crop health, vegetation density, and irrigation practices over large areas. In arid and semi-arid regions, a key practical task is to distinguish \textbf{irrigated olive groves} from \textbf{non-irrigated terrain}, since irrigated plots typically present stronger and more homogeneous vegetation responses than the surrounding dry soil.
+
+The dataset provided for this homework consists of three aerial RGB images showing intensive olive cultivation patterns. In these scenes, the irrigated areas are expected to appear greener and denser, while the background is often sandy/arid with a weaker green component.
+
+Figure~\ref{fig:inputs-hw3} shows the three input images used throughout the work.
+
+\begin{figure}[h!]
+    \centering
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{irrigated_1.png}
+        \caption{Input image 1.}
+        \label{fig:input-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{irrigated_2.png}
+        \caption{Input image 2.}
+        \label{fig:input-2}
+    \end{subfigure}
+
+    \vspace{0.3cm}
+
+    \begin{subfigure}[t]{0.70\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{irrigated_3.png}
+        \caption{Input image 3.}
+        \label{fig:input-3}
+    \end{subfigure}
+    \caption{Aerial RGB images provided for Homework 3 (irrigated olive grove segmentation).}
+    \label{fig:inputs-hw3}
+\end{figure}
+
+\subsection{Objective}
+The objective of this homework is to build an image-processing segmentation pipeline (restricted to techniques from this week: histogram analysis and thresholding) that produces a \textbf{binary mask} isolating irrigated olive grove areas from the non-irrigated background.
+
+In our approach, we:
+\begin{enumerate}
+    \item enhance vegetation using the \textbf{Excess Green Index (ExG)} computed from RGB channels,
+    \item select a threshold (using \textbf{Otsu} on the ExG distribution) to obtain an initial binary mask,
+    \item apply simple \textbf{morphological post-processing} to clean noise and fill small gaps,
+    \item evaluate results using a manually created \textbf{Ground Truth} mask and the \textbf{Intersection over Union (IoU)} metric.
+\end{enumerate}
+
+\section{Data and Problem Setup}
+\subsection{Provided Aerial Images}
+Three aerial RGB images are provided in PNG format. They show olive grove patterns with alternating vegetation and soil background. The images have different spatial resolutions (Table~\ref{tab:inputs-summary}), but all are standard 3-channel RGB data and can be processed with the same pipeline.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l c c c}
+\hline
+\textbf{File} & \textbf{Format} & \textbf{Channels} & \textbf{Resolution (W $\times$ H)} \\
+\hline
+\texttt{Irrigated land.png} & PNG & RGB & 1381 $\times$ 732 \\
+\texttt{Irrigated land 2.png} & PNG & RGB & 1092 $\times$ 651 \\
+\texttt{Irrigated land 3.png} & PNG & RGB & 801 $\times$ 606 \\
+\hline
+\end{tabular}
+\caption{Summary of the provided aerial images.}
+\label{tab:inputs-summary}
+\end{table}
+
+In this homework, the goal is to produce a binary mask of irrigated olive trees. Since irrigated vegetation is typically greener than the dry background, we focus on vegetation-sensitive indices derived from RGB values (Section~\ref{sec:pipeline}).
+
+\subsection{Ground Truth Masks}
+To evaluate segmentation quality, three binary Ground Truth (GT) masks were manually created using Photopea. In each GT mask:
+\begin{itemize}
+    \item \textbf{White pixels} correspond to the irrigated vegetation/tree areas (foreground).
+    \item \textbf{Black pixels} correspond to non-irrigated background (soil, roads, etc.).
+\end{itemize}
+
+The GT masks match the spatial size of their corresponding input images (same width and height), ensuring a pixel-to-pixel comparison for quantitative evaluation (IoU in Section~\ref{sec:evaluation}). Figure~\ref{fig:photopea-screenshot} shows a screenshot of the Photopea editing process used to manually draw the vegetation (foreground) regions.
+
+\begin{samepage}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\linewidth]{photopea_edit.png}
+    \caption{Screenshot of the manual Ground Truth creation process in Photopea. A semi-transparent brush layer is used to delineate irrigated vegetation regions.}
+    \label{fig:photopea-screenshot}
+\end{figure}
+\end{samepage}
+
+The correspondence used in this report is:
+
+\begin{itemize}
+    \item \texttt{gt1.png} $\leftrightarrow$ \texttt{Irrigated land.png}
+    \item \texttt{gt2.png} $\leftrightarrow$ \texttt{Irrigated land 2.png}
+    \item \texttt{gt3.png} $\leftrightarrow$ \texttt{Irrigated land 3.png}
+\end{itemize}
+
+Figure~\ref{fig:gt-masks} shows the three GT masks used for evaluation.
+
+\begin{samepage}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{gt_1.png}
+        \caption{GT for input image 1.}
+        \label{fig:gt-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{gt_2.png}
+        \caption{GT for input image 2.}
+        \label{fig:gt-2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{gt_3.png}
+        \caption{GT for input image 3.}
+        \label{fig:gt-3}
+    \end{subfigure}
+    \caption{Manually created Ground Truth masks (white = irrigated vegetation, black = background).}
+    \label{fig:gt-masks}
+\end{figure}
+
+\end{samepage}
+
+\section{Segmentation Pipeline}
+\label{sec:pipeline}
+\subsection{Vegetation Index: Excess Green (ExG)}
+The first step of the pipeline is to highlight vegetation using a simple index derived from RGB values. Since irrigated olive groves contain denser green vegetation than the arid background, we compute the \textbf{Excess Green Index (ExG)} per pixel:
+
+\begin{equation}
+\mathrm{ExG} = 2g - r - b
+\end{equation}
+
+where $r, g, b$ are the red, green and blue channels, respectively (normalized to the range $[0,1]$). The factor $2g$ emphasizes the green component, while subtracting $r$ and $b$ suppresses bright soil and residues. As a result, vegetation tends to have higher ExG values than the surrounding terrain.
+
+In practice, the input image is loaded in RGB, converted to floating point, and ExG is computed using a direct per-pixel formula. The following snippet is taken from \texttt{segmentation\_step1.py}:
+
+\begin{minted}[fontsize=\small, linenos]{python}
+image = Image.open(image_path).convert("RGB")
+rgb_uint8 = np.asarray(image)
+rgb = rgb_uint8.astype(np.float32) / 255.0
+
+r = rgb[..., 0]
+g = rgb[..., 1]
+b = rgb[..., 2]
+
+exg = 2.0 * g - r - b
+\end{minted}
+
+\begin{samepage}
+Figure~\ref{fig:exg-maps} shows the ExG visualizations for the three input images. In these maps, brighter regions correspond to higher ExG values, which generally coincide with greener (vegetated) areas.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{exg_1.png}
+        \caption{ExG for input image 1.}
+        \label{fig:exg-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{exg_2.png}
+        \caption{ExG for input image 2.}
+        \label{fig:exg-2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{exg_3.png}
+        \caption{ExG for input image 3.}
+        \label{fig:exg-3}
+    \end{subfigure}
+    \caption{Excess Green Index (ExG) visualizations for the three inputs. Brighter pixels indicate higher ExG and typically correspond to vegetation.}
+    \label{fig:exg-maps}
+\end{figure}
+\end{samepage}
+
+\subsection{Histogram Analysis}
+After computing ExG, a convenient way to understand the separability between vegetation and background is to inspect the \textbf{histogram of ExG values}. In many outdoor scenes, ExG produces a distribution where soil/background pixels concentrate at lower values and vegetation pixels shift toward higher values. This motivates a threshold-based segmentation.
+
+The histograms are computed by flattening the ExG image and counting values across fixed bins (256 bins in our implementation). Figure~\ref{fig:exg-hists} shows the ExG histograms for the three images.
+
+\begin{samepage}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{exg_hist_1.png}
+        \caption{Histogram for input image 1.}
+        \label{fig:hist-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{exg_hist_2.png}
+        \caption{Histogram for input image 2.}
+        \label{fig:hist-2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{exg_hist_3.png}
+        \caption{Histogram for input image 3.}
+        \label{fig:hist-3}
+    \end{subfigure}
+    \caption{ExG value histograms (256 bins) used to guide threshold selection.}
+    \label{fig:exg-hists}
+\end{figure}
+\end{samepage}
+
+\subsection{Thresholding (Otsu / Manual)}
+To obtain a binary segmentation from the ExG map, we apply a global threshold $T$ and classify pixels as vegetation when:
+
+\begin{equation}
+\text{mask}(x,y) = \begin{cases}
+1 & \text{if } \mathrm{ExG}(x,y) \geq T \\
+0 & \text{otherwise}
+\end{cases}
+\end{equation}
+
+In this homework we use \textbf{Otsu's method} to automatically select $T$ from the ExG histogram. Otsu selects the threshold that maximizes the \emph{between-class variance} (equivalently, it finds the split that best separates two classes in the 1D distribution).
+
+The following snippet (from \texttt{segmentation\_step1.py}) shows the thresholding step and the creation of the initial binary mask:
+
+\begin{minted}[fontsize=\small, linenos]{python}
+threshold = otsu_threshold(exg)
+mask = exg >= threshold
+\end{minted}
+
+For completeness, Table~\ref{tab:otsu-thresholds} reports the Otsu thresholds obtained for the three images.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l c}
+\hline
+\textbf{Image} & \textbf{Otsu threshold $T$ (ExG)} \\
+\hline
+Input image 1 & 0.0540 \\
+Input image 2 & 0.0538 \\
+Input image 3 & 0.0709 \\
+\hline
+\end{tabular}
+\caption{Otsu thresholds computed on the ExG maps (rounded to 4 decimals).}
+\label{tab:otsu-thresholds}
+\end{table}
+
+Figure~\ref{fig:raw-masks} shows the initial binary masks produced by thresholding ExG before post-processing.
+
+\begin{samepage}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{mask_raw_1.png}
+        \caption{Raw mask for input image 1.}
+        \label{fig:mask-raw-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{mask_raw_2.png}
+        \caption{Raw mask for input image 2.}
+        \label{fig:mask-raw-2}
+    \end{subfigure}
+
+    \vspace{0.3cm}
+
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{mask_raw_3.png}
+        \caption{Raw mask for input image 3.}
+        \label{fig:mask-raw-3}
+    \end{subfigure}
+    \caption{Initial binary masks obtained by thresholding the ExG maps using Otsu's method (before cleanup).}
+    \label{fig:raw-masks}
+\end{figure}
+\end{samepage}
+
+\subsection{Post-processing (Morphology and Cleaning)}
+The raw masks obtained by a single global threshold (Figure~\ref{fig:raw-masks}) may contain small isolated pixels, small holes inside tree blobs, and fragmented regions. To improve the visual quality of the segmentation while staying within classical image processing techniques, we apply a lightweight post-processing step:
+
+\begin{itemize}
+    \item \textbf{Opening} (erosion followed by dilation) with a small square structuring element to remove small noise.
+    \item \textbf{Closing} (dilation followed by erosion) to fill small gaps and connect fragmented vegetation blobs.
+    \item \textbf{Small component removal} to discard connected components below a minimum size threshold.
+\end{itemize}
+
+In our implementation we use kernel sizes $3\times 3$ for opening and $5\times 5$ for closing, and we remove connected components smaller than 200 pixels. The key operations (from \texttt{segmentation\_step1.py}) are shown below:
+
+\begin{minted}[fontsize=\small, linenos]{python}
+opened = binary_open(mask, k=3)
+closed = binary_close(opened, k=5)
+cleaned = remove_small_components(closed, min_size=200)
+\end{minted}
+
+Figure~\ref{fig:clean-masks} shows the resulting cleaned masks. Figure~\ref{fig:clean-overlays} shows the same masks overlaid in red on the original images for easier qualitative inspection.
+
+\begin{samepage}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{mask_clean_1.png}
+        \caption{Clean mask for input image 1.}
+        \label{fig:mask-clean-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{mask_clean_2.png}
+        \caption{Clean mask for input image 2.}
+        \label{fig:mask-clean-2}
+    \end{subfigure}
+
+    \vspace{0.3cm}
+
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{mask_clean_3.png}
+        \caption{Clean mask for input image 3.}
+        \label{fig:mask-clean-3}
+    \end{subfigure}
+    \caption{Final cleaned binary masks after morphological operations and small component removal.}
+    \label{fig:clean-masks}
+\end{figure}
+\end{samepage}
+
+\begin{samepage}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{overlay_clean_1.png}
+        \caption{Overlay for input image 1.}
+        \label{fig:overlay-clean-1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{overlay_clean_2.png}
+        \caption{Overlay for input image 2.}
+        \label{fig:overlay-clean-2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{overlay_clean_3.png}
+        \caption{Overlay for input image 3.}
+        \label{fig:overlay-clean-3}
+    \end{subfigure}
+    \caption{Qualitative visualization of the final masks overlaid in red on the original images.}
+    \label{fig:clean-overlays}
+\end{figure}
+\end{samepage}
+
+\section{Results}
+\subsection{ExG Visualizations and Histograms}
+This section summarizes the intermediate outputs produced by the vegetation-enhancement step. The ExG maps (Figure~\ref{fig:exg-maps}) provide a spatial visualization of vegetation likelihood: higher values (brighter pixels) generally correspond to greener canopy regions, while lower values correspond to soil and non-vegetated background.
+
+The corresponding ExG histograms (Figure~\ref{fig:exg-hists}) help interpret the overall distribution of ExG values per image and motivate the use of global thresholding. In all three cases, the distributions span both negative and positive values, indicating that the ExG index provides contrast between background (lower ExG) and vegetation (higher ExG).
+
+To complement the visual inspection, Table~\ref{tab:exg-stats} reports basic statistics of the ExG distributions for each input.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l c c c c c c}
+\hline
+\textbf{Image} & \textbf{Min} & \textbf{Mean} & \textbf{Max} & \textbf{P5} & \textbf{P50} & \textbf{P95} \\
+\hline
+Input image 1 & -0.1804 & 0.0273 & 0.3529 & -0.0627 & 0.0118 & 0.1686 \\
+Input image 2 & -0.2000 & 0.0156 & 0.3725 & -0.0627 & 0.0000 & 0.1608 \\
+Input image 3 & -0.1725 & 0.0300 & 0.3765 & -0.0667 & 0.0078 & 0.2039 \\
+\hline
+\end{tabular}
+\caption{Summary statistics of ExG values for each input image. P5/P50/P95 denote the 5th/50th/95th percentiles.}
+\label{tab:exg-stats}
+\end{table}
+
+\subsection{Predicted Binary Masks}
+Figure~\ref{fig:raw-masks} shows the raw masks obtained by Otsu thresholding on ExG. These masks capture most of the vegetated canopy patterns but may include small isolated detections and fragmented regions, especially where the background exhibits mild green tones or where illumination changes affect the ExG response.
+
+Figure~\ref{fig:clean-masks} shows the final cleaned masks after morphological post-processing. Compared to the raw masks, the cleaned masks are more coherent: small speckles are reduced, small gaps are filled, and the orchard structure appears more connected. These cleaned masks are the predictions used for the quantitative evaluation (Section~\ref{sec:evaluation}).
+
+\subsection{Overlay Visualizations}
+Figure~\ref{fig:clean-overlays} overlays the final masks in red on the original RGB images. The highlighted regions generally follow the regular orchard texture and tree-canopy layout, while most bare-soil areas remain unmarked.
+
+This visualization is helpful to spot typical failure modes: (i) false positives on background patches with a slightly higher green response, and (ii) false negatives in shadowed canopy regions where ExG is reduced.
+
+\section{Evaluation and Error Measurement}
+\label{sec:evaluation}
+\subsection{Intersection over Union (IoU)}
+To quantitatively assess segmentation quality, we compare each predicted binary mask against its corresponding Ground Truth (GT) mask using the \textbf{Intersection over Union (IoU)} metric (also called the Jaccard index). For a predicted foreground set $P$ and GT foreground set $G$ (foreground = irrigated vegetation), IoU is defined as:
+
+\begin{equation}
+\mathrm{IoU}(P, G) = \frac{|P \cap G|}{|P \cup G|}
+\end{equation}
+
+where $|\cdot|$ denotes the number of foreground pixels. IoU ranges from 0 to 1: a value of 1 corresponds to perfect overlap, while 0 indicates no overlap.
+
+In this report, $P$ is the \textbf{final cleaned mask} produced by the pipeline (Section~\ref{sec:pipeline}), and $G$ is the manually created GT mask (Section~2.2). The IoU values are computed per image and summarized in the next subsection.
+\subsection{Numerical Results}
+Table~\ref{tab:iou-results} reports IoU for the three images (and their mean). These values were obtained by running the evaluation script \texttt{segmentation\_eval\_iou.py} on the final cleaned predictions.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{l c}
+\hline
+\textbf{Image} & \textbf{IoU} \\
+\hline
+Input image 1 & 0.0521 \\
+Input image 2 & 0.4921 \\
+Input image 3 & 0.0050 \\
+\hline
+\textbf{Mean} & \textbf{0.1831} \\
+\hline
+\end{tabular}
+\caption{Intersection over Union (IoU) between the final predicted masks and the manual GT masks.}
+\label{tab:iou-results}
+\end{table}
+
+Overall, the pipeline achieves its best agreement with GT on input image 2. The lower IoU values in images 1 and 3 indicate a larger mismatch between the predicted vegetation regions and the manual GT, which can arise from differences in annotation granularity, illumination/shadows affecting ExG responses, and thresholding errors in regions where the background becomes moderately green.
+\subsection{Error Maps (TP/FP/FN)}
+To better understand the types of errors, we visualize pixel-wise comparisons between prediction and GT as \textbf{error maps}. Each pixel is categorized as:
+
+\begin{itemize}
+    \item \textbf{True Positive (TP)}: predicted foreground and GT foreground (shown in \textcolor{green}{green}).
+    \item \textbf{False Positive (FP)}: predicted foreground but GT background (shown in \textcolor{red}{red}).
+    \item \textbf{False Negative (FN)}: predicted background but GT foreground (shown in \textcolor{blue}{blue}).
+\end{itemize}
+
+Figure~\ref{fig:errormaps} shows the TP/FP/FN maps for the three inputs.
+
+\begin{samepage}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{errormap_1.png}
+        \caption{Error map (input image 1).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{errormap_2.png}
+        \caption{Error map (input image 2).}
+    \end{subfigure}
+
+    \vspace{0.3cm}
+
+    \begin{subfigure}[t]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{errormap_3.png}
+        \caption{Error map (input image 3).}
+    \end{subfigure}
+    \caption{TP/FP/FN error maps comparing final predictions to Ground Truth. TP=green, FP=red, FN=blue.}
+    \label{fig:errormaps}
+\end{figure}
+\end{samepage}
+
+\section{Implementation}
+\subsection{Code Structure}
+The implementation is organized as two small Python scripts:
+
+\begin{itemize}
+    \item \textbf{Segmentation pipeline:} \texttt{segmentation\_step1.py}. This script loads each input RGB image, computes the ExG map, applies Otsu thresholding, performs morphological cleanup, and saves the intermediate and final visual outputs.
+    \item \textbf{Evaluation:} \texttt{segmentation\_eval\_iou.py}. This script recomputes the final prediction masks, loads the manual GT masks (\texttt{gt1.png}, \texttt{gt2.png}, \texttt{gt3.png}), computes IoU, and saves a CSV summary plus TP/FP/FN error maps.
+\end{itemize}
+
+The workspace uses the following folders for outputs:
+\begin{itemize}
+    \item \texttt{outputs\_step1/}: ExG visualizations and histograms, raw masks, cleaned masks, and red overlay images.
+    \item \texttt{outputs\_eval/}: IoU results in \texttt{iou\_results.csv}, and evaluation visualizations (error maps and overlays).
+    \item \texttt{report/}: LaTeX report source (\texttt{main.tex}), compiled PDF, and a copy of the figures with LaTeX-safe filenames.
+\end{itemize}
+
+All scripts are designed to run with Python 3 and standard scientific packages used in this homework (NumPy, PIL/Pillow, Matplotlib).
+\subsection{How to Run}
+The commands below reproduce the segmentation outputs and evaluation results used in this report. They assume the current directory is the homework root folder (the one containing the three \texttt{Irrigated land*.png} images).
+
+\begin{minted}[fontsize=\small, linenos]{bash}
+python3 segmentation_step1.py
+python3 segmentation_eval_iou.py
+\end{minted}
+
+After running these scripts, the generated images will be available in \texttt{outputs\_step1/} and \texttt{outputs\_eval/}. The report figures are referenced from the \texttt{report/} folder (copies of the required images are placed there using safe filenames).
+
+
+\section{Conclusion}
+This homework implemented a classical image-processing pipeline to segment irrigated olive groves from RGB aerial imagery using only techniques from this week (histogram analysis and thresholding).
+
+The proposed approach combines (i) a vegetation-sensitive ExG index, (ii) a global Otsu threshold to obtain an initial binary mask, and (iii) lightweight post-processing (opening/closing and small-component removal) to produce cleaner and more spatially coherent predictions. Qualitatively, the red-overlay visualizations show that the segmented regions follow the regular orchard texture and canopy layout.
+
+Quantitatively, IoU evaluation against manually created GT masks shows a strong dependence on scene conditions and annotation details: the method performs best on the second image, while performance drops on the first and third images where illumination changes, shadows, or background-green responses make global thresholding less reliable.
+
+\section{References}
+\begin{itemize}
+    \item N. Otsu. ``A Threshold Selection Method from Gray-Level Histograms.'' \textit{IEEE Transactions on Systems, Man, and Cybernetics}, 9(1):62--66, 1979.
+    \item P. Jaccard. ``Étude comparative de la distribution florale dans une portion des Alpes et des Jura.'' \textit{Bulletin de la Société Vaudoise des Sciences Naturelles}, 37:547--579, 1901. (Jaccard index / IoU)
+    \item D. M. Woebbecke, G. E. Meyer, K. Von Bargen, and D. A. Mortensen. ``Color Indices for Weed Identification Under Various Soil, Residue, and Lighting Conditions.'' \textit{Transactions of the ASAE}, 38(1):259--269, 1995. (Vegetation indices related to ExG)
+\end{itemize}
+
+\appendix
+\section{Appendix}
+\subsection{Generated Output Files}
+This subsection lists the main files generated by the provided scripts. (Exact filenames may vary slightly depending on the input image names.)
+
+\begin{itemize}
+    \item \textbf{Segmentation outputs:} \texttt{outputs\_step1/}
+    \begin{itemize}
+        \item ExG visualizations: \texttt{*\_exg.png}
+        \item ExG histograms: \texttt{*\_exg\_hist.png}
+        \item Raw masks (Otsu): \texttt{*\_mask.png} / \texttt{mask\_raw\_*.png} (copies used in report)
+        \item Clean masks: \texttt{*\_mask\_clean.png} / \texttt{mask\_clean\_*.png} (copies used in report)
+        \item Red overlays: \texttt{*\_overlay\_mask\_clean.png} / \texttt{overlay\_clean\_*.png} (copies used in report)
+    \end{itemize}
+
+    \item \textbf{Evaluation outputs:} \texttt{outputs\_eval/}
+    \begin{itemize}
+        \item IoU summary CSV: \texttt{iou\_results.csv}
+        \item Error maps (TP/FP/FN): \texttt{*\_errormap.png}
+        \item Prediction overlays (evaluation): \texttt{*\_overlay\_pred\_red.png}
+    \end{itemize}
+
+    \item \textbf{Report assets and build:} \texttt{report/}
+    \begin{itemize}
+        \item LaTeX source: \texttt{main.tex}
+        \item Compiled PDF: \texttt{main.pdf}
+        \item Figure copies with LaTeX-safe names: \texttt{irrigated\_*.png}, \texttt{gt\_*.png}, \texttt{exg\_*.png}, \texttt{exg\_hist\_*.png}, \texttt{mask\_raw\_*.png}, \texttt{mask\_clean\_*.png}, \texttt{overlay\_clean\_*.png}, \texttt{errormap\_*.png}
+    \end{itemize}
+\end{itemize}
+
+\fi
+\end{document}
