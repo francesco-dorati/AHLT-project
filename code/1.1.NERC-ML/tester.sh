@@ -3,7 +3,7 @@
 # ==========================================
 # 1. Setup Directories and Log File
 # ==========================================
-MOD="mod6"
+MOD="mod9_wo8"
 BASE_RESULTS="results"
 EXPERIMENT_DIR="experiments_$MOD"
 LOG_FILE="hyperparameter_results_$MOD.csv"
@@ -31,6 +31,8 @@ SVM_C_VALUES=(0.1 1.0 10.0 100.0)
 SVM_KERNELS=("linear" "rbf" "poly")
 
 MODELS=("CRF" "MEM" "SVM")
+
+python bin/run.py extract
 
 # ==========================================
 # 3. Main Tuning Loop
