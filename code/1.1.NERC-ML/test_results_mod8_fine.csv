@@ -1,0 +1,29 @@
+Rank,Model,Params,Test_F1
+1,SVM,C=0.5 kernel=rbf,67.3%
+2,SVM,C=0.75 kernel=rbf,67.9%
+3,SVM,C=1.0 kernel=rbf,67.9%
+4,SVM,C=1.5 kernel=rbf,67.7%
+5,SVM,C=2.0 kernel=rbf,67.8%
+6,SVM,C=3.0 kernel=rbf,67.8%
+7,SVM,C=5.0 kernel=rbf,67.7%
+8,SVM,C=7.5 kernel=rbf,67.7%
+9,SVM,C=10.0 kernel=rbf,67.7%
+10,SVM,C=15.0 kernel=rbf,67.7%
+11,SVM,C=20.0 kernel=rbf,67.7%
+12,SVM,C=50.0 kernel=rbf,67.7%
+13,SVM,C=0.5 kernel=rbf gamma=0.001,62.0%
+14,SVM,C=0.5 kernel=rbf gamma=0.005,66.8%
+15,SVM,C=0.5 kernel=rbf gamma=0.01,67.2%
+16,SVM,C=0.5 kernel=rbf gamma=0.05,49.7%
+17,SVM,C=0.05 kernel=linear,67.5%
+18,SVM,C=0.1 kernel=linear,67.6%
+19,SVM,C=0.2 kernel=linear,67.9%
+20,SVM,C=0.5 kernel=linear,67.6%
+21,SVM,C=1.0 kernel=linear,67.6%
+22,CRF,c1=0.01 c2=0.1 max_iterations=50,67.7%
+23,CRF,c1=0.1 c2=0.1 max_iterations=50,68.2%
+24,CRF,c1=0.1 c2=0.5 max_iterations=50,67.7%
+25,CRF,c1=0.5 c2=0.1 max_iterations=50,68.2%
+26,CRF,c1=0.01 c2=1.0 max_iterations=200,67.7%
+27,MEM,C=0.1,67.5%
+28,MEM,C=1.0,67.8%

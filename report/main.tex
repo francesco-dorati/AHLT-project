@@ -3,7 +3,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{geometry}
 \geometry{margin=1in}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
 \usepackage{graphicx}
 \usepackage{fancyhdr}
 \usepackage{lmodern}
@@ -110,21 +110,252 @@ The Task 1 report requires documenting experiments and best results for:
 and a final comparison (effort, computational cost, explainability/controllability, and performance).
 
 \section{Data, evaluation, and reproducibility}
+
 \subsection{Dataset}
-Briefly describe train/devel/test splits and label set.
+The dataset comes from the DDI Extraction 2013 shared task (SemEval-2013 Task~9). It consists of biomedical texts annotated with drug entity mentions. Each entity is classified into one of four types:
+
+\begin{itemize}[nosep]
+    \item \textbf{drug}: approved generic drug names (e.g., \textit{aspirin}, \textit{ibuprofen}).
+    \item \textbf{brand}: commercial/trade names (e.g., \textit{Advil}, \textit{Tylenol}).
+    \item \textbf{group}: pharmacological drug classes (e.g., \textit{NSAIDs}, \textit{opioids}).
+    \item \textbf{drug\_n}: unapproved or experimental substances.
+\end{itemize}
+
+The data is split into three XML files:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l r r}
+\hline
+\textbf{Split} & \textbf{Sentences} & \textbf{Entities} \\
+\hline
+Train  & 5{,}343 & 11{,}452 \\
+Devel  & 1{,}477 & 3{,}125 \\
+Test   & 1{,}455 & 3{,}228 \\
+\hline
+\end{tabular}
+\caption{Dataset statistics.}
+\label{tab:dataset}
+\end{table}
 
 \subsection{Evaluation protocol}
-Briefly describe the official evaluator and the reported metrics.
+The task is formulated as \textbf{BIO sequence labeling}: each token is tagged as \texttt{B-}\textit{type} (beginning of an entity), \texttt{I-}\textit{type} (inside), or \texttt{O} (outside). The provided evaluator reconstructs entity spans from these tags and computes precision, recall, and F1 at the entity level. An entity is correct only if \emph{both} its span boundaries and its type match the gold standard (strict evaluation).
+
+The evaluator reports two averages: \textbf{macro-averaged F1} (M.avg), which averages F1 across the four entity types equally, and \textbf{micro-averaged F1} (m.avg), which pools all predictions. Since the type distribution is heavily skewed (\textit{drug} accounts for $\sim$67\% of entities), macro-average is more sensitive to rare types like \textit{drug\_n}. Throughout this report, ``F1'' refers to \textbf{macro-averaged F1} (M.avg), as this is the primary metric reported by the evaluator.
 
 \subsection{Reproducibility}
-Summarize how to run the pipeline and where results are stored (e.g., \texttt{code/1.1.NERC-ML/results/} and \texttt{code/1.1.NERC-ML/results\_c\_change/}).
+All code is in \texttt{code/1.1.NERC-ML/}. The pipeline is driven by \texttt{bin/run.py}, which supports three steps: \texttt{extract} (feature extraction), \texttt{train}, and \texttt{predict}. Feature toggles are controlled by boolean flags at the top of \texttt{bin/extract\_features.py}.
 
-\section{System 1.1 — NERC with Machine Learning (done)}
+Hyperparameter sweep results are stored in \texttt{hyperparameter\_results\_mod*.csv}. Test evaluation scripts are \texttt{run\_best\_on\_test.sh} and \texttt{run\_mod8\_fast.sh}.
+
+% ============================================================
+\section{System 1.1 — NERC with Machine Learning}
+% ============================================================
+
 \subsection{Baseline}
+The baseline system uses minimal token-level features: the word form, its lowercase version, suffixes (3 and 4 characters), and simple boolean flags (uppercase, title case, digit, contains dash/digit). Context features are limited to the immediate previous and next tokens. The baseline also checks single-token dictionary membership against an external drug lexicon.
+
+Three classifiers are compared throughout:
+\begin{itemize}[nosep]
+    \item \textbf{CRF}: Conditional Random Fields (\texttt{pycrfsuite}), which model label sequences.
+    \item \textbf{SVM}: Support Vector Machine (\texttt{sklearn.svm.SVC}), token-level classification.
+    \item \textbf{MEM}: Maximum Entropy / Logistic Regression (\texttt{sklearn.linear\_model.LogisticRegression}).
+\end{itemize}
+
+Baseline devel results (default hyperparameters): CRF~67.9\%, SVM~67.1\%, MEM~65.5\%.
+
 \subsection{Feature engineering experiments}
+
+We incrementally added nine groups of features. Each modification was evaluated on the devel set with default hyperparameters. Table~\ref{tab:feature-mods} summarizes the modifications and Figure~\ref{fig:feature-evolution} shows the progression.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{c l p{7.5cm}}
+\hline
+\textbf{Mod} & \textbf{Category} & \textbf{Features added} \\
+\hline
+1 & Token shape & Prefixes (2--4 chars), suffix-2, word shape, length buckets, punctuation flags (parens, slash, dot, plus, comma), dictionary membership flag \\
+2 & POS tags & Part-of-speech (\texttt{tag\_}) and universal POS (\texttt{pos\_}) via spaCy \\
+3 & Lemma & Lemma feature via spaCy lemmatizer \\
+4 & Context POS & POS/lemma for $\pm$1 context tokens \\
+5 & Window $\pm$2 & Full feature set for tokens at positions $i\pm2$ \\
+6 & Biomedical patterns & Digit normalization, Greek letter detection, Roman numeral flag, chemical-like pattern, stereochemistry marker, dose unit flag \\
+7 & Char n-grams & Character 3/4/5-grams for current token (capped at 8) \\
+8 & Multi-token spans & Dictionary lookup for 2--5 token phrases with Begin/Inside/End markers \\
+9 & Longer affixes & Prefix and suffix of length 5 and 6 characters \\
+\hline
+\end{tabular}
+\caption{Feature modifications applied incrementally. Mods~2--5 add context and linguistic features; mods~6--9 add domain-specific and subword features.}
+\label{tab:feature-mods}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig_feature_evolution.pdf}
+    \caption{Devel set F1 across feature modifications for the three classifiers. CRF peaks at mod6 and mod9 (68.3\%). SVM improves steadily. MEM plateaus around 66\%.}
+    \label{fig:feature-evolution}
+\end{figure}
+
+\textbf{Key observations:}
+\begin{itemize}[nosep]
+    \item Mod~6 (biomedical patterns) gave the largest single improvement for CRF: +0.4 points.
+    \item Mod~4 (context POS) unexpectedly \emph{hurt} CRF ($-$0.4 pts), likely due to feature space explosion with limited data. Reverting to mod~3 context and expanding the window ($\pm$2) in mod~5 was more effective.
+    \item Mod~8 (multi-token spans) hurt CRF on devel but later proved beneficial on test (see Section~\ref{sec:test-eval}).
+    \item MEM was insensitive to most feature additions, suggesting it struggles with the high-dimensional sparse feature space.
+\end{itemize}
+
 \subsection{Algorithm comparison (CRF, MEM, SVM)}
+
+On the devel set, CRF consistently outperformed SVM and MEM across all feature configurations. However, this ranking did \emph{not} hold on the test set (Section~\ref{sec:test-eval}), highlighting the importance of final evaluation on held-out data.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l c c c}
+\hline
+ & \textbf{CRF} & \textbf{SVM} & \textbf{MEM} \\
+\hline
+Best devel F1 (any mod) & \textbf{68.5\%} & 67.7\% & 66.5\% \\
+Best test F1 (mod8) & \textbf{68.2\%} & 67.9\% & 67.8\% \\
+\hline
+\end{tabular}
+\caption{Best F1 per algorithm on devel (after hyperparameter tuning) and test (mod8 features).}
+\label{tab:algo-comparison}
+\end{table}
+
+CRF benefits from modeling label sequences (B-I-O transitions), which is especially useful for multi-token entities. SVM and MEM classify tokens independently but proved more robust to distribution shift between devel and test.
+
 \subsection{Hyperparameter experiments}
+
+We performed grid search on three feature configurations to understand interaction between features and hyperparameters:
+
+\begin{itemize}[nosep]
+    \item \textbf{mod6}: additions 1--6 (no char n-grams, no spans, no long affixes)
+    \item \textbf{mod8}: additions 1--8 (includes char n-grams and multi-token spans)
+    \item \textbf{mod9\_wo8}: additions 1--7 + 9 (char n-grams and long affixes, no spans)
+\end{itemize}
+
+\textbf{CRF} was tuned over $c_1 \in \{0.01, 0.1, 0.5, 1.0\}$, $c_2 \in \{0.1, 0.5, 1.0, 5.0\}$, and max iterations $\in \{50, 100, 200, 500\}$ (64 configurations per feature set).
+
+\textbf{SVM} was tuned over $C \in \{0.1, 1.0, 10.0, 100.0\}$ and kernel $\in \{\text{linear}, \text{rbf}, \text{poly}\}$.
+
+\textbf{MEM} was tuned over $C \in \{0.01, 0.1, 1.0, 10.0, 100.0\}$.
+
+Figure~\ref{fig:crf-heatmap} shows the CRF hyperparameter landscape on mod6 (best devel feature set).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\linewidth]{fig_crf_heatmap.pdf}
+    \caption{CRF devel F1 as a function of $c_1$ and $c_2$ (mod6, best iteration per cell). Low $c_1$ with low $c_2$ yields the best results. Performance is relatively stable across the grid ($\pm$1\%).}
+    \label{fig:crf-heatmap}
+\end{figure}
+
+\textbf{Key findings from hyperparameter tuning:}
+\begin{itemize}[nosep]
+    \item CRF: low regularization ($c_1 \leq 0.1$, $c_2 \leq 0.5$) with few iterations (50) works best. The model converges quickly.
+    \item SVM: rbf kernel with $C = 0.75$--$1.0$ and default $\gamma$ (\texttt{scale}) is optimal. Manually setting $\gamma$ consistently hurts and can make training extremely slow (hours per run).
+    \item MEM: completely insensitive to hyperparameters --- F1 stays at $\sim$66\% regardless of $C$ or iterations.
+    \item The scores are tightly clustered within each model type ($<$1\% spread), meaning \textbf{the feature set matters more than hyperparameter tuning}.
+\end{itemize}
+
 \subsection{Best obtained results and discussion}
+\label{sec:test-eval}
+
+After selecting the best configurations from the devel set, we evaluated on the held-out test set. The results revealed a critical insight: \textbf{devel performance was a poor predictor of test performance} for CRF with mod6/mod9 features.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig_devel_vs_test.pdf}
+    \caption{Devel vs.\ test F1 for the best models. CRF on mod6/mod9 drops $\sim$5 points (overfitting). All mod8 models generalize well. The annotation ``BEST'' marks CRF mod8 at 68.2\% test F1.}
+    \label{fig:devel-vs-test}
+\end{figure}
+
+Since mod8 clearly generalized best, we performed a finer-grained evaluation on mod8 features with all three classifiers. Figure~\ref{fig:svm-sensitivity} shows SVM robustness to $C$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{fig_svm_c_sensitivity.pdf}
+    \caption{SVM rbf test F1 across $C$ values (mod8 features). Performance is stable in the range $C \in [0.75, 50]$, peaking at $C = 0.75$--$1.0$ with 67.9\%.}
+    \label{fig:svm-sensitivity}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig_final_results.pdf}
+    \caption{Final test set F1 for all evaluated models. Mod8 features yield the best generalization across all classifiers. CRF with mod6/mod9 features (light blue) overfit significantly.}
+    \label{fig:final-results}
+\end{figure}
+
+Table~\ref{tab:final-results} summarizes the final test results.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l l l c}
+\hline
+\textbf{Model} & \textbf{Features} & \textbf{Best hyperparameters} & \textbf{Test F1} \\
+\hline
+\rowcolor{green!10} CRF & mod8 & $c_1 = 0.1$, $c_2 = 0.1$, iter $= 50$ & \textbf{68.2\%} \\
+SVM (rbf)    & mod8 & $C = 0.75$, $\gamma$ = scale & 67.9\% \\
+SVM (linear) & mod8 & $C = 0.2$ & 67.9\% \\
+MEM          & mod8 & $C = 1.0$ & 67.8\% \\
+\hline
+CRF & mod6 & $c_1 = 0.01$, $c_2 = 0.1$, iter $= 50$ & 63.4\% \\
+CRF & mod9\_wo8 & $c_1 = 0.1$, $c_2 = 0.5$, iter $= 200$ & 62.3\% \\
+\hline
+\end{tabular}
+\caption{Final test set results. The best model is \textbf{CRF with mod8 features at 68.2\% F1}. All mod8 models generalize well (67.8--68.2\%). CRF with mod6/mod9 features overfit.}
+\label{tab:final-results}
+\end{table}
+
+\textbf{Discussion:}
+\begin{itemize}[nosep]
+    \item \textbf{CRF mod8 is the best model} (68.2\% test F1), but the gap to SVM and MEM on mod8 is small ($<$0.5\%).
+    \item \textbf{Multi-token dictionary spans (addition~8) are key for generalization.} They hurt CRF on devel ($-$0.8 pts) but improved test performance across all classifiers. This suggests they help the model learn patterns that transfer better to unseen data.
+    \item \textbf{Overfitting on devel}: CRF with mod6/mod9 features scored 68.3--68.5\% on devel but only 62--63\% on test. The likely cause is that the rich subword features (char n-grams, long affixes) overfit to devel-specific token distributions. The multi-token spans in mod8 act as a form of regularization by providing higher-level dictionary evidence.
+    \item \textbf{All three classifiers are competitive on mod8}: CRF~68.2\%, SVM~67.9\%, MEM~67.8\%. This indicates that the feature engineering is the dominant factor, not the classifier choice.
+\end{itemize}
+
+\subsubsection{Per-entity-type error analysis}
+
+To understand \emph{where} the system succeeds and fails, we break down the best CRF model's test performance by entity type.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l r r r r r r}
+\hline
+\textbf{Type} & \textbf{TP} & \textbf{FP} & \textbf{FN} & \textbf{P (\%)} & \textbf{R (\%)} & \textbf{F1 (\%)} \\
+\hline
+brand  & 259 &  21 &  16 & 92.5 & 94.2 & \textbf{93.3} \\
+drug   & 1938 & 111 & 213 & 94.6 & 90.1 & \textbf{92.3} \\
+group  & 520 & 176 & 180 & 74.7 & 74.3 & 74.5 \\
+drug\_n &   8 &  17 &  94 & 32.0 &  7.8 & \textcolor{red}{12.6} \\
+\hline
+\end{tabular}
+\caption{Per-entity-type results for the best CRF model (mod8, $c_1 = 0.1$, $c_2 = 0.1$, iter $= 50$) on the test set.}
+\label{tab:per-type}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig_per_entity_f1.pdf}
+    \caption{Per-entity-type F1 on the test set for all three classifiers with mod8 features. All models achieve $>$90\% on \textit{brand} and \textit{drug}, $\sim$74\% on \textit{group}, but $<$15\% on \textit{drug\_n}.}
+    \label{fig:per-entity-f1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{fig_pr_scatter.pdf}
+    \caption{Precision vs.\ recall per entity type for the best CRF model. Bubble size is proportional to the number of entities. \textit{drug\_n} has very low recall (7.8\%) --- the model almost never predicts it.}
+    \label{fig:pr-scatter}
+\end{figure}
+
+\textbf{Key observations:}
+\begin{itemize}[nosep]
+    \item \textbf{drug} (67\% of entities) and \textbf{brand} are well-recognized (F1 $>$ 92\%), benefiting from dictionary coverage and distinctive naming patterns (capitalization, trademark suffixes).
+    \item \textbf{group} (22\% of entities) is harder at 74.5\% F1. Group names are often common English words (\textit{anticoagulants}, \textit{diuretics}) that lack distinctive surface features, leading to both false positives and false negatives.
+    \item \textbf{drug\_n} is nearly undetectable (F1 $\approx$ 13\%, recall $<$ 8\%). With only 102 examples in test, this class is extremely rare. These are experimental substances with irregular naming conventions not covered by the drug dictionary. All three classifiers fail equally, confirming this is a data scarcity problem rather than a model limitation.
+    \item The \textit{drug\_n} problem is the main bottleneck for macro-averaged F1: if \textit{drug\_n} reached even 50\% F1, the overall M.avg would jump from 68.2\% to $\sim$77\%.
+\end{itemize}
 
 \section{System 1.2 — NERC with Neural Networks (pending)}
 This section will be completed once the NN system experiments are done.

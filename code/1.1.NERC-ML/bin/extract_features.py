@@ -25,6 +25,7 @@ def extract_sentence_features(tokens, dicts) :
    # Now also ENABLE ADDITION 8 (multi-token dictionary span matches).
    ENABLE_ADDITION_7 = True
    ENABLE_ADDITION_8 = False
+   ENABLE_ADDITION_9 = True
 
    # -- ADDITION 1 --
    def word_shape(txt) :
@@ -140,12 +141,13 @@ def extract_sentence_features(tokens, dicts) :
       tokenFeatures.append("suf4="+t[-4:])
 
       # -- ADDITION 9 --
-      if len(t) >= 5: 
-          tokenFeatures.append("suf5="+t[-5:])
-          tokenFeatures.append("pref5="+t[:5])
-      if len(t) >= 6: 
-          tokenFeatures.append("suf6="+t[-6:])
-          tokenFeatures.append("pref6="+t[:6])
+      if ENABLE_ADDITION_9:
+          if len(t) >= 5:
+              tokenFeatures.append("suf5="+t[-5:])
+              tokenFeatures.append("pref5="+t[:5])
+          if len(t) >= 6:
+              tokenFeatures.append("suf6="+t[-6:])
+              tokenFeatures.append("pref6="+t[:6])
       # ----------------
 
       # -- ADDITION 1 --
