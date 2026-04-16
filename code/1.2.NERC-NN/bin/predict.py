@@ -53,6 +53,9 @@ def encode_dataset(ds, codes, params) :
 def predict(modelname, datafile, params, outfile) :
     # set default if not given
     if "batch_size" not in params: params["batch_size"]=16
+    # [MOD-1.2] train.py now leaves CLI values as strings; cast here so
+    # DataLoader receives an int.
+    params["batch_size"] = int(params["batch_size"])
 
     model = torch.load(os.path.join(modelname,"network.nn"),
                        weights_only=False,

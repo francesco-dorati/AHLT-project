@@ -10,15 +10,122 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Task 1 deliverables}{2}{subsection.1.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {2}Data, evaluation, and reproducibility}{2}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Dataset}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Dataset statistics.}}{2}{table.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:dataset}{{1}{2}{Dataset statistics}{table.caption.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Evaluation protocol}{2}{subsection.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Reproducibility}{2}{subsection.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {3}System 1.1 — NERC with Machine Learning (done)}{3}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Reproducibility}{3}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}System 1.1 — NERC with Machine Learning}{3}{section.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Baseline}{3}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Feature engineering experiments}{3}{subsection.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Algorithm comparison (CRF, MEM, SVM)}{3}{subsection.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Hyperparameter experiments}{3}{subsection.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Best obtained results and discussion}{3}{subsection.3.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}System 1.2 — NERC with Neural Networks (pending)}{3}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}System 1.3 — NERC with LLMs (pending)}{3}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions (pending)}{3}{section.6}\protected@file@percent }
-\gdef \@abspage@last{3}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Feature modifications applied incrementally. Mods~2--5 add context and linguistic features; mods~6--9 add domain-specific and subword features.}}{4}{table.caption.2}\protected@file@percent }
+\newlabel{tab:feature-mods}{{2}{4}{Feature modifications applied incrementally. Mods~2--5 add context and linguistic features; mods~6--9 add domain-specific and subword features}{table.caption.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Devel set F1 across feature modifications for the three classifiers. CRF peaks at mod6 and mod9 (68.3\%). SVM improves steadily. MEM plateaus around 66\%.}}{4}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:feature-evolution}{{1}{4}{Devel set F1 across feature modifications for the three classifiers. CRF peaks at mod6 and mod9 (68.3\%). SVM improves steadily. MEM plateaus around 66\%}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Algorithm comparison (CRF, MEM, SVM)}{5}{subsection.3.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Best F1 per algorithm on devel (after hyperparameter tuning) and test (mod8 features).}}{5}{table.caption.4}\protected@file@percent }
+\newlabel{tab:algo-comparison}{{3}{5}{Best F1 per algorithm on devel (after hyperparameter tuning) and test (mod8 features)}{table.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Hyperparameter experiments}{5}{subsection.3.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces CRF devel F1 as a function of $c_1$ and $c_2$ (mod6, best iteration per cell). Low $c_1$ with low $c_2$ yields the best results. Performance is relatively stable across the grid ($\pm $1\%).}}{5}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:crf-heatmap}{{2}{5}{CRF devel F1 as a function of $c_1$ and $c_2$ (mod6, best iteration per cell). Low $c_1$ with low $c_2$ yields the best results. Performance is relatively stable across the grid ($\pm $1\%)}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Best obtained results and discussion}{6}{subsection.3.5}\protected@file@percent }
+\newlabel{sec:test-eval}{{3.5}{6}{Best obtained results and discussion}{subsection.3.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Devel vs.\ test F1 for the best models. CRF on mod6/mod9 drops $\sim $5 points (overfitting). All mod8 models generalize well. The annotation ``BEST'' marks CRF mod8 at 68.2\% test F1.}}{6}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:devel-vs-test}{{3}{6}{Devel vs.\ test F1 for the best models. CRF on mod6/mod9 drops $\sim $5 points (overfitting). All mod8 models generalize well. The annotation ``BEST'' marks CRF mod8 at 68.2\% test F1}{figure.caption.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces SVM rbf test F1 across $C$ values (mod8 features). Performance is stable in the range $C \in [0.75, 50]$, peaking at $C = 0.75$--$1.0$ with 67.9\%.}}{7}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:svm-sensitivity}{{4}{7}{SVM rbf test F1 across $C$ values (mod8 features). Performance is stable in the range $C \in [0.75, 50]$, peaking at $C = 0.75$--$1.0$ with 67.9\%}{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Final test set F1 for all evaluated models. Mod8 features yield the best generalization across all classifiers. CRF with mod6/mod9 features (light blue) overfit significantly.}}{7}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:final-results}{{5}{7}{Final test set F1 for all evaluated models. Mod8 features yield the best generalization across all classifiers. CRF with mod6/mod9 features (light blue) overfit significantly}{figure.caption.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Final test set results. The best model is \textbf  {CRF with mod8 features at 68.2\% F1}. All mod8 models generalize well (67.8--68.2\%). CRF with mod6/mod9 features overfit.}}{7}{table.caption.9}\protected@file@percent }
+\newlabel{tab:final-results}{{4}{7}{Final test set results. The best model is \textbf {CRF with mod8 features at 68.2\% F1}. All mod8 models generalize well (67.8--68.2\%). CRF with mod6/mod9 features overfit}{table.caption.9}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.1}Per-entity-type error analysis}{8}{subsubsection.3.5.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Per-entity-type results for the best CRF model (mod8, $c_1 = 0.1$, $c_2 = 0.1$, iter $= 50$) on the test set.}}{8}{table.caption.10}\protected@file@percent }
+\newlabel{tab:per-type}{{5}{8}{Per-entity-type results for the best CRF model (mod8, $c_1 = 0.1$, $c_2 = 0.1$, iter $= 50$) on the test set}{table.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Per-entity-type F1 on the test set for all three classifiers with mod8 features. All models achieve $>$90\% on \textit  {brand} and \textit  {drug}, $\sim $74\% on \textit  {group}, but $<$15\% on \textit  {drug\_n}.}}{8}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:per-entity-f1}{{6}{8}{Per-entity-type F1 on the test set for all three classifiers with mod8 features. All models achieve $>$90\% on \textit {brand} and \textit {drug}, $\sim $74\% on \textit {group}, but $<$15\% on \textit {drug\_n}}{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Precision vs.\ recall per entity type for the best CRF model. Bubble size is proportional to the number of entities. \textit  {drug\_n} has very low recall (7.8\%) --- the model almost never predicts it.}}{9}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:pr-scatter}{{7}{9}{Precision vs.\ recall per entity type for the best CRF model. Bubble size is proportional to the number of entities. \textit {drug\_n} has very low recall (7.8\%) --- the model almost never predicts it}{figure.caption.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}System 1.2 — NERC with Neural Networks}{9}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Starting point and code layout}{9}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Modifications to the baseline}{10}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:12-mods}{{4.2}{10}{Modifications to the baseline}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {bin/network.py} — fully rewritten, backward compatible.}{10}{paragraph*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {bin/codemaps.py} — three new input channels.}{10}{paragraph*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {bin/train.py} — configurable optimizer and a real bug fix.}{10}{paragraph*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {bin/dataset.py} and \texttt  {bin/predict.py} — small patches.}{10}{paragraph*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{New batch runners.}{10}{paragraph*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Experimental protocol}{11}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Round 1 — single-axis sweep}{11}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:12-round1}{{4.4}{11}{Round 1 — single-axis sweep}{subsection.4.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Round-1 single-axis sweep on devel. All runs use epochs=8 so deltas are directly comparable.}}{11}{table.caption.18}\protected@file@percent }
+\newlabel{tab:12-round1}{{6}{11}{Round-1 single-axis sweep on devel. All runs use epochs=8 so deltas are directly comparable}{table.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Round-1 single-axis sweep. Each bar is a one-knob change from the baseline (exp01, 54.2\%). PoS (exp02, +9.1) and GELU+heavier dropout (exp10, +8.5) are the two biggest single wins. Lemma (exp04) and AdamW+lr=5e-4 (exp08) are the only negative deltas.}}{11}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:12-round1}{{8}{11}{Round-1 single-axis sweep. Each bar is a one-knob change from the baseline (exp01, 54.2\%). PoS (exp02, +9.1) and GELU+heavier dropout (exp10, +8.5) are the two biggest single wins. Lemma (exp04) and AdamW+lr=5e-4 (exp08) are the only negative deltas}{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Round 1 — combining winners}{12}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:12-combos}{{4.5}{12}{Round 1 — combining winners}{subsection.4.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Round-1 combo runs on devel. \texttt  {final04} wins.}}{12}{table.caption.20}\protected@file@percent }
+\newlabel{tab:12-combos}{{7}{12}{Round-1 combo runs on devel. \texttt {final04} wins}{table.caption.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Round-1 combo results. Stacking \texttt  {pos} + \texttt  {pref} + \texttt  {layernorm} + \texttt  {gelu} + heavy embedding dropout (\texttt  {final04}) is the best 8-epoch devel config. Adding a second stacked LSTM layer (\texttt  {final05}) slightly hurts: the model is under-trained, not under-parameterised.}}{12}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:12-combos}{{9}{12}{Round-1 combo results. Stacking \texttt {pos} + \texttt {pref} + \texttt {layernorm} + \texttt {gelu} + heavy embedding dropout (\texttt {final04}) is the best 8-epoch devel config. Adding a second stacked LSTM layer (\texttt {final05}) slightly hurts: the model is under-trained, not under-parameterised}{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Round 2 — targeted gap-filling}{13}{subsection.4.6}\protected@file@percent }
+\newlabel{sec:12-round2}{{4.6}{13}{Round 2 — targeted gap-filling}{subsection.4.6}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.6.1}Data-preprocessing sweeps}{13}{subsubsection.4.6.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Round-2 data-preprocessing sweeps. Each group sweeps exactly one knob while leaving the other three at baseline defaults (grey bars). Shorter suffixes, length-2 prefixes, and a smaller batch size all help. Longer suffixes, larger batch, and \texttt  {max\_len=200} all hurt.}}{13}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:12-datasweeps}{{10}{13}{Round-2 data-preprocessing sweeps. Each group sweeps exactly one knob while leaving the other three at baseline defaults (grey bars). Shorter suffixes, length-2 prefixes, and a smaller batch size all help. Longer suffixes, larger batch, and \texttt {max\_len=200} all hurt}{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.6.2}Pretrained word embeddings --- negative result}{13}{subsubsection.4.6.2}\protected@file@percent }
+\newlabel{sec:12-pretrained}{{4.6.2}{13}{Pretrained word embeddings --- negative result}{subsubsection.4.6.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Pretrained word embeddings on the lower-cased-word channel. Fine-tuning destroys the pretrained structure ($-$2.3 vs.\ random); freezing partially recovers (+5.5); stacking pretrained vectors on top of \texttt  {final04} drops macro-F1 by \textbf  {$-$5.7}. spaCy \texttt  {md} is trained on generic news text and carries the wrong priors for drug names.}}{14}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:12-pretrained}{{11}{14}{Pretrained word embeddings on the lower-cased-word channel. Fine-tuning destroys the pretrained structure ($-$2.3 vs.\^^Mrandom); freezing partially recovers (+5.5); stacking pretrained vectors on top of \texttt {final04} drops macro-F1 by \textbf {$-$5.7}. spaCy \texttt {md} is trained on generic news text and carries the wrong priors for drug names}{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.6.3}Seed stability on final04}{14}{subsubsection.4.6.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Seed variance on the round-1 champion \texttt  {final04} (4 seeds).}}{14}{table.caption.24}\protected@file@percent }
+\newlabel{tab:12-seed-final04}{{8}{14}{Seed variance on the round-1 champion \texttt {final04} (4 seeds)}{table.caption.24}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.6.4}Longer training}{15}{subsubsection.4.6.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Longer training on \texttt  {final04}. 20 epochs is the sweet spot.}}{15}{table.caption.25}\protected@file@percent }
+\newlabel{tab:12-longer}{{9}{15}{Longer training on \texttt {final04}. 20 epochs is the sweet spot}{table.caption.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Round 3 --- combine round-2 winners}{15}{subsection.4.7}\protected@file@percent }
+\newlabel{sec:12-round3}{{4.7}{15}{Round 3 --- combine round-2 winners}{subsection.4.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Round-3 combine-winners on devel.}}{15}{table.caption.26}\protected@file@percent }
+\newlabel{tab:12-round3}{{10}{15}{Round-3 combine-winners on devel}{table.caption.26}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Round-3 candidates on test.}}{15}{table.caption.27}\protected@file@percent }
+\newlabel{tab:12-round3-test}{{11}{15}{Round-3 candidates on test}{table.caption.27}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}Round 4 --- champion audit}{15}{subsection.4.8}\protected@file@percent }
+\newlabel{sec:12-round4}{{4.8}{15}{Round 4 --- champion audit}{subsection.4.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{A. Seed stability (4 seeds).}{16}{paragraph*.28}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Seed audit on the round-3 champion \texttt  {final2\_03\_e20}.}}{16}{table.caption.29}\protected@file@percent }
+\newlabel{tab:12-champ-seed}{{12}{16}{Seed audit on the round-3 champion \texttt {final2\_03\_e20}}{table.caption.29}{}}
+\@writefile{toc}{\contentsline {paragraph}{B. Epoch sensitivity ($\pm $2 around 20).}{16}{paragraph*.30}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Epoch sensitivity around the champion (seed~2345).}}{16}{table.caption.31}\protected@file@percent }
+\newlabel{tab:12-epoch}{{13}{16}{Epoch sensitivity around the champion (seed~2345)}{table.caption.31}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Epoch sensitivity on the champion configuration. 18--20 epochs is the sweet spot. The star marks \texttt  {champ\_big} (hidden=300), which at seed~2345 hits a new personal best of 70.6\%.}}{16}{figure.caption.32}\protected@file@percent }
+\newlabel{fig:12-epoch}{{12}{16}{Epoch sensitivity on the champion configuration. 18--20 epochs is the sweet spot. The star marks \texttt {champ\_big} (hidden=300), which at seed~2345 hits a new personal best of 70.6\%}{figure.caption.32}{}}
+\@writefile{toc}{\contentsline {paragraph}{C. Bigger LSTM (\texttt  {champ\_big}).}{16}{paragraph*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.9}Round 5 --- \texttt  {champ\_big} across seeds, devel \emph  {and} test}{17}{subsection.4.9}\protected@file@percent }
+\newlabel{sec:12-round5}{{4.9}{17}{Round 5 --- \texttt {champ\_big} across seeds, devel \emph {and} test}{subsection.4.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces Round-5 devel+test matrix. \texttt  {champ\_big} is the first config with a \emph  {robust} test advantage.}}{17}{table.caption.34}\protected@file@percent }
+\newlabel{tab:12-round5}{{14}{17}{Round-5 devel+test matrix. \texttt {champ\_big} is the first config with a \emph {robust} test advantage}{table.caption.34}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Seed variance on devel (left) and test (right) for the two architectures. Horizontal lines are the means. On \emph  {test}, every single \texttt  {champ\_big} run beats the \emph  {best} champion run --- a +1.5 point mean improvement that survives seed variance.}}{17}{figure.caption.35}\protected@file@percent }
+\newlabel{fig:12-seed}{{13}{17}{Seed variance on devel (left) and test (right) for the two architectures. Horizontal lines are the means. On \emph {test}, every single \texttt {champ\_big} run beats the \emph {best} champion run --- a +1.5 point mean improvement that survives seed variance}{figure.caption.35}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Devel vs.\ test for every saved model in rounds 4--5. Pearson correlation is weak (and for \texttt  {champ\_big} even inverted): the worst-devel \texttt  {champ\_big\_s777} (67.6) has the \emph  {best} test (70.6), while the best-devel \texttt  {champ\_big\_s42} (70.7) has a middling test (69.1). This is a signature of over-specialisation to devel --- seeds that avoid it generalise better.}}{18}{figure.caption.36}\protected@file@percent }
+\newlabel{fig:12-devtest}{{14}{18}{Devel vs.\ test for every saved model in rounds 4--5. Pearson correlation is weak (and for \texttt {champ\_big} even inverted): the worst-devel \texttt {champ\_big\_s777} (67.6) has the \emph {best} test (70.6), while the best-devel \texttt {champ\_big\_s42} (70.7) has a middling test (69.1). This is a signature of over-specialisation to devel --- seeds that avoid it generalise better}{figure.caption.36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.10}Final champion and per-class breakdown}{18}{subsection.4.10}\protected@file@percent }
+\newlabel{sec:12-final}{{4.10}{18}{Final champion and per-class breakdown}{subsection.4.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces Per-entity-type test results for the final champion \texttt  {champ\_big\_s42}. Test macro-F1 = 69.1\% (devel 70.7\%, gap $-$1.6, normal).}}{19}{table.caption.37}\protected@file@percent }
+\newlabel{tab:12-perclass}{{15}{19}{Per-entity-type test results for the final champion \texttt {champ\_big\_s42}. Test macro-F1 = 69.1\% (devel 70.7\%, gap $-$1.6, normal)}{table.caption.37}{}}
+\@writefile{toc}{\contentsline {paragraph}{Honest reporting.}{19}{paragraph*.38}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.11}Per-class comparison with System 1.1}{19}{subsection.4.11}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Per-entity-type test F1. The NN system dominates on \textit  {group} (+6.5) and slightly improves on \textit  {drug\_n} (+3.0), ties on \textit  {drug}, and loses a few points on \textit  {brand}. The pattern is consistent: the BiLSTM picks up distributional context (which helps semantic classes like \textit  {group}) at the cost of CRF's sharper local character patterns for trademark-style \textit  {brand} tokens.}}{20}{figure.caption.39}\protected@file@percent }
+\newlabel{fig:12-perentity}{{15}{20}{Per-entity-type test F1. The NN system dominates on \textit {group} (+6.5) and slightly improves on \textit {drug\_n} (+3.0), ties on \textit {drug}, and loses a few points on \textit {brand}. The pattern is consistent: the BiLSTM picks up distributional context (which helps semantic classes like \textit {group}) at the cost of CRF's sharper local character patterns for trademark-style \textit {brand} tokens}{figure.caption.39}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces Final cross-system per-type comparison. System~1.2 (\texttt  {champ\_big\_s42}) improves total macro-F1 by +1.4~pt over System~1.1 (CRF~mod8), with all of the gain coming from \textit  {group} and \textit  {drug\_n}.}}{20}{table.caption.40}\protected@file@percent }
+\newlabel{tab:12-cross}{{16}{20}{Final cross-system per-type comparison. System~1.2 (\texttt {champ\_big\_s42}) improves total macro-F1 by +1.4~pt over System~1.1 (CRF~mod8), with all of the gain coming from \textit {group} and \textit {drug\_n}}{table.caption.40}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.12}Progress timeline and headline comparison}{20}{subsection.4.12}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Progress timeline for System 1.2. Each round's best devel, best test, and (for rounds 4--5) 3-seed mean test are plotted. The round-3 devel peak at 70.2\% was largely seed luck: the round-5 \texttt  {champ\_big} mean at 69.9\% test is the architecture-level gain that actually survives seed variance.}}{21}{figure.caption.41}\protected@file@percent }
+\newlabel{fig:12-timeline}{{16}{21}{Progress timeline for System 1.2. Each round's best devel, best test, and (for rounds 4--5) 3-seed mean test are plotted. The round-3 devel peak at 70.2\% was largely seed luck: the round-5 \texttt {champ\_big} mean at 69.9\% test is the architecture-level gain that actually survives seed variance}{figure.caption.41}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Final headline comparison. System~1.1 (CRF mod8) reaches 67.7\% test; System~1.2 reaches \textbf  {69.1\%} (single-seed, PDF-compliant) or \textbf  {69.9\%} (3-seed mean), a +1.4 or +2.2 point improvement respectively.}}{21}{figure.caption.42}\protected@file@percent }
+\newlabel{fig:12-cross}{{17}{21}{Final headline comparison. System~1.1 (CRF mod8) reaches 67.7\% test; System~1.2 reaches \textbf {69.1\%} (single-seed, PDF-compliant) or \textbf {69.9\%} (3-seed mean), a +1.4 or +2.2 point improvement respectively}{figure.caption.42}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.13}Discussion}{21}{subsection.4.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}System 1.3 — NERC with LLMs (pending)}{22}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions (pending)}{22}{section.6}\protected@file@percent }
+\gdef\minted@oldcachelist{,
+  friendly.pygstyle,
+  45737C81D0B1213C3DF16D24D6D9EA33F0D462A5B8A786EC0AE6CB0DE95C34FA.pygtex}
+\gdef \@abspage@last{23}

@@ -1,0 +1,21 @@
+[EXP-START] exp01_baseline 16:17:11 :: 
+[EXP-DONE ] exp01_baseline 16:19:49 :: macro-F1=54.2%
+[EXP-START] exp02_pos 16:19:49 :: use_pos=1
+[EXP-DONE ] exp02_pos 16:22:30 :: macro-F1=63.3%
+[EXP-START] exp03_pref 16:22:30 :: use_pref=1
+[EXP-DONE ] exp03_pref 16:25:13 :: macro-F1=57.9%
+[EXP-START] exp04_lemma 16:25:13 :: use_lemma=1
+[EXP-DONE ] exp04_lemma 16:28:15 :: macro-F1=51.5%
+[EXP-START] exp05_all_inputs 16:28:15 :: use_pref=1 use_lemma=1 use_pos=1
+[EXP-DONE ] exp05_all_inputs 16:31:31 :: macro-F1=58.0%
+[EXP-START] exp06_lstm2 16:31:31 :: lstm_layers=2 lstm_dropout=0.3
+[EXP-DONE ] exp06_lstm2 16:36:43 :: macro-F1=59.7%
+[EXP-START] exp07_layernorm 16:36:43 :: use_layernorm=1
+[EXP-DONE ] exp07_layernorm 16:39:27 :: macro-F1=60.5%
+[EXP-START] exp08_adamw 16:39:27 :: optimizer=adamw learning_rate=0.0005 weight_decay=0.01
+[EXP-DONE ] exp08_adamw 16:42:08 :: macro-F1=53.3%
+[EXP-START] exp09_big 16:42:08 :: lstm_hidden=300 fc_hidden=300
+[EXP-DONE ] exp09_big 16:46:00 :: macro-F1=58.1%
+[EXP-START] exp10_gelu 16:46:00 :: activation=gelu emb_dropout=0.2
+[EXP-DONE ] exp10_gelu 16:48:45 :: macro-F1=62.7%
+[BATCH-DONE] 16:48:45

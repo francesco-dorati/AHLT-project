@@ -1,0 +1,13 @@
+[EXP-START] champ_seed111 20:13:00 :: epochs=20 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 pref_len=2 suf_len=3 seed=111
+[EXP-DONE ] champ_seed111 20:19:48 :: macro-F1=68.1%
+[EXP-START] champ_seed777 20:19:48 :: epochs=20 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 pref_len=2 suf_len=3 seed=777
+[EXP-DONE ] champ_seed777 20:26:40 :: macro-F1=68.4%
+[EXP-START] champ_seed42 20:26:40 :: epochs=20 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 pref_len=2 suf_len=3 seed=42
+[EXP-DONE ] champ_seed42 20:34:03 :: macro-F1=68.0%
+[EXP-START] champ_big 20:34:03 :: epochs=20 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 pref_len=2 suf_len=3 lstm_hidden=300 fc_hidden=300
+[EXP-DONE ] champ_big 20:44:17 :: macro-F1=70.6%
+[EXP-START] champ_e18 20:44:17 :: batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 pref_len=2 suf_len=3 epochs=18
+[EXP-DONE ] champ_e18 20:51:07 :: macro-F1=70.0%
+[EXP-START] champ_e22 20:51:07 :: batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 pref_len=2 suf_len=3 epochs=22
+[EXP-DONE ] champ_e22 20:59:39 :: macro-F1=69.2%
+[CHAMP-DONE] 20:59:39

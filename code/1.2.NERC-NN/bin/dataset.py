@@ -16,7 +16,14 @@ class Dataset:
         else : # parameter should be an XML file, load it
             # create spacy Pos Tagger & lemmatizer
             if torch.cuda.is_available() : spacy.require_gpu()
-            nlp = spacy.load("en_core_web_trf")
+            # [MOD-1.2] fall back to en_core_web_sm when trf is not installed
+            # (identical downstream API: still provides token.pos_ / token.lemma_,
+            # so the new PoS/lemma embeddings keep working).
+            try:
+                nlp = spacy.load("en_core_web_trf")
+            except OSError:
+                print("[dataset] en_core_web_trf not found, falling back to en_core_web_sm")
+                nlp = spacy.load("en_core_web_sm")
             self.data = {}
             # parse XML file, obtaining a DOM tree
             tree = parse(filename)

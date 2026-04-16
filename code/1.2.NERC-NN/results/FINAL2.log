@@ -1,0 +1,11 @@
+[EXP-START] final2_01_e20_pref2 19:17:48 :: epochs=20 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 pref_len=2
+[EXP-DONE ] final2_01_e20_pref2 19:24:37 :: macro-F1=67.6%
+[EXP-START] final2_02_e20_suf3 19:24:37 :: epochs=20 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 suf_len=3
+[EXP-DONE ] final2_02_e20_suf3 19:31:47 :: macro-F1=69.9%
+[EXP-START] final2_03_e20_pref2_suf3 19:31:47 :: epochs=20 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 pref_len=2 suf_len=3
+[EXP-DONE ] final2_03_e20_pref2_suf3 19:39:15 :: macro-F1=70.0%
+[EXP-START] final2_04_e25 19:39:15 :: batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 epochs=25
+[EXP-DONE ] final2_04_e25 19:48:42 :: macro-F1=70.2%
+[EXP-START] final2_05_e25_pref2_suf3 19:48:42 :: batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 pref_len=2 suf_len=3 epochs=25
+[EXP-DONE ] final2_05_e25_pref2_suf3 19:57:48 :: macro-F1=69.1%
+[FINAL2-DONE] 19:57:48

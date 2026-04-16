@@ -1,0 +1,11 @@
+[EXP-START] final01_pos_ln 17:07:08 :: use_pos=1 use_layernorm=1
+[EXP-DONE ] final01_pos_ln 17:09:59 :: macro-F1=66.4%
+[EXP-START] final02_pos_gelu 17:09:59 :: use_pos=1 activation=gelu emb_dropout=0.2
+[EXP-DONE ] final02_pos_gelu 17:12:41 :: macro-F1=65.7%
+[EXP-START] final03_pos_ln_gelu 17:12:41 :: use_pos=1 use_layernorm=1 activation=gelu emb_dropout=0.2
+[EXP-DONE ] final03_pos_ln_gelu 17:15:30 :: macro-F1=64.7%
+[EXP-START] final04_pos_pref_ln_gelu 17:15:30 :: use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2
+[EXP-DONE ] final04_pos_pref_ln_gelu 17:18:34 :: macro-F1=67.4%
+[EXP-START] final05_pos_lstm2_ln_gelu 17:18:34 :: use_pos=1 use_layernorm=1 activation=gelu emb_dropout=0.2 lstm_layers=2 lstm_dropout=0.3
+[EXP-DONE ] final05_pos_lstm2_ln_gelu 17:24:24 :: macro-F1=66.7%
+[COMBO-DONE] 17:24:24

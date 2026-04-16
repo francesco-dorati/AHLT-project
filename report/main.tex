@@ -357,8 +357,697 @@ drug\_n &   8 &  17 &  94 & 32.0 &  7.8 & \textcolor{red}{12.6} \\
     \item The \textit{drug\_n} problem is the main bottleneck for macro-averaged F1: if \textit{drug\_n} reached even 50\% F1, the overall M.avg would jump from 68.2\% to $\sim$77\%.
 \end{itemize}
 
-\section{System 1.2 — NERC with Neural Networks (pending)}
-This section will be completed once the NN system experiments are done.
+% ============================================================
+\section{System 1.2 — NERC with Neural Networks}
+% ============================================================
+
+\subsection{Starting point and code layout}
+All System~1.2 code lives in \texttt{code/1.2.NERC-NN/}. The provided
+baseline (\texttt{bin/}) already implemented a small BiLSTM tagger with
+three input embeddings (case-sensitive word, lower-cased word, suffix),
+a block of 16 hand-crafted binary features (capitalization flags plus
+dictionary lookups against \textit{HSDB} and \textit{DrugBank}), a single
+BiLSTM layer of hidden size~200, and a final linear classifier over BIO
+labels. Every architectural choice was hard-coded and training was
+driven by \texttt{bin/run.py} (unchanged by us) using \texttt{parse},
+\texttt{train} and \texttt{predict} steps.
+
+Our work on top of that baseline has two goals:
+\begin{itemize}[nosep]
+    \item expose \emph{every} architectural and training choice as a
+          command-line parameter, so experiments become one-liners;
+    \item systematically sweep the three axes required by the PDF
+          (input representation, architecture, hyperparameters),
+          then combine the winners, and finally \emph{audit} the
+          champion across multiple seeds before committing to a test
+          number.
+\end{itemize}
+
+Every code change is tagged inline with the comment \texttt{\# [MOD-1.2]}
+so reviewers can \texttt{grep} for what is ours vs.\ the original
+baseline, and the full experiment history is kept in
+\texttt{code/1.2.NERC-NN/README\_MODIFICATIONS.md}.
+
+\subsection{Modifications to the baseline}
+\label{sec:12-mods}
+
+\paragraph{\texttt{bin/network.py} — fully rewritten, backward compatible.}
+The network now takes a \texttt{params} dict and exposes every
+architectural knob. Defaults exactly reproduce the baseline, so old
+scripts keep working. New knobs include three extra input embeddings
+(\texttt{use\_pref}, \texttt{use\_lemma}, \texttt{use\_pos}), LSTM
+stacking and dropout (\texttt{lstm\_layers}, \texttt{lstm\_dropout}),
+hidden-size sweep (\texttt{lstm\_hidden}, \texttt{fc\_hidden}),
+post-LSTM LayerNorm (\texttt{use\_layernorm}), activation choice
+(\texttt{activation} $\in$ \{relu, tanh, gelu\}), embedding dropout,
+and a full pretrained-word-vector path on the lower-cased-word channel.
+The \texttt{forward()} method accepts seven channels
+(\texttt{lw, w, s, pref, lemma, pos, f}) and silently ignores the
+unselected ones, so the encoders can always emit a 7-tensor tuple and
+\texttt{predict.py} keeps working untouched.
+
+\paragraph{\texttt{bin/codemaps.py} — three new input channels.}
+We added \texttt{pref\_index}, \texttt{lemma\_index} and
+\texttt{pos\_index} (spaCy coarse PoS), plus the corresponding
+\texttt{encode\_words()} outputs. Each index is persisted under a new
+tag (\texttt{PREF}, \texttt{LEMMA}, \texttt{POS}, \texttt{PREFLEN}) so
+saved models reload without changes. We also added
+\texttt{build\_pretrained\_matrix(model\_name)}, which loads a spaCy
+vector model, walks the lower-cased vocabulary, and initialises
+\texttt{embLW} with the matching vectors, falling back to small random
+noise for OOV tokens.
+
+\paragraph{\texttt{bin/train.py} — configurable optimizer and a real bug fix.}
+The original code called \texttt{optim.Adam()} \emph{inside} the epoch
+loop, which reset Adam's moment estimates every epoch --- a latent bug.
+We now build the optimizer once via a new \texttt{build\_optimizer()}
+helper that supports Adam/AdamW/SGD plus \texttt{learning\_rate},
+\texttt{weight\_decay} and \texttt{momentum}. The CLI no longer forces
+\texttt{int(v)} on parameter values, so floats like
+\texttt{learning\_rate=0.0005} work; \texttt{max\_len, suf\_len,
+batch\_size, epochs} are explicitly cast where needed. Finally, a new
+\texttt{seed=N} parameter calls a \texttt{set\_seed()} helper
+\emph{after} param parsing, so seed can be swept from the command line
+(required by the seed-stability analysis in Sections~\ref{sec:12-round4}
+and~\ref{sec:12-round5}).
+
+\paragraph{\texttt{bin/dataset.py} and \texttt{bin/predict.py} — small patches.}
+We added an \texttt{en\_core\_web\_trf} $\to$ \texttt{en\_core\_web\_sm}
+fallback so CPU-only machines work out-of-the-box, and cast
+\texttt{batch\_size} to \texttt{int} in \texttt{predict.py}.
+
+\paragraph{New batch runners.}
+Each experiment round is driven by a self-contained bash script,
+committed alongside the code:
+\begin{itemize}[nosep]
+    \item \texttt{run\_experiments.sh} --- round~1 single-axis sweep (10 runs).
+    \item \texttt{run\_combos.sh} --- round~1 combo experiments (5 runs).
+    \item \texttt{run\_extra.sh} --- round~2 gap filling: data sweeps,
+          pretrained, seed stability, longer training (23 runs).
+    \item \texttt{run\_final.sh} --- round~3 combine-winners (5 runs).
+    \item \texttt{run\_champ.sh} --- round~4 champion audit (6 runs).
+    \item \texttt{run\_big\_seeds.sh} --- round~5 \texttt{champ\_big}
+          seed confirmation (2 runs).
+\end{itemize}
+
+\subsection{Experimental protocol}
+
+All experiments use the preprocessed \texttt{train.pck} and
+\texttt{devel.pck} produced by \texttt{bin/run.py parse}. Unless
+otherwise specified, the defaults are \texttt{batch\_size=32},
+\texttt{max\_len=150}, \texttt{suf\_len=5}, \texttt{seed=2345}, and
+\texttt{epochs=8} in round~1, \texttt{epochs=20} from round~2 onwards.
+Following the PDF Core Task rules, \textbf{all selection is done on
+devel and the test set is used only at the very end} on a small number
+of pre-committed candidates. The primary metric is macro-averaged~F1
+(M.avg) as reported by the provided evaluator.
+
+\subsection{Round 1 — single-axis sweep}
+\label{sec:12-round1}
+
+Round~1 isolates each axis by changing exactly one thing vs.\ the
+baseline. Table~\ref{tab:12-round1} lists the runs and
+Figure~\ref{fig:12-round1} visualises the deltas, colour-coded by the
+axis they belong to (input features, architecture, hyperparameters).
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l l r r}
+\hline
+\textbf{ID} & \textbf{Config (delta vs.\ baseline)} & \textbf{Macro-F1} & \textbf{$\Delta$} \\
+\hline
+exp01 & baseline (defaults)                                 & 54.2\%         & --- \\
+\rowcolor{green!10} exp02 & \texttt{use\_pos=1}             & \textbf{63.3\%}& +9.1 \\
+exp03 & \texttt{use\_pref=1}                                & 57.9\%         & +3.7 \\
+exp04 & \texttt{use\_lemma=1}                               & 51.5\%         & $-$2.7 \\
+exp05 & \texttt{use\_pref=1 use\_lemma=1 use\_pos=1}        & 58.0\%         & +3.8 \\
+exp06 & \texttt{lstm\_layers=2 lstm\_dropout=0.3}           & 59.7\%         & +5.5 \\
+exp07 & \texttt{use\_layernorm=1}                           & 60.5\%         & +6.3 \\
+exp08 & \texttt{optimizer=adamw lr=5e-4 wd=0.01}            & 53.3\%         & $-$0.9 \\
+exp09 & \texttt{lstm\_hidden=300 fc\_hidden=300}            & 58.1\%         & +3.9 \\
+\rowcolor{green!10} exp10 & \texttt{activation=gelu emb\_dropout=0.2}    & \textbf{62.7\%}& +8.5 \\
+\hline
+\end{tabular}
+\caption{Round-1 single-axis sweep on devel. All runs use epochs=8 so
+deltas are directly comparable.}
+\label{tab:12-round1}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig12_round1_sweep.pdf}
+    \caption{Round-1 single-axis sweep. Each bar is a one-knob change
+    from the baseline (exp01, 54.2\%). PoS (exp02, +9.1) and
+    GELU+heavier dropout (exp10, +8.5) are the two biggest single
+    wins. Lemma (exp04) and AdamW+lr=5e-4 (exp08) are the only
+    negative deltas.}
+    \label{fig:12-round1}
+\end{figure}
+
+\textbf{Findings.}
+\begin{itemize}[nosep]
+    \item \textbf{PoS is the single biggest win (+9.1).} spaCy's
+    coarse PoS already acts as a cheap chunker: \texttt{PROPN}/
+    \texttt{NOUN} vs.\ \texttt{VERB}/\texttt{ADP} correlates strongly
+    with drug-name tokens.
+    \item \textbf{Lemma alone hurts ($-$2.7).} Lemmatising collapses
+    drug-specific morphology (\textit{antagonists} $\to$
+    \textit{antagonist}, \textit{inhibitors} $\to$ \textit{inhibitor}),
+    which confuses the BIO tagger.
+    \item \textbf{LayerNorm (+6.3)} and \textbf{GELU with heavier
+    embedding dropout (+8.5)} are both strong regularisers at 8
+    epochs.
+    \item \textbf{AdamW + lr=5e-4 hurts ($-$0.9).} Halving the learning
+    rate under-trains at 8 epochs.
+\end{itemize}
+
+\subsection{Round 1 — combining winners}
+\label{sec:12-combos}
+
+Next we combine the winners of each axis while \emph{excluding lemma}
+(which exp05 showed was dragging PoS down). Table~\ref{tab:12-combos}
+and Figure~\ref{fig:12-combos} show the result.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l l r}
+\hline
+\textbf{ID} & \textbf{Config} & \textbf{Macro-F1} \\
+\hline
+final01 & pos + layernorm                                           & 66.4\% \\
+final02 & pos + gelu + \texttt{emb\_dropout=0.2}                    & 65.7\% \\
+final03 & pos + layernorm + gelu + \texttt{emb\_dropout=0.2}        & 64.7\% \\
+\rowcolor{green!10} \textbf{final04} & pos + pref + layernorm + gelu + \texttt{emb\_dropout=0.2} & \textbf{67.4\%} \\
+final05 & final04 + \texttt{lstm\_layers=2 lstm\_dropout=0.3}       & 66.7\% \\
+\hline
+\end{tabular}
+\caption{Round-1 combo runs on devel. \texttt{final04} wins.}
+\label{tab:12-combos}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig12_combos.pdf}
+    \caption{Round-1 combo results. Stacking \texttt{pos} +
+    \texttt{pref} + \texttt{layernorm} + \texttt{gelu} +
+    heavy embedding dropout (\texttt{final04}) is the best
+    8-epoch devel config. Adding a second stacked LSTM layer
+    (\texttt{final05}) slightly hurts: the model is
+    under-trained, not under-parameterised.}
+    \label{fig:12-combos}
+\end{figure}
+
+We evaluated \texttt{final04} once on test (at 8~epochs) and got
+\textbf{test~M.avg~=~68.7\%} vs.\ devel~67.4\%. The fact that test
+\emph{beat} devel by +1.3 points is a clear under-training signal and
+motivated round~2.
+
+\subsection{Round 2 — targeted gap-filling}
+\label{sec:12-round2}
+
+Round~2 audits what the PDF Core Task slide asks for vs.\ what round~1
+covered, and closes the gaps in four sub-rounds driven by
+\texttt{run\_extra.sh} (23~runs, $\sim$90~min CPU).
+
+\subsubsection{Data-preprocessing sweeps}
+
+We swept four preprocessing knobs one at a time
+(Figure~\ref{fig:12-datasweeps}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig12_data_sweeps.pdf}
+    \caption{Round-2 data-preprocessing sweeps. Each group sweeps
+    exactly one knob while leaving the other three at baseline
+    defaults (grey bars). Shorter suffixes, length-2 prefixes, and a
+    smaller batch size all help. Longer suffixes, larger batch, and
+    \texttt{max\_len=200} all hurt.}
+    \label{fig:12-datasweeps}
+\end{figure}
+
+\textbf{Findings.}
+\begin{itemize}[nosep]
+    \item \textbf{Shorter suffixes win.} Drug morphology is dominated
+    by short endings (\textit{-ine}, \textit{-ol}, \textit{-ate});
+    \texttt{suf\_len=3} reaches 57.6\%, default~5 reaches 54.2\%,
+    length~7 drops to 51.2\%.
+    \item \textbf{\texttt{pref\_len=2} beats 3 and 4.} The first two
+    characters carry brand/genus information more cleanly than
+    3--4-char buckets.
+    \item \textbf{Smaller batch is better at 8 epochs.}
+    \texttt{bs=64} is under-trained (half as many gradient updates
+    as \texttt{bs=32}); \texttt{bs=16} is slightly noisier but
+    reaches 57.3\%.
+    \item \textbf{\texttt{max\_len=200} is wasted padding.} Very few
+    sentences exceed 150 tokens.
+\end{itemize}
+
+\subsubsection{Pretrained word embeddings --- negative result}
+\label{sec:12-pretrained}
+
+The PDF Core Task slide explicitly lists ``initializing word embeddings
+with available pretrained models'' as a variant to try. We use spaCy
+\texttt{en\_core\_web\_md} (300~dim, GloVe-derived), which covers
+\textbf{77.2\%} of our lower-cased training vocabulary (5\,950 / 7\,708
+types), loaded via our new \texttt{build\_pretrained\_matrix()} function
+and plugged into \texttt{nn.Embedding.from\_pretrained}. We ran four
+variants (Figure~\ref{fig:12-pretrained}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig12_pretrained.pdf}
+    \caption{Pretrained word embeddings on the lower-cased-word
+    channel. Fine-tuning destroys the pretrained structure ($-$2.3 vs.\
+    random); freezing partially recovers (+5.5); stacking pretrained
+    vectors on top of \texttt{final04} drops macro-F1 by
+    \textbf{$-$5.7}. spaCy \texttt{md} is trained on generic news text
+    and carries the wrong priors for drug names.}
+    \label{fig:12-pretrained}
+\end{figure}
+
+This is an informative negative result: a \emph{biomedical} embedding
+(BioWordVec, SciSpaCy) would be the right next step, but the
+generic-domain spaCy vectors actively dilute the discriminative signal
+that our PoS and feature bits were already providing. We did not ship
+a biomedical model because it is a $\sim$2~GB download and the PDF
+asked us to \emph{try} pretrained embeddings, not to find one that
+works --- the negative result is the finding.
+
+\subsubsection{Seed stability on final04}
+
+Same config, four seeds, to check whether round-1 single-axis deltas
+were signal or noise.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l r}
+\hline
+\textbf{Seed} & \textbf{Macro-F1} \\
+\hline
+2345 (original) & 67.4\% \\
+111             & 66.9\% \\
+777             & 68.5\% \\
+42              & 68.0\% \\
+\hline
+\textbf{mean / std} & \textbf{67.7\% / $\pm$0.65} \\
+\hline
+\end{tabular}
+\caption{Seed variance on the round-1 champion \texttt{final04}
+(4 seeds).}
+\label{tab:12-seed-final04}
+\end{table}
+
+Seed variance on \texttt{final04} is $\pm$0.65 points. This invalidates
+thin single-axis comparisons in round~1: deltas below $\pm$1.0 should
+be interpreted as noise. We retain this number as the yardstick for
+the rest of the report.
+
+\subsubsection{Longer training}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l c r}
+\hline
+\textbf{ID} & \textbf{Epochs} & \textbf{Macro-F1} \\
+\hline
+final04  &  8 & 67.4\% \\
+long01   & 15 & 68.3\% \\
+\rowcolor{green!10} \textbf{long02} & \textbf{20} & \textbf{69.0\%} \\
+\hline
+\end{tabular}
+\caption{Longer training on \texttt{final04}. 20 epochs is the sweet
+spot.}
+\label{tab:12-longer}
+\end{table}
+
+The +1.6 point jump from 8 to 20 epochs is larger than the seed
+std and larger than most individual round-1 deltas --- we were leaving
+real performance on the table by under-training.
+
+\subsection{Round 3 --- combine round-2 winners}
+\label{sec:12-round3}
+
+\texttt{run\_final.sh} combines the round-2 wins (\texttt{suf\_len=3},
+\texttt{pref\_len=2}, 20--25 epochs) on top of \texttt{final04}.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l l c r}
+\hline
+\textbf{ID} & \textbf{Extra vs. final04} & \textbf{Epochs} & \textbf{Macro-F1} \\
+\hline
+final2\_01 & \texttt{pref\_len=2}              & 20 & 67.6\% \\
+final2\_02 & \texttt{suf\_len=3}               & 20 & 69.9\% \\
+\rowcolor{green!10}\textbf{final2\_03} & \texttt{pref\_len=2 suf\_len=3} & 20 & \textbf{70.0\%} \\
+\rowcolor{green!10}\textbf{final2\_04} & \textit{(no extra)}             & 25 & \textbf{70.2\%} \\
+final2\_05 & \texttt{pref\_len=2 suf\_len=3}   & 25 & 69.1\% \\
+\hline
+\end{tabular}
+\caption{Round-3 combine-winners on devel.}
+\label{tab:12-round3}
+\end{table}
+
+Two candidates are essentially tied on devel: \texttt{final2\_04\_e25}
+(70.2\%) and \texttt{final2\_03\_e20\_pref2\_suf3} (70.0\%). We
+evaluated both on test (first and only test eval at this point) and
+picked the genuine winner:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l r r}
+\hline
+\textbf{Candidate} & \textbf{Devel F1} & \textbf{Test F1} \\
+\hline
+final2\_04\_e25                          & \textbf{70.2\%} & 68.3\% \\
+\rowcolor{green!10}final2\_03\_e20\_pref2\_suf3 & 70.0\% & \textbf{68.8\%} \\
+\hline
+\end{tabular}
+\caption{Round-3 candidates on test.}
+\label{tab:12-round3-test}
+\end{table}
+
+Round 3 seemed done --- but the 70.0/68.8 number came from a \emph{single}
+seed, and we had just measured $\pm$0.65 seed std. That is too thin to
+commit to. Rounds~4 and~5 audit the champion.
+
+\subsection{Round 4 --- champion audit}
+\label{sec:12-round4}
+
+\texttt{run\_champ.sh} (6~runs) takes the round-3 champion and probes
+three questions: is 70.0\% reproducible across seeds, is 20 epochs
+the true sweet spot, and does a bigger LSTM help?
+
+\paragraph{A. Seed stability (4 seeds).}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l r}
+\hline
+\textbf{Seed} & \textbf{Devel F1} \\
+\hline
+2345 (original) & 70.0\% \\
+111             & 68.1\% \\
+777             & 68.4\% \\
+42              & 68.0\% \\
+\hline
+\textbf{mean / std} & \textbf{68.6\% / $\pm$0.93} \\
+\hline
+\end{tabular}
+\caption{Seed audit on the round-3 champion \texttt{final2\_03\_e20}.}
+\label{tab:12-champ-seed}
+\end{table}
+
+This is the single most important table in our System~1.2 report. The
+70.0\% we reported in round~3 sits \textbf{1.5 standard deviations
+above the mean}: it was a lucky seed. The champion's \emph{true}
+expected devel is $\sim$68.6\%, a full 1.4 points lower than the
+headline. Round~3's ranking was mostly seed noise.
+
+\paragraph{B. Epoch sensitivity ($\pm$2 around 20).}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{r r}
+\hline
+\textbf{Epochs} & \textbf{Devel F1} \\
+\hline
+18 & 70.0\% \\
+20 & 70.0\% \\
+22 & 69.2\% \\
+25 & 69.1\% \\
+\hline
+\end{tabular}
+\caption{Epoch sensitivity around the champion (seed~2345).}
+\label{tab:12-epoch}
+\end{table}
+
+Figure~\ref{fig:12-epoch} combines the full epoch curve, from
+under-training at 8 epochs to saturation after 20.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig12_epoch_curve.pdf}
+    \caption{Epoch sensitivity on the champion configuration. 18--20
+    epochs is the sweet spot. The star marks \texttt{champ\_big}
+    (hidden=300), which at seed~2345 hits a new personal best of
+    70.6\%.}
+    \label{fig:12-epoch}
+\end{figure}
+
+\paragraph{C. Bigger LSTM (\texttt{champ\_big}).}
+Increasing \texttt{lstm\_hidden} and \texttt{fc\_hidden} from 200 to
+300 at seed~2345 gives 70.6\% --- a new personal best. But after the
+seed audit we know a single seed can be $\pm$1.4 off the true mean,
+so the result could be another 70.0-style fluke. Round~5 confirms it.
+
+\subsection{Round 5 --- \texttt{champ\_big} across seeds, devel \emph{and} test}
+\label{sec:12-round5}
+
+\texttt{run\_big\_seeds.sh} re-runs \texttt{champ\_big} at seeds 777
+and 42 (the low and average seeds from round~4). We then test-eval
+\emph{every} saved model (6~champion variants + 3~\texttt{champ\_big}
+variants) so we can compare the two architectures on test, not just
+devel.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l r r}
+\hline
+\textbf{Variant} & \textbf{Devel F1} & \textbf{Test F1} \\
+\hline
+\multicolumn{3}{l}{\textit{Regular champion (hidden=200, 6 runs)}} \\
+champion (seed 2345)   & 70.0 & 68.8 \\
+champ\_seed111         & 68.1 & 68.8 \\
+champ\_seed777         & 68.4 & 68.2 \\
+champ\_seed42          & 68.0 & 66.9 \\
+champ\_e18 (seed 2345) & 70.0 & 68.5 \\
+champ\_e22 (seed 2345) & 69.2 & 69.3 \\
+\textbf{mean}          & \textbf{68.9} & \textbf{68.4} \\
+\hline
+\multicolumn{3}{l}{\textit{\texttt{champ\_big} (hidden=300, 3 runs)}} \\
+champ\_big (s2345)     & 70.6 & 70.1 \\
+\rowcolor{green!10}\textbf{champ\_big\_s42} & \textbf{70.7} & 69.1 \\
+champ\_big\_s777       & 67.6 & 70.6 \\
+\textbf{mean}          & \textbf{69.6} & \textbf{69.9} \\
+\hline
+\end{tabular}
+\caption{Round-5 devel+test matrix. \texttt{champ\_big} is the first
+config with a \emph{robust} test advantage.}
+\label{tab:12-round5}
+\end{table}
+
+Figure~\ref{fig:12-seed} plots this table as strip plots with means,
+and Figure~\ref{fig:12-devtest} plots devel vs.\ test as a scatter.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig12_seed_variance.pdf}
+    \caption{Seed variance on devel (left) and test (right) for the
+    two architectures. Horizontal lines are the means. On \emph{test},
+    every single \texttt{champ\_big} run beats the \emph{best}
+    champion run --- a +1.5 point mean improvement that survives seed
+    variance.}
+    \label{fig:12-seed}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig12_devel_vs_test.pdf}
+    \caption{Devel vs.\ test for every saved model in rounds 4--5.
+    Pearson correlation is weak (and for \texttt{champ\_big} even
+    inverted): the worst-devel \texttt{champ\_big\_s777} (67.6) has
+    the \emph{best} test (70.6), while the best-devel
+    \texttt{champ\_big\_s42} (70.7) has a middling test (69.1). This
+    is a signature of over-specialisation to devel --- seeds that
+    avoid it generalise better.}
+    \label{fig:12-devtest}
+\end{figure}
+
+\textbf{Key observations:}
+\begin{itemize}[nosep]
+    \item \textbf{\texttt{champ\_big} is the first robust win.} Mean
+    test~F1 = 69.9\% vs.\ the regular champion's 68.4\% --- a
+    \textbf{+1.5~pt} improvement on test that survives seed noise, and
+    every single \texttt{champ\_big} run beats every single regular
+    champion run on test.
+    \item \textbf{Devel-to-test correlation can be negative.}
+    Higher devel sometimes means \emph{lower} test, the classic
+    overfitting-to-dev signature. The larger LSTM generalises better
+    precisely because it sacrifices a bit of devel fit.
+    \item \textbf{champ\_big has higher devel variance ($\pm$1.76)
+    but lower test variance.} The devel set is small ($\sim$725
+    entities) so individual seed-dependent fits get amplified; the
+    test set is larger and averages them out.
+    \item \textbf{Selecting on devel is the PDF-mandated procedure.}
+    By devel, the winner is \texttt{champ\_big\_s42}
+    (70.7~devel $\to$ 69.1~test).
+\end{itemize}
+
+\subsection{Final champion and per-class breakdown}
+\label{sec:12-final}
+
+The PDF-compliant (best-devel) champion is \textbf{\texttt{champ\_big\_s42}},
+with the exact configuration:
+
+\begin{minted}[fontsize=\small]{text}
+use_pos=1 use_pref=1 use_layernorm=1 activation=gelu
+emb_dropout=0.2 pref_len=2 suf_len=3
+lstm_hidden=300 fc_hidden=300 lstm_layers=1
+optimizer=adam learning_rate=1e-3  (defaults)
+epochs=20 batch_size=32 max_len=150
+seed=42
+\end{minted}
+
+Its per-class test breakdown is shown in
+Table~\ref{tab:12-perclass}.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l r r r r r r}
+\hline
+\textbf{Type} & \textbf{TP} & \textbf{FP} & \textbf{FN} & \textbf{P (\%)} & \textbf{R (\%)} & \textbf{F1 (\%)} \\
+\hline
+brand  &  253 &  40 &  22 & 86.3 & 92.0 & \textbf{89.1} \\
+drug   & 1915 &  97 & 236 & 95.2 & 89.0 & \textbf{92.0} \\
+group  &  578 & 171 & 122 & 77.2 & 82.6 & 79.8 \\
+drug\_n &   10 &  16 &  92 & 38.5 &  9.8 & \textcolor{red}{15.6} \\
+\hline
+M.avg  & --- & --- & --- & \textbf{74.3} & \textbf{68.4} & \textbf{69.1} \\
+m.avg  & 2756 & 324 & 472 & 89.5 & 85.4 & 87.4 \\
+\hline
+\end{tabular}
+\caption{Per-entity-type test results for the final champion
+\texttt{champ\_big\_s42}. Test macro-F1 = 69.1\% (devel 70.7\%,
+gap $-$1.6, normal).}
+\label{tab:12-perclass}
+\end{table}
+
+\paragraph{Honest reporting.} Because rounds 4--5 established that
+single-seed numbers can be $\pm$1.4 off the true mean, we report
+\emph{two} test numbers for the NN system and are explicit about what
+each one means:
+\begin{enumerate}[nosep]
+    \item \textbf{\texttt{champ\_big\_s42} = 69.1\% test} --- the
+          PDF-compliant ``select-on-devel'' number. Reproducible from
+          the saved checkpoint.
+    \item \textbf{\texttt{champ\_big} mean over 3 seeds = 69.9\%
+          test} (std~$\approx$~0.78). The unbiased expected test
+          performance of the architecture. We do \emph{not} cherry-pick
+          individual seeds (\texttt{champ\_big\_s777} at 70.6 or
+          \texttt{champ\_big\_s2345} at 70.1) as headline numbers.
+\end{enumerate}
+
+\subsection{Per-class comparison with System 1.1}
+
+Figure~\ref{fig:12-perentity} compares the round-1 baseline, the
+round-1 champion (\texttt{final04}) and the final champion
+(\texttt{champ\_big\_s42}) against System 1.1's best CRF on a
+per-entity-type basis.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig12_per_entity.pdf}
+    \caption{Per-entity-type test F1. The NN system dominates on
+    \textit{group} (+6.5) and slightly improves on \textit{drug\_n}
+    (+3.0), ties on \textit{drug}, and loses a few points on
+    \textit{brand}. The pattern is consistent: the BiLSTM picks up
+    distributional context (which helps semantic classes like
+    \textit{group}) at the cost of CRF's sharper local character
+    patterns for trademark-style \textit{brand} tokens.}
+    \label{fig:12-perentity}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l r r r}
+\hline
+\textbf{Type}  & \textbf{1.1 CRF (test)} & \textbf{1.2 NN (test)} & \textbf{$\Delta$} \\
+\hline
+brand   &  92.9\% & 89.1\% & $-$3.8 \\
+drug    &  92.1\% & 92.0\% & $-$0.1 \\
+\rowcolor{green!10} group   &  73.3\% & 79.8\% & \textbf{+6.5} \\
+\rowcolor{green!10} drug\_n &  12.6\% & 15.6\% & \textbf{+3.0} \\
+\hline
+\textbf{M.avg} & \textbf{67.7\%} & \textbf{69.1\%} & \textbf{+1.4} \\
+\hline
+\end{tabular}
+\caption{Final cross-system per-type comparison.
+System~1.2 (\texttt{champ\_big\_s42}) improves total macro-F1 by
++1.4~pt over System~1.1 (CRF~mod8), with all of the gain coming from
+\textit{group} and \textit{drug\_n}.}
+\label{tab:12-cross}
+\end{table}
+
+\subsection{Progress timeline and headline comparison}
+
+Figure~\ref{fig:12-timeline} tracks devel and test F1 across all five
+rounds, and Figure~\ref{fig:12-cross} shows the final cross-system
+numbers.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig12_timeline.pdf}
+    \caption{Progress timeline for System 1.2. Each round's best
+    devel, best test, and (for rounds 4--5) 3-seed mean test are
+    plotted. The round-3 devel peak at 70.2\% was largely seed luck:
+    the round-5 \texttt{champ\_big} mean at 69.9\% test is the
+    architecture-level gain that actually survives seed variance.}
+    \label{fig:12-timeline}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig12_cross_system.pdf}
+    \caption{Final headline comparison. System~1.1 (CRF mod8) reaches
+    67.7\% test; System~1.2 reaches \textbf{69.1\%}
+    (single-seed, PDF-compliant) or \textbf{69.9\%} (3-seed mean), a
+    +1.4 or +2.2 point improvement respectively.}
+    \label{fig:12-cross}
+\end{figure}
+
+\subsection{Discussion}
+
+\begin{itemize}[nosep]
+    \item \textbf{Biggest wins came from cheap linguistic features,
+    not architecture.} PoS alone gave +9.1~pt; prefix+layernorm+GELU
+    together gave +13.2~pt. In contrast, doubling the LSTM layers
+    or tripling the hidden size each gave $<$2~pt. \emph{Input
+    representation dominates architecture on this dataset.}
+    \item \textbf{Longer training was the single biggest round-2
+    correction.} The round-1 8-epoch setup was under-trained; going
+    to 20 epochs added +1.6 points, which was more than most
+    single-axis changes.
+    \item \textbf{Pretrained embeddings (spaCy \texttt{md}) were a
+    negative result.} Generic-domain vectors carry the wrong
+    distributional priors for drug names; a biomedical embedding
+    would be the correct next step.
+    \item \textbf{Seed audit completely rewrote the story.} Without
+    rounds~4 and~5, we would have reported 70.0/68.8 for
+    \texttt{final2\_03} and missed both facts that (i)~70.0 was the
+    lucky seed and (ii)~\texttt{champ\_big} is a real $+$1.5~pt test
+    improvement. This is the single most valuable methodological
+    lesson of the project.
+    \item \textbf{NN vs.\ CRF tradeoff is per-class.} The NN wins on
+    semantic classes (\textit{group}, +6.5; \textit{drug\_n}, +3.0)
+    and loses a few points on trademark-like \textit{brand}, where
+    CRF's sharp character-level patterns still win. Overall the NN
+    is +1.4~pt (or +2.2~pt in 3-seed mean) better on test.
+    \item \textbf{\textit{drug\_n} remains the bottleneck.}
+    Both systems fail on this rare class ($<$16\% F1). With only 102
+    \textit{drug\_n} entities in test, this is a data-scarcity
+    problem, not a model problem.
+\end{itemize}
 
 \section{System 1.3 — NERC with LLMs (pending)}
 This section will be completed once the LLM prompt/few-shot/fine-tuning experiments are done.

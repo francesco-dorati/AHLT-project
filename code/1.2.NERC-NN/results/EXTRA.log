@@ -1,0 +1,47 @@
+[EXP-START] exp11_suf3 17:41:46 :: epochs=8 batch_size=32 suf_len=3
+[EXP-DONE ] exp11_suf3 17:44:27 :: macro-F1=57.6%
+[EXP-START] exp12_suf7 17:44:27 :: epochs=8 batch_size=32 suf_len=7
+[EXP-DONE ] exp12_suf7 17:47:10 :: macro-F1=51.2%
+[EXP-START] exp13_pref2 17:47:10 :: epochs=8 batch_size=32 use_pref=1 pref_len=2
+[EXP-DONE ] exp13_pref2 17:50:15 :: macro-F1=59.3%
+[EXP-START] exp14_pref4 17:50:15 :: epochs=8 batch_size=32 use_pref=1 pref_len=4
+[EXP-DONE ] exp14_pref4 17:53:22 :: macro-F1=58.3%
+[EXP-START] exp15_bs16 17:53:22 :: epochs=8 batch_size=16
+[EXP-DONE ] exp15_bs16 17:56:24 :: macro-F1=57.3%
+[EXP-START] exp16_bs64 17:56:24 :: epochs=8 batch_size=64
+[EXP-DONE ] exp16_bs64 17:59:07 :: macro-F1=51.6%
+[EXP-START] exp17_maxlen100 17:59:07 :: epochs=8 batch_size=32 max_len=100
+[EXP-DONE ] exp17_maxlen100 18:01:09 :: macro-F1=57.1%
+[EXP-START] exp18_maxlen200 18:01:09 :: epochs=8 batch_size=32 max_len=200
+[EXP-DONE ] exp18_maxlen200 18:04:58 :: macro-F1=53.9%
+[EXP-START] exp19_pretrained 18:04:58 :: epochs=8 batch_size=32 pretrained=1
+[EXP-DONE ] exp19_pretrained 18:08:44 :: macro-F1=51.9%
+[EXP-START] exp20_pretrained_frozen 18:08:44 :: epochs=8 batch_size=32 pretrained=1 pretrained_freeze=1
+[EXP-DONE ] exp20_pretrained_frozen 18:12:28 :: macro-F1=59.7%
+[EXP-START] exp21_pretrained_pos 18:12:28 :: epochs=8 batch_size=32 pretrained=1 use_pos=1
+[EXP-DONE ] exp21_pretrained_pos 18:16:16 :: macro-F1=52.4%
+[EXP-START] exp22_pretrained_final04 18:16:16 :: epochs=8 batch_size=32 pretrained=1 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2
+[EXP-DONE ] exp22_pretrained_final04 18:20:23 :: macro-F1=61.7%
+[EXP-START] seed01_final04_s111 18:20:23 :: epochs=8 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 seed=111
+[EXP-DONE ] seed01_final04_s111 18:23:41 :: macro-F1=66.9%
+[EXP-START] seed02_final04_s777 18:23:41 :: epochs=8 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 seed=777
+[EXP-DONE ] seed02_final04_s777 18:26:51 :: macro-F1=68.5%
+[EXP-START] seed03_final04_s42 18:26:51 :: epochs=8 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 seed=42
+[EXP-DONE ] seed03_final04_s42 18:30:11 :: macro-F1=68.0%
+[EXP-START] long01_final04_e15 18:30:11 :: batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 epochs=15
+[EXP-DONE ] long01_final04_e15 18:36:11 :: macro-F1=68.3%
+[EXP-START] long02_final04_e20 18:36:11 :: batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 epochs=20
+[EXP-DONE ] long02_final04_e20 18:43:39 :: macro-F1=69.0%
+[EXP-START] long03_final05_e15 18:43:39 :: batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 lstm_layers=2 lstm_dropout=0.3 epochs=15
+[EXP-DONE ] long03_final05_e15 18:54:27 :: macro-F1=67.2%
+[EXP-START] best01_final04_big 18:54:27 :: epochs=8 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 lstm_hidden=300 fc_hidden=300
+[EXP-DONE ] best01_final04_big 18:58:47 :: macro-F1=68.5%
+[EXP-START] best02_final04_drop03 18:58:47 :: epochs=8 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 emb_dropout=0.3
+[EXP-DONE ] best02_final04_drop03 19:01:51 :: macro-F1=65.5%
+[EXP-START] best03_final04_wd1e5 19:01:51 :: epochs=8 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 weight_decay=1e-5
+[EXP-DONE ] best03_final04_wd1e5 19:04:52 :: macro-F1=66.4%
+[EXP-START] best04_final04_lstm2drop5 19:04:52 :: epochs=8 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=gelu emb_dropout=0.2 lstm_layers=2 lstm_dropout=0.5
+[EXP-DONE ] best04_final04_lstm2drop5 19:10:32 :: macro-F1=65.8%
+[EXP-START] best05_final04_tanh 19:10:32 :: epochs=8 batch_size=32 use_pos=1 use_pref=1 use_layernorm=1 activation=tanh emb_dropout=0.2
+[EXP-DONE ] best05_final04_tanh 19:13:31 :: macro-F1=65.6%
+[EXTRA-DONE] 19:13:31

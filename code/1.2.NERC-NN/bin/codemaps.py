@@ -17,6 +17,8 @@ class Codemaps :
     # --- constructor, create mapper either from training data, or
     # --- loading codemaps from given file
     def __init__(self, data, params) :
+        # [MOD-1.2] remember params so __create_indexs can read pref_len etc.
+        self.params = params if params is not None else {}
         maxlen = params['max_len'] if 'max_len' in params else None
         suflen = params['suf_len'] if 'suf_len' in params else None
         
@@ -63,23 +65,31 @@ class Codemaps :
 
             
     # --------- Create indexs from training data
-    # Extract all words and labels in given sentences and 
+    # Extract all words and labels in given sentences and
     # create indexes to encode them as numbers when needed
     def __create_indexs(self, data, maxlen, suflen) :
 
         self.maxlen = maxlen
         self.suflen = suflen
+        # [MOD-1.2] prefix length shares the same knob family as suffix; default 3
+        self.preflen = int(self.params.get('pref_len', 3)) if hasattr(self, 'params') else 3
         words = set([])
         lc_words = set([])
         sufs = set([])
+        prefs = set([])     # [MOD-1.2] prefixes
+        lemmas = set([])    # [MOD-1.2] lemmas
+        pos_tags = set([])  # [MOD-1.2] spaCy coarse PoS
         labels = set([])
-        
+
         for _,tokens,lab in data.sentences() :
             for i,t in enumerate(tokens) :
                 if t.text.startswith(" "): continue
                 words.add(t.text)
                 lc_words.add(t.text.lower())
                 sufs.add(t.text.lower()[-self.suflen:])
+                prefs.add(t.text.lower()[:self.preflen])       # [MOD-1.2]
+                lemmas.add(getattr(t, 'lemma_', t.text).lower())  # [MOD-1.2]
+                pos_tags.add(getattr(t, 'pos_', 'X'))          # [MOD-1.2]
                 labels.add(lab[i])
 
         self.word_index = {w: i+2 for i,w in enumerate(list(words))}
@@ -89,45 +99,70 @@ class Codemaps :
         self.lc_word_index = {w: i+2 for i,w in enumerate(list(lc_words))}
         self.lc_word_index['PAD'] = 0 # Padding
         self.lc_word_index['UNK'] = 1 # Unknown words
-        
+
         self.suf_index = {s: i+2 for i,s in enumerate(list(sufs))}
         self.suf_index['PAD'] = 0  # Padding
         self.suf_index['UNK'] = 1  # Unknown suffixes
 
+        # [MOD-1.2] new indexes: prefix, lemma, PoS
+        self.pref_index = {s: i+2 for i,s in enumerate(list(prefs))}
+        self.pref_index['PAD'] = 0
+        self.pref_index['UNK'] = 1
+
+        self.lemma_index = {w: i+2 for i,w in enumerate(list(lemmas))}
+        self.lemma_index['PAD'] = 0
+        self.lemma_index['UNK'] = 1
+
+        self.pos_index = {p: i+2 for i,p in enumerate(list(pos_tags))}
+        self.pos_index['PAD'] = 0
+        self.pos_index['UNK'] = 1
+
         self.label_index = {t: i+1 for i,t in enumerate(list(labels))}
         self.label_index['PAD'] = 0 # Padding
         
-    ## --------- load indexs ----------- 
-    def __load(self, name) : 
+    ## --------- load indexs -----------
+    def __load(self, name) :
         self.maxlen = 0
         self.suflen = 0
+        self.preflen = 3              # [MOD-1.2]
         self.word_index = {}
         self.lc_word_index = {}
         self.suf_index = {}
+        self.pref_index = {}          # [MOD-1.2]
+        self.lemma_index = {}         # [MOD-1.2]
+        self.pos_index = {}           # [MOD-1.2]
         self.label_index = {}
 
         with open(name+".idx") as f :
-            for line in f.readlines(): 
+            for line in f.readlines():
                 (t,k,i) = line.split()
                 if t == 'MAXLEN' : self.maxlen = int(k)
-                elif t == 'SUFLEN' : self.suflen = int(k)                
+                elif t == 'SUFLEN' : self.suflen = int(k)
+                elif t == 'PREFLEN' : self.preflen = int(k)            # [MOD-1.2]
                 elif t == 'WORD': self.word_index[k] = int(i)
                 elif t == 'LCWORD': self.lc_word_index[k] = int(i)
                 elif t == 'SUF': self.suf_index[k] = int(i)
+                elif t == 'PREF': self.pref_index[k] = int(i)          # [MOD-1.2]
+                elif t == 'LEMMA': self.lemma_index[k] = int(i)        # [MOD-1.2]
+                elif t == 'POS': self.pos_index[k] = int(i)            # [MOD-1.2]
                 elif t == 'LABEL': self.label_index[k] = int(i)
-                            
-    
+
+
     ## ---------- Save model and indexs ---------------
     def save(self, name) :
         # save indexes
         with open(name+".idx","w") as f :
             print ('MAXLEN', self.maxlen, "-", file=f)
             print ('SUFLEN', self.suflen, "-", file=f)
+            print ('PREFLEN', self.preflen, "-", file=f)               # [MOD-1.2]
             for key in self.label_index : print('LABEL', key, self.label_index[key], file=f)
-            for key in self.word_index : print('WORD', key, self.word_index[key], file=f)
             for key in self.word_index : print('WORD', key, self.word_index[key], file=f)
             for key in self.lc_word_index : print('LCWORD', key, self.lc_word_index[key], file=f)
             for key in self.suf_index : print('SUF', key, self.suf_index[key], file=f)
+            # [MOD-1.2] persist new indexes
+            for key in self.pref_index : print('PREF', key, self.pref_index[key], file=f)
+            for key in self.lemma_index : print('LEMMA', key, self.lemma_index[key], file=f)
+            for key in self.pos_index : print('POS', key, self.pos_index[key], file=f)
 
 
     ## --------- Pad tensors for short sentences and cut sentences longer 
@@ -153,7 +188,7 @@ class Codemaps :
               padded[i,j] = f
         return padded
     
-    ## --------- encode X from given data ----------- 
+    ## --------- encode X from given data -----------
     def encode_words(self, data) :
 
         #----- encode sentence words
@@ -163,17 +198,30 @@ class Codemaps :
         #------ encode sentence lowercase words
         enc = [torch.Tensor([self.lc_word_index[w.text.lower()] if w.text.lower() in self.lc_word_index else self.lc_word_index['UNK'] for w in s]) for _,s,_ in data.sentences()]
         Xlw = self.cut_and_pad(enc, self.lc_word_index['PAD'])
-        
+
         #------ encode sentence suffixes
         enc = [torch.Tensor([self.suf_index[w.text.lower()[-self.suflen:]] if w.text.lower()[-self.suflen:] in self.suf_index else self.suf_index['UNK'] for w in s]) for _,s,_ in data.sentences()]
         Xs = self.cut_and_pad(enc, self.suf_index['PAD'])
+
+        # [MOD-1.2] encode sentence prefixes
+        enc = [torch.Tensor([self.pref_index.get(w.text.lower()[:self.preflen], self.pref_index['UNK']) for w in s]) for _,s,_ in data.sentences()]
+        Xp = self.cut_and_pad(enc, self.pref_index['PAD'])
+
+        # [MOD-1.2] encode lemmas (falls back to the word if lemma_ is missing)
+        enc = [torch.Tensor([self.lemma_index.get(getattr(w, 'lemma_', w.text).lower(), self.lemma_index['UNK']) for w in s]) for _,s,_ in data.sentences()]
+        Xl = self.cut_and_pad(enc, self.lemma_index['PAD'])
+
+        # [MOD-1.2] encode spaCy coarse PoS tags
+        enc = [torch.Tensor([self.pos_index.get(getattr(w, 'pos_', 'X'), self.pos_index['UNK']) for w in s]) for _,s,_ in data.sentences()]
+        Xpos = self.cut_and_pad(enc, self.pos_index['PAD'])
 
         #------ encode word features
         enc = [torch.Tensor([self.features(w) for w in s]) for _,s,_ in data.sentences()]
         Xf = self.cut_and_pad(enc, 0)
 
-        # return encoded sequences
-        return [Xlw,Xw,Xs,Xf]
+        # [MOD-1.2] return 7 channels. Order MUST match network.forward signature:
+        # (lw, w, s, pref, lemma, pos, f)
+        return [Xlw, Xw, Xs, Xp, Xl, Xpos, Xf]
 
     
     ## --------- encode Y from given data ----------- 
@@ -192,6 +240,15 @@ class Codemaps :
     ## -------- get suf index size ---------
     def get_n_sufs(self) :
         return len(self.suf_index)
+    ## [MOD-1.2] -------- get pref index size ---------
+    def get_n_prefs(self) :
+        return len(self.pref_index)
+    ## [MOD-1.2] -------- get lemma index size ---------
+    def get_n_lemmas(self) :
+        return len(self.lemma_index)
+    ## [MOD-1.2] -------- get pos index size ---------
+    def get_n_pos(self) :
+        return len(self.pos_index)
     ## -------- get label index size ---------
     def get_n_labels(self) :
         return len(self.label_index)
@@ -216,6 +273,40 @@ class Codemaps :
             if self.label_index[l] == i:
                 return l
         raise KeyError
+
+    ## [MOD-1.2] -------- build pretrained embedding matrix ---------
+    # Looks up every token of self.lc_word_index in a spaCy model that
+    # ships word vectors (default: en_core_web_md, 300d). Returns a
+    # float tensor of shape (n_lc_words, emb_dim). OOV tokens get a
+    # small random normal vector. PAD gets zeros.
+    def build_pretrained_matrix(self, model_name='en_core_web_md') :
+        import spacy
+        try:
+            nlp = spacy.load(model_name)
+        except OSError:
+            print(f"[MOD-1.2] pretrained model {model_name} not found, "
+                  "falling back to en_core_web_md")
+            nlp = spacy.load('en_core_web_md')
+        dim = nlp.vocab.vectors_length
+        if dim == 0:
+            raise RuntimeError(f"spaCy model {model_name} has no word vectors; "
+                               "use en_core_web_md or en_core_web_lg")
+        n = len(self.lc_word_index)
+        mat = torch.randn(n, dim) * 0.1           # small random for OOV
+        hit = 0
+        for w, i in self.lc_word_index.items():
+            if w == 'PAD':
+                mat[i] = 0.0
+                continue
+            if w == 'UNK':
+                continue
+            lex = nlp.vocab[w]
+            if lex.has_vector and lex.vector_norm > 0:
+                mat[i] = torch.from_numpy(lex.vector.copy())
+                hit += 1
+        print(f"[MOD-1.2] pretrained vectors: {hit}/{n-2} lc-word matches "
+              f"({100.0*hit/max(n-2,1):.1f}%) from {model_name} (dim={dim})")
+        return mat, dim
 
     ## -------- create vector with binary features (used by encode_words)
     def features(self,w) :

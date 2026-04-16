@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.12.28)  26 MAR 2026 17:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.4.5)  15 APR 2026 22:42
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -79,6 +79,23 @@ Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1371.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1372.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1373.
 )
+(/usr/share/texlive/texmf-dist/tex/latex/colortbl/colortbl.sty
+Package: colortbl 2022/06/20 v1.0f Color table columns (DPC)
+
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty
+Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
+\col@sep=\dimen149
+\ar@mcellbox=\box51
+\extrarowheight=\dimen150
+\NC@list=\toks21
+\extratabsurround=\skip50
+\backup@length=\skip51
+\ar@cellbox=\box52
+)
+\everycr=\toks22
+\minrowclearance=\skip52
+\rownum=\count198
+)
 (/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
 Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
 
@@ -93,21 +110,21 @@ File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 107.
 )
-\Gin@req@height=\dimen149
-\Gin@req@width=\dimen150
+\Gin@req@height=\dimen151
+\Gin@req@width=\dimen152
 )
 (/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
 Package: fancyhdr 2022/11/09 v4.1 Extensive control of page headers and footers
 
-\f@nch@headwidth=\skip50
-\f@nch@O@elh=\skip51
-\f@nch@O@erh=\skip52
-\f@nch@O@olh=\skip53
-\f@nch@O@orh=\skip54
-\f@nch@O@elf=\skip55
-\f@nch@O@erf=\skip56
-\f@nch@O@olf=\skip57
-\f@nch@O@orf=\skip58
+\f@nch@headwidth=\skip53
+\f@nch@O@elh=\skip54
+\f@nch@O@erh=\skip55
+\f@nch@O@olh=\skip56
+\f@nch@O@orh=\skip57
+\f@nch@O@elf=\skip58
+\f@nch@O@erf=\skip59
+\f@nch@O@olf=\skip60
+\f@nch@O@orf=\skip61
 )
 (/usr/share/texmf/tex/latex/lm/lmodern.sty
 Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
@@ -147,60 +164,60 @@ LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 (/usr/share/texlive/texmf-dist/tex/latex/tocloft/tocloft.sty
 Package: tocloft 2017/08/31 v2.3i parameterised ToC, etc., typesetting
 Package tocloft Info: The document has section divisions on input line 51.
-\cftparskip=\skip59
-\cftbeforetoctitleskip=\skip60
-\cftaftertoctitleskip=\skip61
-\cftbeforepartskip=\skip62
-\cftpartnumwidth=\skip63
-\cftpartindent=\skip64
-\cftbeforesecskip=\skip65
-\cftsecindent=\skip66
-\cftsecnumwidth=\skip67
-\cftbeforesubsecskip=\skip68
-\cftsubsecindent=\skip69
-\cftsubsecnumwidth=\skip70
-\cftbeforesubsubsecskip=\skip71
-\cftsubsubsecindent=\skip72
-\cftsubsubsecnumwidth=\skip73
-\cftbeforeparaskip=\skip74
-\cftparaindent=\skip75
-\cftparanumwidth=\skip76
-\cftbeforesubparaskip=\skip77
-\cftsubparaindent=\skip78
-\cftsubparanumwidth=\skip79
-\cftbeforeloftitleskip=\skip80
-\cftafterloftitleskip=\skip81
-\cftbeforefigskip=\skip82
-\cftfigindent=\skip83
-\cftfignumwidth=\skip84
-\c@lofdepth=\count198
-\c@lotdepth=\count199
-\cftbeforelottitleskip=\skip85
-\cftafterlottitleskip=\skip86
-\cftbeforetabskip=\skip87
-\cfttabindent=\skip88
-\cfttabnumwidth=\skip89
+\cftparskip=\skip62
+\cftbeforetoctitleskip=\skip63
+\cftaftertoctitleskip=\skip64
+\cftbeforepartskip=\skip65
+\cftpartnumwidth=\skip66
+\cftpartindent=\skip67
+\cftbeforesecskip=\skip68
+\cftsecindent=\skip69
+\cftsecnumwidth=\skip70
+\cftbeforesubsecskip=\skip71
+\cftsubsecindent=\skip72
+\cftsubsecnumwidth=\skip73
+\cftbeforesubsubsecskip=\skip74
+\cftsubsubsecindent=\skip75
+\cftsubsubsecnumwidth=\skip76
+\cftbeforeparaskip=\skip77
+\cftparaindent=\skip78
+\cftparanumwidth=\skip79
+\cftbeforesubparaskip=\skip80
+\cftsubparaindent=\skip81
+\cftsubparanumwidth=\skip82
+\cftbeforeloftitleskip=\skip83
+\cftafterloftitleskip=\skip84
+\cftbeforefigskip=\skip85
+\cftfigindent=\skip86
+\cftfignumwidth=\skip87
+\c@lofdepth=\count199
+\c@lotdepth=\count266
+\cftbeforelottitleskip=\skip88
+\cftafterlottitleskip=\skip89
+\cftbeforetabskip=\skip90
+\cfttabindent=\skip91
+\cfttabnumwidth=\skip92
 )
 (/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty
 Package: enumitem 2019/06/20 v3.9 Customized lists
-\labelindent=\skip90
-\enit@outerparindent=\dimen151
-\enit@toks=\toks21
-\enit@inbox=\box51
-\enit@count@id=\count266
-\enitdp@description=\count267
+\labelindent=\skip93
+\enit@outerparindent=\dimen153
+\enit@toks=\toks23
+\enit@inbox=\box53
+\enit@count@id=\count267
+\enitdp@description=\count268
 )
 (/usr/share/texlive/texmf-dist/tex/latex/titlesec/titlesec.sty
 Package: titlesec 2023/10/27 v2.16 Sectioning titles
-\ttl@box=\box52
-\beforetitleunit=\skip91
-\aftertitleunit=\skip92
-\ttl@plus=\dimen152
-\ttl@minus=\dimen153
-\ttl@toksa=\toks22
-\titlewidth=\dimen154
-\titlewidthlast=\dimen155
-\titlewidthfirst=\dimen156
+\ttl@box=\box54
+\beforetitleunit=\skip94
+\aftertitleunit=\skip95
+\ttl@plus=\dimen154
+\ttl@minus=\dimen155
+\ttl@toksa=\toks24
+\titlewidth=\dimen156
+\titlewidthlast=\dimen157
+\titlewidthfirst=\dimen158
 )
 (/usr/share/texlive/texmf-dist/tex/latex/caption/subcaption.sty
 Package: subcaption 2023/07/28 v1.6b Sub-captions (AR)
@@ -210,27 +227,27 @@ Package: caption 2023/08/05 v3.6o Customizing captions (AR)
 
 (/usr/share/texlive/texmf-dist/tex/latex/caption/caption3.sty
 Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
-\caption@tempdima=\dimen157
-\captionmargin=\dimen158
-\caption@leftmargin=\dimen159
-\caption@rightmargin=\dimen160
-\caption@width=\dimen161
-\caption@indent=\dimen162
-\caption@parindent=\dimen163
-\caption@hangindent=\dimen164
+\caption@tempdima=\dimen159
+\captionmargin=\dimen160
+\caption@leftmargin=\dimen161
+\caption@rightmargin=\dimen162
+\caption@width=\dimen163
+\caption@indent=\dimen164
+\caption@parindent=\dimen165
+\caption@hangindent=\dimen166
 Package caption Info: Standard document class detected.
 )
-\c@caption@flags=\count268
-\c@continuedfloat=\count269
+\c@caption@flags=\count269
+\c@continuedfloat=\count270
 )
 Package caption Info: New subtype `subfigure' on input line 238.
-\c@subfigure=\count270
+\c@subfigure=\count271
 Package caption Info: New subtype `subtable' on input line 238.
-\c@subtable=\count271
+\c@subtable=\count272
 )
 (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2023/05/13 v2.17o AMS math features
-\@mathmargin=\skip93
+\@mathmargin=\skip96
 
 For additional information on amsmath, use the `?' option.
 (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
@@ -238,81 +255,81 @@ Package: amstext 2021/08/26 v2.01 AMS text
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks23
-\ex@=\dimen165
+\@emptytoks=\toks25
+\ex@=\dimen167
 ))
 (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
-\pmbraise@=\dimen166
+\pmbraise@=\dimen168
 )
 (/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
-\inf@bad=\count272
+\inf@bad=\count273
 LaTeX Info: Redefining \frac on input line 234.
-\uproot@=\count273
-\leftroot@=\count274
+\uproot@=\count274
+\leftroot@=\count275
 LaTeX Info: Redefining \overline on input line 399.
 LaTeX Info: Redefining \colon on input line 410.
-\classnum@=\count275
-\DOTSCASE@=\count276
+\classnum@=\count276
+\DOTSCASE@=\count277
 LaTeX Info: Redefining \ldots on input line 496.
 LaTeX Info: Redefining \dots on input line 499.
 LaTeX Info: Redefining \cdots on input line 620.
-\Mathstrutbox@=\box53
-\strutbox@=\box54
+\Mathstrutbox@=\box55
+\strutbox@=\box56
 LaTeX Info: Redefining \big on input line 722.
 LaTeX Info: Redefining \Big on input line 723.
 LaTeX Info: Redefining \bigg on input line 724.
 LaTeX Info: Redefining \Bigg on input line 725.
-\big@size=\dimen167
+\big@size=\dimen169
 LaTeX Font Info:    Redeclaring font encoding OML on input line 743.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 744.
-\macc@depth=\count277
+\macc@depth=\count278
 LaTeX Info: Redefining \bmod on input line 905.
 LaTeX Info: Redefining \pmod on input line 910.
 LaTeX Info: Redefining \smash on input line 940.
 LaTeX Info: Redefining \relbar on input line 970.
 LaTeX Info: Redefining \Relbar on input line 971.
-\c@MaxMatrixCols=\count278
+\c@MaxMatrixCols=\count279
 \dotsspace@=\muskip16
-\c@parentequation=\count279
-\dspbrk@lvl=\count280
-\tag@help=\toks24
-\row@=\count281
-\column@=\count282
-\maxfields@=\count283
-\andhelp@=\toks25
-\eqnshift@=\dimen168
-\alignsep@=\dimen169
-\tagshift@=\dimen170
-\tagwidth@=\dimen171
-\totwidth@=\dimen172
-\lineht@=\dimen173
-\@envbody=\toks26
-\multlinegap=\skip94
-\multlinetaggap=\skip95
-\mathdisplay@stack=\toks27
+\c@parentequation=\count280
+\dspbrk@lvl=\count281
+\tag@help=\toks26
+\row@=\count282
+\column@=\count283
+\maxfields@=\count284
+\andhelp@=\toks27
+\eqnshift@=\dimen170
+\alignsep@=\dimen171
+\tagshift@=\dimen172
+\tagwidth@=\dimen173
+\totwidth@=\dimen174
+\lineht@=\dimen175
+\@envbody=\toks28
+\multlinegap=\skip97
+\multlinetaggap=\skip98
+\mathdisplay@stack=\toks29
 LaTeX Info: Redefining \[ on input line 2953.
 LaTeX Info: Redefining \] on input line 2954.
 )
 (/usr/share/texlive/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count284
-\float@exts=\toks28
-\float@box=\box55
-\@float@everytoks=\toks29
-\@floatcapt=\box56
+\c@float@type=\count285
+\float@exts=\toks30
+\float@box=\box57
+\@float@everytoks=\toks31
+\@floatcapt=\box58
 )
 (/usr/share/texlive/texmf-dist/tex/generic/babel/babel.sty
 Package: babel 2024/01/07 v24.1 The Babel package
-\babel@savecnt=\count285
-\U@D=\dimen174
-\l@unhyphenated=\language7
+\babel@savecnt=\count286
+\U@D=\dimen176
+\l@unhyphenated=\language19
 
 (/usr/share/texlive/texmf-dist/tex/generic/babel/txtbabel.def)
 \bbl@readstream=\read2
-\bbl@dirlevel=\count286
+\bbl@dirlevel=\count287
 
 (/usr/share/texlive/texmf-dist/tex/generic/babel-english/english.ldf
 Language: english 2017/06/06 v3.3r English support from the babel system
@@ -375,15 +392,15 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 (/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
-\c@section@level=\count287
+\c@section@level=\count288
 )
 (/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty
 Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count288
+\etb@tempcnta=\count289
 )
-\@linkdim=\dimen175
-\Hy@linkcounter=\count289
-\Hy@pagecounter=\count290
+\@linkdim=\dimen177
+\Hy@linkcounter=\count290
+\Hy@pagecounter=\count291
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def
 File: pd1enc.def 2024-01-20 v7.01h Hyperref: PDFDocEncoding definition (HO)
@@ -393,7 +410,7 @@ Now handling font encoding PD1 ...
 (/usr/share/texlive/texmf-dist/tex/generic/intcalc/intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
-\Hy@SavedSpaceFactor=\count291
+\Hy@SavedSpaceFactor=\count292
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def
 File: puenc.def 2024-01-20 v7.01h Hyperref: PDF Unicode definition (HO)
@@ -407,14 +424,14 @@ Package hyperref Info: Plain pages OFF on input line 4194.
 Package hyperref Info: Backreferencing OFF on input line 4199.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4446.
-\c@Hy@tempcnt=\count292
+\c@Hy@tempcnt=\count293
 
 (/usr/share/texlive/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 4784.
-\XeTeXLinkMargin=\dimen176
+\XeTeXLinkMargin=\dimen178
 
 (/usr/share/texlive/texmf-dist/tex/generic/bitset/bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
@@ -423,9 +440,9 @@ Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
 )
 ))
-\Fld@menulength=\count293
-\Field@Width=\dimen177
-\Fld@charsize=\dimen178
+\Fld@menulength=\count294
+\Field@Width=\dimen179
+\Fld@charsize=\dimen180
 Package hyperref Info: Hyper figures OFF on input line 6063.
 Package hyperref Info: Link nesting OFF on input line 6068.
 Package hyperref Info: Hyper index ON on input line 6071.
@@ -438,9 +455,9 @@ Package hyperref Info: PDF/A mode OFF on input line 6093.
 Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
 package with kernel methods
 )
-\Hy@abspage=\count294
-\c@Item=\count295
-\c@Hfootnote=\count296
+\Hy@abspage=\count295
+\c@Item=\count296
+\c@Hfootnote=\count297
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
 
@@ -452,8 +469,8 @@ Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend pac
 kage
 with kernel methods
 )
-\Fld@listcount=\count297
-\c@bookmark@seq@number=\count298
+\Fld@listcount=\count298
+\c@bookmark@seq@number=\count299
 
 (/usr/share/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
 Package: rerunfilecheck 2022-07-10 v1.10 Rerun checks for auxiliary files (HO)
@@ -464,7 +481,7 @@ Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 85.
 )
-\Hy@SectionHShift=\skip96
+\Hy@SectionHShift=\skip99
 )
 (/usr/share/texlive/texmf-dist/tex/latex/minted/minted.sty
 Package: minted 2023/12/18 v2.9 Yet another Pygments shim for LaTeX
@@ -475,11 +492,11 @@ b
 
 (/usr/share/texlive/texmf-dist/tex/latex/fancyvrb/fancyvrb.sty
 Package: fancyvrb 2024/01/20 4.5c verbatim text (tvz,hv)
-\FV@CodeLineNo=\count299
+\FV@CodeLineNo=\count300
 \FV@InFile=\read3
-\FV@TabBox=\box57
-\c@FancyVerbLine=\count300
-\FV@StepNumber=\count301
+\FV@TabBox=\box59
+\c@FancyVerbLine=\count301
+\FV@StepNumber=\count302
 \FV@OutFile=\write3
 )
 (/usr/share/texlive/texmf-dist/tex/latex/upquote/upquote.sty
@@ -491,51 +508,51 @@ Package: textcomp 2020/02/02 v2.0n Standard LaTeX package
 ))
 (/usr/share/texlive/texmf-dist/tex/latex/lineno/lineno.sty
 Package: lineno 2023/05/20 line numbers on paragraphs v5.3
-\linenopenalty=\count302
-\output=\toks30
-\linenoprevgraf=\count303
-\linenumbersep=\dimen179
-\linenumberwidth=\dimen180
-\c@linenumber=\count304
-\c@pagewiselinenumber=\count305
-\c@LN@truepage=\count306
-\c@internallinenumber=\count307
-\c@internallinenumbers=\count308
-\quotelinenumbersep=\dimen181
-\bframerule=\dimen182
-\bframesep=\dimen183
-\bframebox=\box58
-\linenoamsmath@ams@eqpen=\count309
+\linenopenalty=\count303
+\output=\toks32
+\linenoprevgraf=\count304
+\linenumbersep=\dimen181
+\linenumberwidth=\dimen182
+\c@linenumber=\count305
+\c@pagewiselinenumber=\count306
+\c@LN@truepage=\count307
+\c@internallinenumber=\count308
+\c@internallinenumbers=\count309
+\quotelinenumbersep=\dimen183
+\bframerule=\dimen184
+\bframesep=\dimen185
+\bframebox=\box60
+\linenoamsmath@ams@eqpen=\count310
 LaTeX Info: Redefining \\ on input line 3180.
 )
-\c@FancyVerbWriteLine=\count310
-\c@FancyVerbBufferIndex=\count311
-\c@FancyVerbBufferLength=\count312
-\c@FancyVerbBufferLine=\count313
-\c@FV@oldbufferlength=\count314
-\c@FV@TrueTabGroupLevel=\count315
-\c@FV@TrueTabCounter=\count316
-\FV@TabBox@Group=\box59
-\FV@TmpLength=\skip97
-\c@FV@HighlightLinesStart=\count317
-\c@FV@HighlightLinesStop=\count318
-\FV@LoopCount=\count319
-\FV@NCharsBox=\box60
-\FV@BreakIndent=\dimen184
-\FV@BreakIndentNChars=\count320
-\FV@BreakSymbolSepLeft=\dimen185
-\FV@BreakSymbolSepLeftNChars=\count321
-\FV@BreakSymbolSepRight=\dimen186
-\FV@BreakSymbolSepRightNChars=\count322
-\FV@BreakSymbolIndentLeft=\dimen187
-\FV@BreakSymbolIndentLeftNChars=\count323
-\FV@BreakSymbolIndentRight=\dimen188
-\FV@BreakSymbolIndentRightNChars=\count324
-\c@FancyVerbLineBreakLast=\count325
-\FV@LineBox=\box61
-\FV@LineIndentBox=\box62
-\c@FV@BreakBufferDepth=\count326
-\FV@LineWidth=\dimen189
+\c@FancyVerbWriteLine=\count311
+\c@FancyVerbBufferIndex=\count312
+\c@FancyVerbBufferLength=\count313
+\c@FancyVerbBufferLine=\count314
+\c@FV@oldbufferlength=\count315
+\c@FV@TrueTabGroupLevel=\count316
+\c@FV@TrueTabCounter=\count317
+\FV@TabBox@Group=\box61
+\FV@TmpLength=\skip100
+\c@FV@HighlightLinesStart=\count318
+\c@FV@HighlightLinesStop=\count319
+\FV@LoopCount=\count320
+\FV@NCharsBox=\box62
+\FV@BreakIndent=\dimen186
+\FV@BreakIndentNChars=\count321
+\FV@BreakSymbolSepLeft=\dimen187
+\FV@BreakSymbolSepLeftNChars=\count322
+\FV@BreakSymbolSepRight=\dimen188
+\FV@BreakSymbolSepRightNChars=\count323
+\FV@BreakSymbolIndentLeft=\dimen189
+\FV@BreakSymbolIndentLeftNChars=\count324
+\FV@BreakSymbolIndentRight=\dimen190
+\FV@BreakSymbolIndentRightNChars=\count325
+\c@FancyVerbLineBreakLast=\count326
+\FV@LineBox=\box63
+\FV@LineIndentBox=\box64
+\c@FV@BreakBufferDepth=\count327
+\FV@LineWidth=\dimen191
 )
 (/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty
 Package: ifthen 2022/04/13 v1.1d Standard LaTeX ifthen package (DPC)
@@ -564,41 +581,41 @@ runsystem(rm -- "main.w18")...executed.
 )
 (/usr/share/texlive/texmf-dist/tex/generic/xstring/xstring.sty
 (/usr/share/texlive/texmf-dist/tex/generic/xstring/xstring.tex
-\xs_counta=\count327
-\xs_countb=\count328
+\xs_counta=\count328
+\xs_countb=\count329
 )
 Package: xstring 2023/08/22 v1.86 String manipulations (CT)
 )
 (/usr/share/texlive/texmf-dist/tex/latex/framed/framed.sty
 Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
-\OuterFrameSep=\skip98
-\fb@frw=\dimen190
-\fb@frh=\dimen191
-\FrameRule=\dimen192
-\FrameSep=\dimen193
+\OuterFrameSep=\skip101
+\fb@frw=\dimen192
+\fb@frh=\dimen193
+\FrameRule=\dimen194
+\FrameSep=\dimen195
 )
 \minted@appexistsfile=\read4
-\minted@bgbox=\box63
+\minted@bgbox=\box65
 \minted@code=\write4
-\c@minted@FancyVerbLineTemp=\count329
-\c@minted@pygmentizecounter=\count330
-\@float@every@listing=\toks31
-\c@listing=\count331
+\c@minted@FancyVerbLineTemp=\count330
+\c@minted@pygmentizecounter=\count331
+\@float@every@listing=\toks33
+\c@listing=\count332
 )
 runsystem(mkdir -p ./_minted-main)...executed.
 
 
 (/usr/share/texlive/texmf-dist/tex/generic/ulem/ulem.sty
-\UL@box=\box64
-\UL@hyphenbox=\box65
-\UL@skip=\skip99
-\UL@hook=\toks32
-\UL@height=\dimen194
-\UL@pe=\count332
-\UL@pixel=\dimen195
-\ULC@box=\box66
+\UL@box=\box66
+\UL@hyphenbox=\box67
+\UL@skip=\skip102
+\UL@hook=\toks34
+\UL@height=\dimen196
+\UL@pe=\count333
+\UL@pixel=\dimen197
+\ULC@box=\box68
 Package: ulem 2019/11/18
-\ULdepth=\dimen196
+\ULdepth=\dimen198
 )
 runsystem(command -v pygmentize && touch main.aex)...executed.
 
@@ -612,8 +629,8 @@ File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count333
-\l__pdf_internal_box=\box67
+\l__color_backend_stack_int=\count334
+\l__pdf_internal_box=\box69
 )
 (./main.aux)
 \openout1 = `main.aux'.
@@ -673,17 +690,17 @@ LaTeX Font Info:    ... okay on input line 44.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count334
-\scratchdimen=\dimen197
-\scratchbox=\box68
-\nofMPsegments=\count335
-\nofMParguments=\count336
-\everyMPshowfont=\toks33
-\MPscratchCnt=\count337
-\MPscratchDim=\dimen198
-\MPnumerator=\count338
-\makeMPintoPDFobject=\count339
-\everyMPtoPDFconversion=\toks34
+\scratchcounter=\count335
+\scratchdimen=\dimen199
+\scratchbox=\box70
+\nofMPsegments=\count336
+\nofMParguments=\count337
+\everyMPshowfont=\toks35
+\MPscratchCnt=\count338
+\MPscratchDim=\dimen256
+\MPnumerator=\count339
+\makeMPintoPDFobject=\count340
+\everyMPtoPDFconversion=\toks36
 ) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 
@@ -711,7 +728,7 @@ Package hyperref Info: Link coloring OFF on input line 44.
 \@outlinefile=\write5
 \openout5 = `main.out'.
 
-<UPC-2.png, id=68, 569.12625pt x 170.6375pt>
+<UPC-2.png, id=140, 569.12625pt x 170.6375pt>
 File: UPC-2.png Graphic file (type png)
 <use UPC-2.png>
 Package pdftex.def Info: UPC-2.png  used on input line 53.
@@ -750,7 +767,7 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <8> on input line 54.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <6> on input line 54.
-<fib.png, id=70, 1284.8pt x 917.4275pt>
+<fib.png, id=142, 1284.8pt x 917.4275pt>
 File: fib.png Graphic file (type png)
 <use fib.png>
 Package pdftex.def Info: fib.png  used on input line 57.
@@ -760,14 +777,15 @@ Package pdftex.def Info: fib.png  used on input line 57.
 LaTeX Font Warning: Font shape `T1/lmr/bx/sc' undefined
 (Font)              using `T1/lmr/bx/n' instead on input line 68.
 
-(./main.toc)
+(./main.toc
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 3
+7.
+ (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
+File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+))
 \tf@toc=\write6
 \openout6 = `main.toc'.
 
-
-Overfull \hbox (16.13974pt too wide) in paragraph at lines 82--86
- [] 
- []
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -781,26 +799,61 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 c/dvips/lm/lm-ec.enc}
 
  <./UPC-2.png> <./fib.png>]
+Overfull \hbox (9.93811pt too wide) in paragraph at lines 82--86
+ [] 
+ []
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[2]
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
 06.
-
-(/usr/share/texmf/tex/latex/lm/ts1lmr.fd
+ (/usr/share/texmf/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-20.
 
-(/usr/share/texmf/tex/latex/lm/t1lmtt.fd
-File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-Overfull \hbox (49.79424pt too wide) in paragraph at lines 120--121
-\T1/lmr/m/n/12 Summarize how to run the pipeline and where re-sults are stored 
-(e.g., \T1/lmtt/m/n/12 code/1.1.NERC-ML/results/
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.145 
+       [2{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}]
+Overfull \hbox (76.9359pt too wide) in paragraph at lines 162--163
+[]\T1/lmr/bx/n/12 MEM\T1/lmr/m/n/12 : Max-i-mum En-tropy / Lo-gis-tic Re-gres-s
+ion (\T1/lmtt/m/n/12 sklearn.linear_model.LogisticRegression\T1/lmr/m/n/12 ). 
  []
 
 
-Overfull \hbox (7.65967pt too wide) in paragraph at lines 122--122
-|[]\T1/lmr/bx/n/17.28 System 1.1 ^^V NERC with Ma-chine Learn-ing (done)| 
+Overfull \hbox (11.26364pt too wide) in paragraph at lines 165--166
+[]\T1/lmr/m/n/12 Baseline de-vel re-sults (de-fault hy-per-pa-ram-e-ters): CRF 
+67.9%, SVM 67.1%, MEM 65.5%. 
+ []
+
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10.95> on input line 174.
+
+Underfull \hbox (badness 1158) in paragraph at lines 179--180
+[]|\T1/lmr/m/n/10.95 Part-of-speech (\T1/lmtt/m/n/10.95 tag_\T1/lmr/m/n/10.95 )
+ and uni-ver-sal POS
+ []
+
+
+Underfull \hbox (badness 1466) in paragraph at lines 184--185
+[]|\T1/lmr/m/n/10.95 Character 3/4/5-grams for cur-rent to-ken
  []
 
 
@@ -811,7 +864,13 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
-[2{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}]
+[3{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}]
+<fig_feature_evolution.pdf, id=208, 713.10477pt x 314.2553pt>
+File: fig_feature_evolution.pdf Graphic file (type pdf)
+<use fig_feature_evolution.pdf>
+Package pdftex.def Info: fig_feature_evolution.pdf  used on input line 195.
+(pdftex.def)             Requested size: 452.9679pt x 199.61702pt.
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 27.11652pt, for example:
@@ -820,7 +879,324 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
-[3] (./main.aux)
+[4{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/en
+c/dvips/lm/lm-rm.enc} <./fig_feature_evolution.pdf>]
+<fig_crf_heatmap.pdf, id=277, 386.28539pt x 279.15918pt>
+File: fig_crf_heatmap.pdf Graphic file (type pdf)
+<use fig_crf_heatmap.pdf>
+Package pdftex.def Info: fig_crf_heatmap.pdf  used on input line 248.
+(pdftex.def)             Requested size: 249.13371pt x 180.04138pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[5 <./fig_crf_heatmap.pdf>]
+<fig_devel_vs_test.pdf, id=347, 640.83476pt x 349.67513pt>
+File: fig_devel_vs_test.pdf Graphic file (type pdf)
+<use fig_devel_vs_test.pdf>
+Package pdftex.def Info: fig_devel_vs_test.pdf  used on input line 268.
+(pdftex.def)             Requested size: 452.9679pt x 247.17192pt.
+<fig_svm_c_sensitivity.pdf, id=349, 496.35498pt x 265.2613pt>
+File: fig_svm_c_sensitivity.pdf Graphic file (type pdf)
+<use fig_svm_c_sensitivity.pdf>
+Package pdftex.def Info: fig_svm_c_sensitivity.pdf  used on input line 277.
+(pdftex.def)             Requested size: 339.72592pt x 181.55717pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[6 <./fig_devel_vs_test.pdf>]
+<fig_final_results.pdf, id=444, 568.8521pt x 293.61317pt>
+File: fig_final_results.pdf Graphic file (type pdf)
+<use fig_final_results.pdf>
+Package pdftex.def Info: fig_final_results.pdf  used on input line 284.
+(pdftex.def)             Requested size: 385.02547pt x 198.73138pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[7 <./fig_svm_c_sensitivity.pdf> <./fig_final_results.pdf>]
+<fig_per_entity_f1.pdf, id=561, 568.8157pt x 314.89832pt>
+File: fig_per_entity_f1.pdf Graphic file (type pdf)
+<use fig_per_entity_f1.pdf>
+Package pdftex.def Info: fig_per_entity_f1.pdf  used on input line 340.
+(pdftex.def)             Requested size: 385.02547pt x 213.1478pt.
+<fig_pr_scatter.pdf, id=562, 424.64702pt x 351.00475pt>
+File: fig_pr_scatter.pdf Graphic file (type pdf)
+<use fig_pr_scatter.pdf>
+Package pdftex.def Info: fig_pr_scatter.pdf  used on input line 347.
+(pdftex.def)             Requested size: 226.48395pt x 187.20456pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[8 <./fig_per_entity_f1.pdf>]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[9 <./fig_pr_scatter.pdf>]
+LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <12> not available
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 394.
+
+Overfull \hbox (10.05373pt too wide) in paragraph at lines 395--408
+\T1/lmr/m/n/12 (\T1/lmtt/m/n/12 use_layernorm\T1/lmr/m/n/12 ), ac-ti-va-tion ch
+oice (\T1/lmtt/m/n/12 activation $\OMS/lmsy/m/n/12 2$ \T1/lmr/m/n/12 {relu, tan
+h, gelu}), em-bed-ding dropout,
+ []
+
+
+Overfull \hbox (8.97461pt too wide) in paragraph at lines 410--419
+[] [] \T1/lmtt/b/n/12 bin/codemaps.py \T1/lmr/bx/n/12 ^^V three new in-put chan
+-nels.[] \T1/lmr/m/n/12 We added \T1/lmtt/m/n/12 pref_index\T1/lmr/m/n/12 , \T1
+/lmtt/m/n/12 lemma_index
+ []
+
+
+Overfull \hbox (24.68073pt too wide) in paragraph at lines 421--433
+\T1/lmr/m/n/12 helper that sup-ports Adam/AdamW/SGD plus \T1/lmtt/m/n/12 learni
+ng_rate\T1/lmr/m/n/12 , \T1/lmtt/m/n/12 weight_decay \T1/lmr/m/n/12 and \T1/lmt
+t/m/n/12 momentum\T1/lmr/m/n/12 .
+ []
+
+
+Overfull \hbox (6.90459pt too wide) in paragraph at lines 421--433
+\T1/lmr/m/n/12 The CLI no longer forces \T1/lmtt/m/n/12 int(v) \T1/lmr/m/n/12 o
+n pa-ram-e-ter val-ues, so floats like \T1/lmtt/m/n/12 learning_rate=0.0005
+ []
+
+
+Overfull \hbox (23.46564pt too wide) in paragraph at lines 435--438
+[] [] \T1/lmtt/b/n/12 bin/dataset.py \T1/lmr/bx/n/12 and \T1/lmtt/b/n/12 bin/pr
+edict.py \T1/lmr/bx/n/12 ^^V small patches.[] \T1/lmr/m/n/12 We added an \T1/lm
+tt/m/n/12 en_core_web_trf
+ []
+
+
+Overfull \hbox (21.8324pt too wide) in paragraph at lines 435--438
+\OMS/lmsy/m/n/12 !$ \T1/lmtt/m/n/12 en_core_web_sm \T1/lmr/m/n/12 fall-back so 
+CPU-only ma-chines work out-of-the-box, and cast \T1/lmtt/m/n/12 batch_size
+ []
+
+
+Overfull \hbox (21.59435pt too wide) in paragraph at lines 455--464
+\T1/lmtt/m/n/12 parse\T1/lmr/m/n/12 . Un-less oth-er-wise spec-i-fied, the de-f
+aults are \T1/lmtt/m/n/12 batch_size=32\T1/lmr/m/n/12 , \T1/lmtt/m/n/12 max_len
+=150\T1/lmr/m/n/12 , \T1/lmtt/m/n/12 suf_len=5\T1/lmr/m/n/12 ,
+ []
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[10]
+<fig12_round1_sweep.pdf, id=718, 713.25536pt x 316.34676pt>
+File: fig12_round1_sweep.pdf Graphic file (type pdf)
+<use fig12_round1_sweep.pdf>
+Package pdftex.def Info: fig12_round1_sweep.pdf  used on input line 499.
+(pdftex.def)             Requested size: 452.9679pt x 200.90208pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[11 <./fig12_round1_sweep.pdf>]
+<fig12_combos.pdf, id=795, 640.83476pt x 292.57431pt>
+File: fig12_combos.pdf Graphic file (type pdf)
+<use fig12_combos.pdf>
+Package pdftex.def Info: fig12_combos.pdf  used on input line 552.
+(pdftex.def)             Requested size: 385.02547pt x 175.787pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[12 <./fig12_combos.pdf>]
+<fig12_data_sweeps.pdf, id=881, 857.73512pt x 336.18724pt>
+File: fig12_data_sweeps.pdf Graphic file (type pdf)
+<use fig12_data_sweeps.pdf>
+Package pdftex.def Info: fig12_data_sweeps.pdf  used on input line 581.
+(pdftex.def)             Requested size: 452.9679pt x 177.54228pt.
+<fig12_pretrained.pdf, id=883, 640.92513pt x 314.2553pt>
+File: fig12_pretrained.pdf Graphic file (type pdf)
+<use fig12_pretrained.pdf>
+Package pdftex.def Info: fig12_pretrained.pdf  used on input line 620.
+(pdftex.def)             Requested size: 452.9679pt x 222.10144pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[13 <./fig12_data_sweeps.pdf>]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[14 <./fig12_pretrained.pdf>]
+Overfull \hbox (85.11922pt too wide) in paragraph at lines 715--719
+[]\T1/lmr/m/n/12 Two can-di-dates are es-sen-tially tied on de-vel: \T1/lmtt/m/
+n/12 final2_04_e25 \T1/lmr/m/n/12 (70.2%) and \T1/lmtt/m/n/12 final2_03_e20_pre
+f2_suf3
+ []
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[15]
+<fig12_epoch_curve.pdf, id=1095, 568.56476pt x 315.29417pt>
+File: fig12_epoch_curve.pdf Graphic file (type pdf)
+<use fig12_epoch_curve.pdf>
+Package pdftex.def Info: fig12_epoch_curve.pdf  used on input line 797.
+(pdftex.def)             Requested size: 407.66833pt x 226.06866pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[16 <./fig12_epoch_curve.pdf>]
+LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <14.4> not available
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 811.
+<fig12_seed_variance.pdf, id=1197, 857.64476pt x 341.55544pt>
+File: fig12_seed_variance.pdf Graphic file (type pdf)
+<use fig12_seed_variance.pdf>
+Package pdftex.def Info: fig12_seed_variance.pdf  used on input line 853.
+(pdftex.def)             Requested size: 452.9679pt x 180.39288pt.
+<fig12_devel_vs_test.pdf, id=1198, 532.50003pt x 423.27473pt>
+File: fig12_devel_vs_test.pdf Graphic file (type pdf)
+<use fig12_devel_vs_test.pdf>
+Package pdftex.def Info: fig12_devel_vs_test.pdf  used on input line 864.
+(pdftex.def)             Requested size: 407.66833pt x 324.06245pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[17 <./fig12_seed_variance.pdf>]
+\openout3 = `main.pyg'.
+
+ (./_minted-main/friendly.pygstyle)
+(./_minted-main/45737C81D0B1213C3DF16D24D6D9EA33F0D462A5B8A786EC0AE6CB0DE95C34F
+A.pygtex)
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[18 <./fig12_devel_vs_test.pdf>]
+<fig12_per_entity.pdf, id=1373, 713.3557pt x 351.03333pt>
+File: fig12_per_entity.pdf Graphic file (type pdf)
+<use fig12_per_entity.pdf>
+Package pdftex.def Info: fig12_per_entity.pdf  used on input line 959.
+(pdftex.def)             Requested size: 452.9679pt x 222.89832pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[19]
+<fig12_timeline.pdf, id=1385, 783.73834pt x 349.67513pt>
+File: fig12_timeline.pdf Graphic file (type pdf)
+<use fig12_timeline.pdf>
+Package pdftex.def Info: fig12_timeline.pdf  used on input line 1000.
+(pdftex.def)             Requested size: 452.9679pt x 202.10207pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[20 <./fig12_per_entity.pdf>]
+<fig12_cross_system.pdf, id=1474, 640.99602pt x 279.15918pt>
+File: fig12_cross_system.pdf Graphic file (type pdf)
+<use fig12_cross_system.pdf>
+Package pdftex.def Info: fig12_cross_system.pdf  used on input line 1011.
+(pdftex.def)             Requested size: 385.02547pt x 167.68848pt.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[21 <./fig12_timeline.pdf> <./fig12_cross_system.pdf>]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 27.11652pt, for example:
+(fancyhdr)                \setlength{\headheight}{27.11652pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
+
+[22] (./main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -830,24 +1206,32 @@ L3 programming layer <2024-01-22>
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 23B3324DB164E90BF395FFB2A48B4EA4;3089.
+(rerunfilecheck)             Checksum: 553C4AFF84B25984439271AD8692A1B4;6956.
+runsystem(rm .//main.pyg)...executed.
+
  ) 
 Here is how much of TeX's memory you used:
- 17165 strings out of 476153
- 291931 string characters out of 5794325
- 1937975 words of memory out of 5000000
- 38904 multiletter control sequences out of 15000+600000
- 606506 words of font info for 62 fonts, out of 8000000 for 9000
- 14 hyphenation exceptions out of 8191
- 77i,11n,81p,418b,544s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/ty
-pe1/public/lm/lmbxi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr12.pfb></u
-sr/share/texmf/fonts/type1/public/lm/lmri12.pfb></usr/share/texmf/fonts/type1/p
-ublic/lm/lmtt12.pfb>
-Output written on main.pdf (3 pages, 151035 bytes).
+ 17776 strings out of 476020
+ 303590 string characters out of 5789231
+ 1945975 words of memory out of 5000000
+ 39435 multiletter control sequences out of 15000+600000
+ 636155 words of font info for 76 fonts, out of 8000000 for 9000
+ 42 hyphenation exceptions out of 8191
+ 77i,12n,81p,572b,725s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/ty
+pe1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1/public/lm/lmbxi10.pfb></
+usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/
+public/lm/lmmi12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/sh
+are/texmf/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/
+lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri10.pfb></usr/share/texm
+f/fonts/type1/public/lm/lmri12.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy
+10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtk10.pfb></usr/share/texmf/fon
+ts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt12.pf
+b></usr/share/texmf/fonts/type1/public/lm/lmtti10.pfb>
+Output written on main.pdf (23 pages, 765610 bytes).
 PDF statistics:
- 142 PDF objects out of 1000 (max. 8388607)
- 120 compressed objects within 2 object streams
- 20 named destinations out of 1000 (max. 500000)
- 139 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1767 PDF objects out of 2073 (max. 8388607)
+ 575 compressed objects within 6 object streams
+ 101 named destinations out of 1000 (max. 500000)
+ 368 words of extra memory for PDF output out of 10000 (max. 10000000)
 
