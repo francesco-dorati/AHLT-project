@@ -44,7 +44,8 @@ test = Examples(testfile, "NER")
 
 # load model and tokenizer
 t0 = time.time()
-MODEL_PATH = f"/scratch/nas/1/PDI/mml0/models/{model}"
+# [MOD-1.3] Path updated per professor's 2026-04-10 notice: mml0 -> mgl0
+MODEL_PATH = f"/scratch/nas/1/PDI/mgl0/models/{model}"
 engine = Inference(MODEL_PATH, quantized=quantized, peft=weightdir)
 print(f"Model loading took {time.time()-t0:.1f} seconds", file=sys.stderr)
 
@@ -69,8 +70,12 @@ print(f"Processed {len(annotated)} examples in {time.time()-t0:.1f} seconds. ({(
 # save output
 os.makedirs(paths.RESULTS, exist_ok=True)
 quant = "-quant" if quantized else ""
+# [MOD-1.3] Phase G: include the FT_TAG suffix so the ablation's .out/.stats
+# files don't overwrite the Phase D/F baseline. If absent, naming is unchanged.
+tag = os.environ.get("FT_TAG", "")
+if tag and not tag.startswith("-"): tag = "-" + tag
 outfname = os.path.join(paths.RESULTS,
-                        f"FT-{model}{quant}-{testdata}")
+                        f"FT-{model}{quant}{tag}-{testdata}")
 with open(outfname+".json", "w") as of:
    json.dump(annotated, of, indent=1, ensure_ascii=False)
 with open(outfname+".out", "w") as of:  

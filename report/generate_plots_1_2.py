@@ -77,16 +77,16 @@ ax.set_xticks(x)
 ax.set_xticklabels(exp_ids, fontsize=8)
 ax.set_ylabel('Devel macro-F1 (%)')
 ax.set_title('Round-1 Single-Axis Sweep — ∆ vs. baseline')
-ax.set_ylim(48, 68)
+ax.set_ylim(48, 70)
 
-# Legend
+# Legend — placed lower-left to avoid overlapping the tallest bar labels
 legend_patches = [
     mpatches.Patch(color=GREY,   label='baseline'),
     mpatches.Patch(color=C_INPUT, label='input features'),
     mpatches.Patch(color=C_ARCH,  label='architecture'),
     mpatches.Patch(color=C_HYPER, label='hyperparameter'),
 ]
-ax.legend(handles=legend_patches, loc='upper right', framealpha=0.9, fontsize=9)
+ax.legend(handles=legend_patches, loc='lower left', framealpha=0.9, fontsize=9)
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUT, 'fig12_round1_sweep.pdf'), bbox_inches='tight', dpi=150)
@@ -187,19 +187,14 @@ ax.set_ylabel('Devel macro-F1 (%)')
 ax.set_title('Pretrained Word Embeddings (spaCy en_core_web_md 300d) — Negative Result')
 ax.set_ylim(45, 72)
 
-# Baseline + final04 reference
-ax.axhline(y=54.2, color=GREY, linestyle=':', alpha=0.5)
-ax.axhline(y=67.4, color=C_NN, linestyle=':', alpha=0.5)
-ax.text(5.5, 67.7, 'final04 (no pre) = 67.4', fontsize=8, color=C_NN, ha='right')
-ax.text(5.5, 54.5, 'baseline = 54.2', fontsize=8, color=GREY, ha='right')
+# Baseline + final04 reference lines with labels in the clear area above bar 3
+ax.axhline(y=54.2, color=GREY, linestyle=':', alpha=0.5,
+           label='baseline (random) = 54.2')
+ax.axhline(y=67.4, color=C_NN, linestyle=':', alpha=0.5,
+           label='final04 (no pretrained) = 67.4')
+ax.legend(loc='upper left', framealpha=0.85, fontsize=8)
 
-# Annotation explaining the story
-ax.annotate('Fine-tuning 300-d general-domain\n'
-            'vectors with 5 k training sentences\n'
-            'destroys their structure',
-            xy=(1, 51.9), xytext=(1.5, 46.5),
-            fontsize=8, color=C_BAD, fontstyle='italic', ha='left',
-            arrowprops=dict(arrowstyle='->', color=C_BAD, lw=1))
+# Explanation moved to figure caption in the report — no in-plot annotation.
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUT, 'fig12_pretrained.pdf'), bbox_inches='tight', dpi=150)
@@ -277,13 +272,18 @@ ax.scatter([0 + j for j in jitter_c], champ_devel, s=110, color=C_NN,
 ax.scatter([1 + j for j in jitter_b], big_devel, s=160, color=C_BIG, marker='*',
            edgecolor='black', linewidth=0.6, alpha=0.9, label='champ_big (h=300)', zorder=3)
 
+# Per-tag offsets chosen so coincident y-values don't stack their labels
+offs_dev_champ = {'s2345': (8, 5), 's111': (8, -8), 's777': (8, 0),
+                  's42': (8, 0), 'e18': (8, -8), 'e22': (8, 0)}
+offs_dev_big   = {'s2345': (9, -8), 's42': (9, 5), 's777': (9, 0)}
+
 for v, j in zip(champ_tag, jitter_c):
     idx = champ_tag.index(v)
-    ax.annotate(v, xy=(0 + j, champ_devel[idx]), xytext=(8, 0),
+    ax.annotate(v, xy=(0 + j, champ_devel[idx]), xytext=offs_dev_champ[v],
                 textcoords='offset points', fontsize=7, color='#333')
 for v, j in zip(big_tag, jitter_b):
     idx = big_tag.index(v)
-    ax.annotate(v, xy=(1 + j, big_devel[idx]), xytext=(9, 0),
+    ax.annotate(v, xy=(1 + j, big_devel[idx]), xytext=offs_dev_big[v],
                 textcoords='offset points', fontsize=7, color=C_BIG, fontweight='bold')
 
 # means
@@ -308,13 +308,17 @@ ax.scatter([0 + j for j in jitter_c], champ_test, s=110, color=C_NN,
 ax.scatter([1 + j for j in jitter_b], big_test, s=160, color=C_BIG, marker='*',
            edgecolor='black', linewidth=0.6, alpha=0.9, zorder=3)
 
+offs_tst_champ = {'s2345': (8, 5), 's111': (8, -8), 's777': (8, 0),
+                  's42': (8, 0), 'e18': (8, 0), 'e22': (8, 0)}
+offs_tst_big   = {'s2345': (9, 0), 's42': (9, 0), 's777': (9, 0)}
+
 for v, j in zip(champ_tag, jitter_c):
     idx = champ_tag.index(v)
-    ax.annotate(v, xy=(0 + j, champ_test[idx]), xytext=(8, 0),
+    ax.annotate(v, xy=(0 + j, champ_test[idx]), xytext=offs_tst_champ[v],
                 textcoords='offset points', fontsize=7, color='#333')
 for v, j in zip(big_tag, jitter_b):
     idx = big_tag.index(v)
-    ax.annotate(v, xy=(1 + j, big_test[idx]), xytext=(9, 0),
+    ax.annotate(v, xy=(1 + j, big_test[idx]), xytext=offs_tst_big[v],
                 textcoords='offset points', fontsize=7, color=C_BIG, fontweight='bold')
 
 m_c = np.mean(champ_test); m_b = np.mean(big_test)
@@ -439,18 +443,8 @@ ax.set_title('Per-Entity-Type Test F1 — 1.1 CRF vs. 1.2 NN (round-1 → final)
 ax.legend(loc='upper right', framealpha=0.9)
 ax.set_ylim(0, 105)
 
-ax.annotate('CRF sharper on\ntrademark patterns',
-            xy=(0 - w, 92.9), xytext=(-0.6, 100),
-            fontsize=8, color=C_CRF, fontstyle='italic',
-            arrowprops=dict(arrowstyle='->', color=C_CRF, lw=1))
-ax.annotate('NN picks up\nsemantic group names',
-            xy=(3 + w, 79.8), xytext=(2.1, 58),
-            fontsize=8, color=C_NN, fontstyle='italic',
-            arrowprops=dict(arrowstyle='->', color=C_NN, lw=1))
-ax.annotate('Everyone struggles',
-            xy=(2, 15.6), xytext=(2, 35),
-            fontsize=8, color=C_BAD, fontstyle='italic', ha='center',
-            arrowprops=dict(arrowstyle='->', color=C_BAD, lw=1))
+# Per-class callouts removed — the caption already explains the pattern
+# and the bar deltas make the story readable at a glance.
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUT, 'fig12_per_entity.pdf'), bbox_inches='tight', dpi=150)
@@ -501,7 +495,7 @@ for i, v in zip(mean_x, mean_y):
 
 # 1.1 baseline reference
 ax.axhline(y=67.7, color=C_CRF, linestyle=':', alpha=0.6, linewidth=1.5)
-ax.text(4.3, 67.7, '1.1 CRF test 67.7', fontsize=9, color=C_CRF, ha='right', va='bottom')
+ax.text(0.05, 67.85, '1.1 CRF test = 67.7', fontsize=9, color=C_CRF, ha='left', va='bottom')
 
 ax.set_xticks(x)
 ax.set_xticklabels(rounds, fontsize=9)
@@ -510,19 +504,7 @@ ax.set_title('Progress Timeline — System 1.2 (Rounds 1 → 5)')
 ax.set_ylim(66.5, 72)
 ax.legend(loc='lower right', framealpha=0.9)
 
-# Story callouts
-ax.annotate('under-trained\n(8 ep)',
-            xy=(0, 67.4), xytext=(0.3, 66.7),
-            fontsize=8, color='#555', fontstyle='italic',
-            arrowprops=dict(arrowstyle='->', color='#555', lw=0.8))
-ax.annotate('seed audit exposes\n70.0 as lucky',
-            xy=(3, 70.6), xytext=(3.2, 68.8),
-            fontsize=8, color='#555', fontstyle='italic',
-            arrowprops=dict(arrowstyle='->', color='#555', lw=0.8))
-ax.annotate('bigger LSTM\nrobust on test',
-            xy=(4, 69.9), xytext=(4.1, 71.3),
-            fontsize=8, color=C_BIG, fontstyle='italic', fontweight='bold',
-            arrowprops=dict(arrowstyle='->', color=C_BIG, lw=1))
+# Story callouts removed — dotted reference line + the caption carry the story.
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUT, 'fig12_timeline.pdf'), bbox_inches='tight', dpi=150)
@@ -544,8 +526,13 @@ bars = ax.barh(range(len(systems)), tests, color=colors_sys,
 
 for i, (bar, val) in enumerate(zip(bars, tests)):
     fw = 'bold' if i >= 2 else 'normal'
+    if i == 0:
+        txt = f'{val:.1f}%'
+    else:
+        d = val - 67.7
+        txt = f'{val:.1f}%  ({d:+.1f})'
     ax.text(val + 0.08, bar.get_y() + bar.get_height()/2,
-            f'{val:.1f}%', va='center', fontsize=11, fontweight=fw)
+            txt, va='center', fontsize=11, fontweight=fw)
 
 ax.set_yticks(range(len(systems)))
 ax.set_yticklabels(systems, fontsize=10)
@@ -555,11 +542,7 @@ ax.set_xlim(66.5, 71.5)
 ax.invert_yaxis()
 ax.axvline(x=67.7, color=GREY, linestyle=':', alpha=0.5)
 
-# ∆ annotations
-for i, val in enumerate(tests[1:], start=1):
-    d = val - 67.7
-    ax.text(67.85, i, f'∆ = {d:+.1f}', va='center', fontsize=8,
-            color='#27AE60' if d > 0 else C_BAD, fontstyle='italic')
+# ∆ inlined with the value above
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUT, 'fig12_cross_system.pdf'), bbox_inches='tight', dpi=150)

@@ -1,4 +1,4 @@
-import sys
+import os, sys
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments, Trainer
 
@@ -128,9 +128,14 @@ class FineTuning() :
         self.tokenizer.truncation_side = "left"
 
         # Add LoRa fine-tunable layers
+        # [MOD-1.3] LoRA rank / alpha overridable via env vars FT_LORA_R, FT_LORA_ALPHA
+        # for the Phase G ablation (r=32) without forking the driver.
+        _lora_r = int(os.environ.get("FT_LORA_R", 8))
+        _lora_alpha = int(os.environ.get("FT_LORA_ALPHA", 16))
+        print(f"[MOD-1.3] LoRA r={_lora_r} alpha={_lora_alpha}", file=sys.stderr)
         lora_config = LoraConfig(
-            r=8,
-            lora_alpha=16,
+            r=_lora_r,
+            lora_alpha=_lora_alpha,
             target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
             lora_dropout=0.05,
             bias="none",
@@ -189,6 +194,10 @@ class FineTuning() :
         Save tuned weights in outputdir
         '''
         # Configure training arguments
+        # [MOD-1.3] num_train_epochs overridable via env var FT_EPOCHS for the
+        # Phase G ablation (20 epochs) without forking the driver.
+        _epochs = int(os.environ.get("FT_EPOCHS", 10))
+        print(f"[MOD-1.3] num_train_epochs={_epochs}", file=sys.stderr)
         training_args = TrainingArguments(
             output_dir=outputdir,
             per_device_train_batch_size=1,
@@ -198,7 +207,7 @@ class FineTuning() :
             fp16=False,
             bf16=True,
             learning_rate=2e-5,
-            num_train_epochs=10,
+            num_train_epochs=_epochs,
             eval_strategy="epoch",
             save_total_limit = 2,
             load_best_model_at_end=True,

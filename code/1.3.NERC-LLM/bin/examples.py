@@ -75,20 +75,44 @@ class Examples() :
     # ------------ select given number of FS examples -----------------
     def select_examples(self, numFS=-1, balanced=False) :
         random.seed(12345)
-        
-        if balanced and self.task == "NER" :
-            print(f"'balanced' not applicable for NER. Ignored", file=sys.stderr)
-            balanced = False
-        
-        if numFS == -1 : 
+
+        if numFS == -1 :
             # return all dataset
             return self.data
-            
-        elif numFS == 0 : 
+
+        elif numFS == 0 :
             # for zero shot
             return []
 
-        elif balanced :               
+        elif balanced and self.task == "NER" :
+            # [MOD-1.3] NER balanced sampling: ensure each of the 4 entity
+            # classes appears in at least numFS//4 of the chosen demonstrations.
+            # Addresses Phase C/F observation that random 15-shot sampling
+            # almost never surfaces a `drug_n` example (~100 mentions in
+            # ~6700 sentences), so the model never sees one and scores 0 %
+            # recall on it in few-shot.
+            tags = ["drug_n", "brand", "group", "drug"]  # rarest-first
+            per = max(1, numFS // len(tags))
+            examples = []
+            seen = set()
+            for t in tags :
+                candidates = [d for d in self.data
+                              if f"<{t}>" in d["gold"] and d["id"] not in seen]
+                pick = random.sample(candidates, min(per, len(candidates)))
+                examples.extend(pick)
+                seen.update(d["id"] for d in pick)
+                print(f"Selected {len(pick)} NER examples containing <{t}>", file=sys.stderr)
+            # fill remainder with random non-duplicates to reach numFS
+            leftover = [d for d in self.data if d["id"] not in seen]
+            need = max(0, numFS - len(examples))
+            if need and leftover :
+                examples.extend(random.sample(leftover, min(need, len(leftover))))
+            random.shuffle(examples)
+            examples = examples[:numFS]
+            print(f"Selected {len(examples)} NER-balanced examples", file=sys.stderr)
+            return examples
+
+        elif balanced :
             # return same amount of each class
             # only makes sense if there are few "gold" values (e.g. for DDI)
 

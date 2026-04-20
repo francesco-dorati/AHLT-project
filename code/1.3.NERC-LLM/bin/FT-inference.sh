@@ -10,7 +10,8 @@
 ## Usage: 
 ##    sbatch FT-inference.sh llama32B3 prompt01 devel FT-llama32B3.weights [-quant]
 
-source /scratch/nas/1/PDI/mml0/MML.venv/bin/activate
+# [MOD-1.3] venv updated per professor's 2026-04-10 notice: mml0/MML.venv -> mgl0/AHLT.venv
+source /scratch/nas/1/PDI/mgl0/AHLT.venv/bin/activate
 
 MODEL=$1
 PROMPTS=$2
@@ -21,6 +22,14 @@ QUANT=$5
 python3 finetune-inference.py $MODEL $PROMPTS $TEST $WEIGHTS $QUANT
 if (test $? != 0); then exit; fi
 
-python3 ../../../util/evaluator.py NER ../../../data/$TEST.xml  ../results/FT-${MODEL}${QUANT}-${TEST}.out ../results/FT-${MODEL}${QUANT}-${TEST}.stats
+# [MOD-1.3] Phase G: honour FT_TAG in output filename so ablations don't clash.
+TAG_SUFFIX=""
+if [ -n "$FT_TAG" ]; then
+  case "$FT_TAG" in
+    -*) TAG_SUFFIX="$FT_TAG" ;;
+    *)  TAG_SUFFIX="-$FT_TAG" ;;
+  esac
+fi
+python3 ../../../util/evaluator.py NER ../../../data/$TEST.xml  ../results/FT-${MODEL}${QUANT}${TAG_SUFFIX}-${TEST}.out ../results/FT-${MODEL}${QUANT}${TAG_SUFFIX}-${TEST}.stats
 
 deactivate

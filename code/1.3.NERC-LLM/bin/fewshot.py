@@ -10,31 +10,48 @@ from examples import Examples
 
 # ------------ check command line and get arguments -----------------
 def get_arguments():
-    if (not 6<=len(sys.argv)<=7 or sys.argv[6] not in ["-quant", "-ollama"]):
-        print(f"Usage:  {sys.argv[0]} model prompts num_few_shot trainfile testfile [(-quant|-ollama)]", file=sys.stderr)
+    # [MOD-1.3] Fix: original code accessed sys.argv[6] unconditionally, crashing
+    # with IndexError when the optional -quant/-ollama flag was omitted (the
+    # default sbatch call path, since fewshot.sh forwards $QUANT which is empty
+    # when unset). Per professor's 2026-04-10 notice about fixing parameter
+    # parsing in fewshot / finetune-train / finetune-inference.
+    # [MOD-1.3] also accepts an optional -balanced flag (Phase G) in any
+    # position after position 5 to request class-balanced FS sampling.
+    argv = sys.argv[:]
+    balanced = False
+    if "-balanced" in argv:
+        balanced = True
+        argv = [a for a in argv if a != "-balanced"]
+
+    if not 6 <= len(argv) <= 7:
+        print(f"Usage:  {sys.argv[0]} model prompts num_few_shot trainfile testfile [(-quant|-ollama)] [-balanced]", file=sys.stderr)
+        sys.exit(1)
+    if len(argv) == 7 and argv[6] not in ["-quant", "-ollama"]:
+        print(f"Usage:  {sys.argv[0]} model prompts num_few_shot trainfile testfile [(-quant|-ollama)] [-balanced]", file=sys.stderr)
         sys.exit(1)
 
-    model = sys.argv[1]
-    promptfile = sys.argv[2]
-    num_few_shot = int(sys.argv[3])
-    traindata = sys.argv[4]
-    testdata = sys.argv[5]
-    quantized = (sys.argv[6]=="-quant")
-    ollama = (sys.argv[6]=="-ollama")
+    model = argv[1]
+    promptfile = argv[2]
+    num_few_shot = int(argv[3])
+    traindata = argv[4]
+    testdata = argv[5]
+    flag = argv[6] if len(argv) == 7 else ""
+    quantized = (flag == "-quant")
+    ollama = (flag == "-ollama")
 
-    return model, promptfile, num_few_shot, traindata, testdata, quantized, ollama
+    return model, promptfile, num_few_shot, traindata, testdata, quantized, ollama, balanced
 
 
 ############## main ###################
 
 # get command line arguments
-model, promptfile, num_few_shot, traindata, testdata, quantized, ollama = get_arguments()
+model, promptfile, num_few_shot, traindata, testdata, quantized, ollama, balanced = get_arguments()
 
-print(f"========= FEW SHOT === PROMPTS={promptfile}  SHOTS={num_few_shot}  DATA={testdata} quantized={quantized}", file=sys.stderr)
+print(f"========= FEW SHOT === PROMPTS={promptfile}  SHOTS={num_few_shot}  DATA={testdata} quantized={quantized} balanced={balanced}", file=sys.stderr)
 
 # load training data (FS examples)
 trainfile = os.path.join(paths.DATA,traindata+".xml")
-fs_examples = Examples(trainfile, "NER").select_examples(num_few_shot)
+fs_examples = Examples(trainfile, "NER").select_examples(num_few_shot, balanced=balanced)
 
 # load prompts, create few-shot prompt
 prompts = Prompts(promptfile, fs_examples)
@@ -48,7 +65,8 @@ t0 = time.time()
 if ollama:
    engine = Inference(model, ollama=True)
 else :
-   MODEL_PATH = f"/scratch/nas/1/PDI/mml0/models/{model}"
+   # [MOD-1.3] Path updated per professor's 2026-04-10 notice: mml0 -> mgl0
+   MODEL_PATH = f"/scratch/nas/1/PDI/mgl0/models/{model}"
    engine = Inference(MODEL_PATH, quantized=quantized)
 print(f"Model loading took {time.time()-t0:.1f} seconds", file=sys.stderr)
 

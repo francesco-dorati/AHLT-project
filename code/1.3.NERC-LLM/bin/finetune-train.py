@@ -35,7 +35,8 @@ prompts = Prompts(promptfile)
 
 # load model and tokenizer
 t0 = time.time()
-MODEL_PATH = f"/scratch/nas/1/PDI/mml0/models/{model}"
+# [MOD-1.3] Path updated per professor's 2026-04-10 notice: mml0 -> mgl0
+MODEL_PATH = f"/scratch/nas/1/PDI/mgl0/models/{model}"
 engine = FineTuning(MODEL_PATH, quantized=quantized)
 print(f"Model loading took {time.time()-t0:.1f} seconds", file=sys.stderr)
 
@@ -54,10 +55,16 @@ print(f"Dataset loading took {time.time()-t0:.1f} seconds", file=sys.stderr)
 t0 = time.time()
 os.makedirs(paths.MODELS, exist_ok=True)
 quant="-quant" if quantized else ""
-outputdir = os.path.join(paths.MODELS, f"FT-{model}{quant}.weights")
+# [MOD-1.3] Phase G: append an optional suffix (env var FT_TAG) to the weights
+# directory so r=32 / 20-epoch ablations don't overwrite the Phase D baseline
+# adapter. Empty by default → identical to original naming.
+tag = os.environ.get("FT_TAG", "")
+if tag and not tag.startswith("-"): tag = "-" + tag
+outputdir = os.path.join(paths.MODELS, f"FT-{model}{quant}{tag}.weights")
+print(f"[MOD-1.3] FT output dir: {outputdir}", file=sys.stderr)
 engine.train(train_dataset,
-             val_dataset, 
-             outputdir) 
+             val_dataset,
+             outputdir)
 print(f"Training took {time.time()-t0:.1f} seconds", file=sys.stderr)
 
 print("Fine-tuning complete!", file=sys.stderr)

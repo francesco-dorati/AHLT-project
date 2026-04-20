@@ -239,8 +239,9 @@ ax.set_title('Per-Entity-Type F1 on Test Set (mod8 features)')
 ax.legend(loc='upper right', framealpha=0.9)
 ax.set_ylim(0, 105)
 
-# Highlight drug_n
-ax.annotate('All models\nstruggle here', xy=(2, 14), xytext=(2.6, 35),
+# Highlight drug_n — arrow origin placed in clear air above the drug_n group
+ax.annotate('drug_n — all\nmodels struggle',
+            xy=(2, 14), xytext=(1.3, 40),
             fontsize=9, color='red', fontstyle='italic', ha='center',
             arrowprops=dict(arrowstyle='->', color='red', lw=1.2))
 
@@ -259,21 +260,27 @@ rec  = [94.2, 90.1,  7.8, 74.3]
 labels_pr = ['brand', 'drug', 'drug_n', 'group']
 sizes = [275, 2151, 102, 700]  # #expected entities
 
-fig, ax = plt.subplots(figsize=(6, 5))
+fig, ax = plt.subplots(figsize=(7, 5))
+# Offsets keep labels inside the axes frame, with arrows linking to points
+label_offsets = {'brand':  (-80,  10),   # upper-left of point
+                 'drug':   ( 25,  -5),   # right of bubble
+                 'group':  ( 15,  10),   # upper-right of point
+                 'drug_n': ( 15,   0)}   # right of point
 for i, (p, r, lbl, sz) in enumerate(zip(prec, rec, labels_pr, sizes)):
     ax.scatter(r, p, s=sz/5, alpha=0.7, color=[C_CRF, C_SVM, '#E74C3C', C_MEM][i],
                edgecolor='black', linewidth=0.5, zorder=3)
-    offset_x = 2 if lbl != 'drug_n' else 3
-    offset_y = 2 if lbl != 'drug' else -3
+    dx, dy = label_offsets[lbl]
     ax.annotate(f'{lbl}\nF1={crf_f1_type[i]:.1f}%', xy=(r, p),
-                xytext=(r + offset_x, p + offset_y), fontsize=9, fontweight='bold')
+                xytext=(dx, dy), textcoords='offset points',
+                fontsize=9, fontweight='bold',
+                arrowprops=dict(arrowstyle='-', color='#888', lw=0.6, alpha=0.7))
 
 ax.plot([0, 100], [0, 100], '--', color=GREY, alpha=0.3, label='P = R')
 ax.set_xlabel('Recall (%)')
 ax.set_ylabel('Precision (%)')
 ax.set_title('Precision vs Recall per Entity Type\n(Best CRF, mod8, Test Set)')
-ax.set_xlim(0, 100)
-ax.set_ylim(0, 100)
+ax.set_xlim(0, 105)
+ax.set_ylim(0, 105)
 ax.legend(loc='lower right', fontsize=9)
 
 plt.tight_layout()

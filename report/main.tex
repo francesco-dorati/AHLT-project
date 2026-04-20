@@ -3,6 +3,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{geometry}
 \geometry{margin=1in}
+\emergencystretch=3em
 \usepackage[table]{xcolor}
 \usepackage{graphicx}
 \usepackage{fancyhdr}
@@ -10,6 +11,7 @@
 \usepackage{tocloft}
 \usepackage{enumitem}
 \usepackage{titlesec}
+\usepackage{caption}
 \usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{float}
@@ -17,6 +19,34 @@
 \usepackage{hyperref}
 \usepackage[outputdir=.]{minted}
 \usepackage{minted}
+
+% --- Report accent colours ---
+\definecolor{figblue}{RGB}{15,76,129}     % dark blue for figure labels
+\definecolor{tabgreen}{RGB}{30,102,56}    % dark green for table labels
+\definecolor{linknavy}{RGB}{30,58,138}    % navy for hyperlinks
+\definecolor{citemaroon}{RGB}{128,28,28}  % maroon for citations
+
+% --- Caption styling: coloured labels, small italic body ---
+\captionsetup{labelsep=colon, font=small, textfont=it}
+\captionsetup[figure]{labelfont={bf,color=figblue}}
+\captionsetup[table]{labelfont={bf,color=tabgreen}}
+\captionsetup[sub]{font=footnotesize, labelfont={bf,color=figblue}, textfont=it}
+
+% --- Section heading colours (navy for sections, softer navy for subsections) ---
+\titleformat{\section}{\normalfont\Large\bfseries\color{linknavy}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries\color{linknavy!80!black}}{\thesubsection}{1em}{}
+
+% --- Coloured callout for in-paragraph summary headers ---
+\newcommand{\callout}[1]{\textbf{\textcolor{tabgreen}{#1}}}
+
+% --- Hyperref styling: coloured links instead of garish boxes ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=linknavy,
+    citecolor=citemaroon,
+    urlcolor=linknavy,
+    filecolor=linknavy
+}
 
 \usepackage[normalem]{ulem}
 \newcommand{\redsout}[1]{\textcolor{red}{\sout{\textcolor{black}{#1}}}}
@@ -60,34 +90,36 @@
 
 
   \vspace{0.2cm}
-{\LARGE\bfseries AHLT Lab Project Report \\[0.2cm]
-\textit{Task 1 — NERC (Named Entity Recognition and Classification)}}\\[0.6cm]
-
+{\LARGE\bfseries AHLT Lab Project Report \\[0.15cm]
+\textit{Task 1 — NERC (Named Entity Recognition and Classification)}}\\[0.3cm]
 
 \begin{center}
-    \textbf{\huge\scshape Contents}
+\begin{tabular}{@{}l @{\hspace{2cm}} l @{\hspace{2cm}} l@{}}
+\textbf{Authored by:} & \textbf{Lab Group:} & \textbf{Date:} \\
+Ralph Khairallah (Exchange)      & 10                     & \today \\
+Francesco Doratti (Exchange)     &                        &        \\
+\end{tabular}
 \end{center}
 
-\vspace{-0.8cm} 
+\vspace{0.3cm}
+
+\begin{center}
+    \textcolor{linknavy}{\textbf{\huge\scshape Contents}}
+\end{center}
+
+\vspace{-0.6cm}
 
     \renewcommand{\contentsname}{}
-    \tableofcontents
     \renewcommand{\cftsecfont}{\bfseries\Large}
     \renewcommand{\cftsubsecfont}{\normalfont\large}
     \setlength{\cftbeforesecskip}{10pt}
     \setlength{\cftbeforesubsecskip}{5pt}
-
-   \vfill
-\begin{center}
-\begin{tabular}{@{}l @{\hspace{3cm}} l @{\hspace{3cm}} l@{}}
-\textbf{Authored by:} & \textbf{Lab Group:} & \textbf{Date:} \\
-Ralph Khairallah (Exchange)      & 10                     & \today \\
-\end{tabular}
-\end{center}
+    \setcounter{tocdepth}{2}
+    \tableofcontents
 
 \end{titlepage}
 
-\setcounter{page}{2}
+\setcounter{page}{3}
 
 % =============================
 % AHLT Lab Project (Task 1: NERC)
@@ -96,18 +128,46 @@ Ralph Khairallah (Exchange)      & 10                     & \today \\
 % =============================
 
 \section{Introduction}
-\subsection{Context and objective}
-This project is based on SemEval-2013 Task 9 (biomedical information extraction).
-Task 1 is \textbf{Named Entity Recognition and Classification (NERC)}: identify drug mentions and classify them into the provided entity types.
 
-\subsection{Task 1 deliverables}
-The Task 1 report requires documenting experiments and best results for:
-\begin{itemize}
-    \item System 1.1: NERC with feature-based Machine Learning (features, algorithms, hyperparameters).
-    \item System 1.2: NERC with Neural Networks (input representations, architecture variants, hyperparameters).
-    \item System 1.3: NERC with LLMs (prompt adaptation, few-shot, fine-tuning).
+\subsection{Context}
+Drug--drug interactions (DDIs) are a leading cause of adverse
+clinical events, and most of the evidence for them lives in
+unstructured biomedical text: drug labels, case reports, scientific
+abstracts. Before any interaction can be extracted, the drugs
+themselves must be located and classified --- a Named Entity
+Recognition and Classification (NERC) problem. The task is harder
+than generic NER because drug names are highly productive (new
+compounds appear constantly), they share surface features with
+ordinary English words (\textit{aspirin}, \textit{caffeine}), and
+four distinct sub-types (approved drugs, brand names, drug groups,
+unapproved / experimental compounds) must be told apart. This
+report addresses the NERC sub-task of SemEval-2013 Task~9
+(DDIExtraction), using the DrugBank $+$ MedLine corpus provided by
+the shared task.
+
+\subsection{Objectives}
+The project delivers and compares three NERC systems spanning the
+main paradigms in modern NLP:
+\begin{itemize}[nosep]
+    \item \textbf{System 1.1 --- feature-based Machine Learning}:
+          CRF, SVM and MaxEnt classifiers on hand-crafted features
+          (morphology, PoS, dictionary lookups).
+    \item \textbf{System 1.2 --- Neural Networks}: a BiLSTM tagger
+          with configurable input representations (word /
+          lower-cased word / suffix / prefix / lemma / PoS /
+          binary features) and architecture knobs.
+    \item \textbf{System 1.3 --- Large Language Models}: a
+          generative XML-tagging approach, evaluated both few-shot
+          (no training) and after LoRA fine-tuning on quantised
+          Llama-3.2-3B and Qwen-2.5-3B.
 \end{itemize}
-and a final comparison (effort, computational cost, explainability/controllability, and performance).
+For each system we document the input representation, architecture
+and hyperparameter exploration, the development-set selection
+protocol, and the final test-set numbers. A closing cross-system
+comparison (§\ref{sec:conclusions}) discusses the four dimensions
+required by the lab specification: \emph{effort},
+\emph{computational cost}, \emph{explainability /
+controllability}, and \emph{performance}.
 
 \section{Data, evaluation, and reproducibility}
 
@@ -159,10 +219,11 @@ Three classifiers are compared throughout:
 \begin{itemize}[nosep]
     \item \textbf{CRF}: Conditional Random Fields (\texttt{pycrfsuite}), which model label sequences.
     \item \textbf{SVM}: Support Vector Machine (\texttt{sklearn.svm.SVC}), token-level classification.
-    \item \textbf{MEM}: Maximum Entropy / Logistic Regression (\texttt{sklearn.linear\_model.LogisticRegression}).
+    \item \textbf{MEM}: Maximum Entropy / Logistic Regression
+    via \texttt{sklearn.linear\_model}.
 \end{itemize}
 
-Baseline devel results (default hyperparameters): CRF~67.9\%, SVM~67.1\%, MEM~65.5\%.
+Baseline devel results (default hyperparameters): CRF 67.9\%, SVM 67.1\%, MEM 65.5\%.
 
 \subsection{Feature engineering experiments}
 
@@ -197,7 +258,7 @@ We incrementally added nine groups of features. Each modification was evaluated 
     \label{fig:feature-evolution}
 \end{figure}
 
-\textbf{Key observations:}
+\callout{Key observations:}
 \begin{itemize}[nosep]
     \item Mod~6 (biomedical patterns) gave the largest single improvement for CRF: +0.4 points.
     \item Mod~4 (context POS) unexpectedly \emph{hurt} CRF ($-$0.4 pts), likely due to feature space explosion with limited data. Reverting to mod~3 context and expanding the window ($\pm$2) in mod~5 was more effective.
@@ -215,8 +276,8 @@ On the devel set, CRF consistently outperformed SVM and MEM across all feature c
 \hline
  & \textbf{CRF} & \textbf{SVM} & \textbf{MEM} \\
 \hline
-Best devel F1 (any mod) & \textbf{68.5\%} & 67.7\% & 66.5\% \\
-Best test F1 (mod8) & \textbf{68.2\%} & 67.9\% & 67.8\% \\
+Best devel F1 (any mod) & \cellcolor{green!15}\textbf{68.5\%} & 67.7\% & 66.5\% \\
+Best test F1 (mod8) & \cellcolor{green!15}\textbf{68.2\%} & 67.9\% & 67.8\% \\
 \hline
 \end{tabular}
 \caption{Best F1 per algorithm on devel (after hyperparameter tuning) and test (mod8 features).}
@@ -250,7 +311,7 @@ Figure~\ref{fig:crf-heatmap} shows the CRF hyperparameter landscape on mod6 (bes
     \label{fig:crf-heatmap}
 \end{figure}
 
-\textbf{Key findings from hyperparameter tuning:}
+\callout{Key findings from hyperparameter tuning:}
 \begin{itemize}[nosep]
     \item CRF: low regularization ($c_1 \leq 0.1$, $c_2 \leq 0.5$) with few iterations (50) works best. The model converges quickly.
     \item SVM: rbf kernel with $C = 0.75$--$1.0$ and default $\gamma$ (\texttt{scale}) is optimal. Manually setting $\gamma$ consistently hurts and can make training extremely slow (hours per run).
@@ -294,20 +355,20 @@ Table~\ref{tab:final-results} summarizes the final test results.
 \hline
 \textbf{Model} & \textbf{Features} & \textbf{Best hyperparameters} & \textbf{Test F1} \\
 \hline
-\rowcolor{green!10} CRF & mod8 & $c_1 = 0.1$, $c_2 = 0.1$, iter $= 50$ & \textbf{68.2\%} \\
+\rowcolor{green!18} CRF & mod8 & $c_1 = 0.1$, $c_2 = 0.1$, iter $= 50$ & \textbf{68.2\%} \\
 SVM (rbf)    & mod8 & $C = 0.75$, $\gamma$ = scale & 67.9\% \\
 SVM (linear) & mod8 & $C = 0.2$ & 67.9\% \\
 MEM          & mod8 & $C = 1.0$ & 67.8\% \\
 \hline
-CRF & mod6 & $c_1 = 0.01$, $c_2 = 0.1$, iter $= 50$ & 63.4\% \\
-CRF & mod9\_wo8 & $c_1 = 0.1$, $c_2 = 0.5$, iter $= 200$ & 62.3\% \\
+\rowcolor{red!10} CRF & mod6 & $c_1 = 0.01$, $c_2 = 0.1$, iter $= 50$ & 63.4\% \\
+\rowcolor{red!10} CRF & mod9\_wo8 & $c_1 = 0.1$, $c_2 = 0.5$, iter $= 200$ & 62.3\% \\
 \hline
 \end{tabular}
 \caption{Final test set results. The best model is \textbf{CRF with mod8 features at 68.2\% F1}. All mod8 models generalize well (67.8--68.2\%). CRF with mod6/mod9 features overfit.}
 \label{tab:final-results}
 \end{table}
 
-\textbf{Discussion:}
+\callout{Discussion:}
 \begin{itemize}[nosep]
     \item \textbf{CRF mod8 is the best model} (68.2\% test F1), but the gap to SVM and MEM on mod8 is small ($<$0.5\%).
     \item \textbf{Multi-token dictionary spans (addition~8) are key for generalization.} They hurt CRF on devel ($-$0.8 pts) but improved test performance across all classifiers. This suggests they help the model learn patterns that transfer better to unseen data.
@@ -325,15 +386,24 @@ To understand \emph{where} the system succeeds and fails, we break down the best
 \hline
 \textbf{Type} & \textbf{TP} & \textbf{FP} & \textbf{FN} & \textbf{P (\%)} & \textbf{R (\%)} & \textbf{F1 (\%)} \\
 \hline
-brand  & 259 &  21 &  16 & 92.5 & 94.2 & \textbf{93.3} \\
-drug   & 1938 & 111 & 213 & 94.6 & 90.1 & \textbf{92.3} \\
+brand  & 259 &  21 &  16 & 92.5 & 94.2 & \cellcolor{green!15}\textbf{93.3} \\
+drug   & 1938 & 111 & 213 & 94.6 & 90.1 & \cellcolor{green!15}\textbf{92.3} \\
 group  & 520 & 176 & 180 & 74.7 & 74.3 & 74.5 \\
-drug\_n &   8 &  17 &  94 & 32.0 &  7.8 & \textcolor{red}{12.6} \\
+drug\_n &   8 &  17 &  94 & 32.0 &  7.8 & \cellcolor{red!15}\textbf{12.6} \\
 \hline
 \end{tabular}
 \caption{Per-entity-type results for the best CRF model (mod8, $c_1 = 0.1$, $c_2 = 0.1$, iter $= 50$) on the test set.}
 \label{tab:per-type}
 \end{table}
+
+\callout{Aggregate scores.} Summing the per-class counts above gives
+$\sum\text{TP}=2725$, $\sum\text{FP}=325$, $\sum\text{FN}=503$, which yields
+\textbf{micro-averaged F1 = 86.8\%} (P = 89.3\%, R = 84.4\%) and
+\textbf{macro-averaged F1 = 68.2\%}. The large gap between the two (18.4~pp)
+reflects the collapse on \textit{drug\_n}: micro is dominated by the frequent
+\textit{drug} class (67\% of entities), while macro weights all four types
+equally. These are the two numbers reported for System~1.1 in the final
+cross-system comparison (§\ref{sec:conclusions}).
 
 \begin{figure}[H]
     \centering
@@ -349,7 +419,7 @@ drug\_n &   8 &  17 &  94 & 32.0 &  7.8 & \textcolor{red}{12.6} \\
     \label{fig:pr-scatter}
 \end{figure}
 
-\textbf{Key observations:}
+\callout{Key observations:}
 \begin{itemize}[nosep]
     \item \textbf{drug} (67\% of entities) and \textbf{brand} are well-recognized (F1 $>$ 92\%), benefiting from dictionary coverage and distinctive naming patterns (capitalization, trademark suffixes).
     \item \textbf{group} (22\% of entities) is harder at 74.5\% F1. Group names are often common English words (\textit{anticoagulants}, \textit{diuretics}) that lack distinctive surface features, leading to both false positives and false negatives.
@@ -388,75 +458,62 @@ so reviewers can \texttt{grep} for what is ours vs.\ the original
 baseline, and the full experiment history is kept in
 \texttt{code/1.2.NERC-NN/README\_MODIFICATIONS.md}.
 
-\subsection{Modifications to the baseline}
+\subsection{What we added}
 \label{sec:12-mods}
 
-\paragraph{\texttt{bin/network.py} — fully rewritten, backward compatible.}
-The network now takes a \texttt{params} dict and exposes every
-architectural knob. Defaults exactly reproduce the baseline, so old
-scripts keep working. New knobs include three extra input embeddings
-(\texttt{use\_pref}, \texttt{use\_lemma}, \texttt{use\_pos}), LSTM
-stacking and dropout (\texttt{lstm\_layers}, \texttt{lstm\_dropout}),
-hidden-size sweep (\texttt{lstm\_hidden}, \texttt{fc\_hidden}),
-post-LSTM LayerNorm (\texttt{use\_layernorm}), activation choice
-(\texttt{activation} $\in$ \{relu, tanh, gelu\}), embedding dropout,
-and a full pretrained-word-vector path on the lower-cased-word channel.
-The \texttt{forward()} method accepts seven channels
-(\texttt{lw, w, s, pref, lemma, pos, f}) and silently ignores the
-unselected ones, so the encoders can always emit a 7-tensor tuple and
-\texttt{predict.py} keeps working untouched.
+To turn the baseline into something we could sweep from the command
+line, we rewrote \texttt{network.py} around a \texttt{params} dict
+whose defaults exactly reproduce the baseline (old scripts keep
+working) and extended \texttt{codemaps.py} with three new input
+channels. One real bug was fixed along the way: the original code
+rebuilt the Adam optimizer \emph{inside} the epoch loop, resetting
+its moment estimates every epoch; we now build it once via a
+\texttt{build\_optimizer()} helper. Two smaller patches --- a
+spaCy-model CPU fallback (\texttt{en\_core\_web\_trf}~$\to$
+\texttt{en\_core\_web\_sm}) and a CLI cast that was blocking float
+parameters --- keep the pipeline working on laptops and let us sweep
+floats like \texttt{learning\_rate=0.0005} from the command line.
+Everything else is untouched.
 
-\paragraph{\texttt{bin/codemaps.py} — three new input channels.}
-We added \texttt{pref\_index}, \texttt{lemma\_index} and
-\texttt{pos\_index} (spaCy coarse PoS), plus the corresponding
-\texttt{encode\_words()} outputs. Each index is persisted under a new
-tag (\texttt{PREF}, \texttt{LEMMA}, \texttt{POS}, \texttt{PREFLEN}) so
-saved models reload without changes. We also added
-\texttt{build\_pretrained\_matrix(model\_name)}, which loads a spaCy
-vector model, walks the lower-cased vocabulary, and initialises
-\texttt{embLW} with the matching vectors, falling back to small random
-noise for OOV tokens.
+The knobs added on top of the baseline, grouped by the axis they
+control, are:
 
-\paragraph{\texttt{bin/train.py} — configurable optimizer and a real bug fix.}
-The original code called \texttt{optim.Adam()} \emph{inside} the epoch
-loop, which reset Adam's moment estimates every epoch --- a latent bug.
-We now build the optimizer once via a new \texttt{build\_optimizer()}
-helper that supports Adam/AdamW/SGD plus \texttt{learning\_rate},
-\texttt{weight\_decay} and \texttt{momentum}. The CLI no longer forces
-\texttt{int(v)} on parameter values, so floats like
-\texttt{learning\_rate=0.0005} work; \texttt{max\_len, suf\_len,
-batch\_size, epochs} are explicitly cast where needed. Finally, a new
-\texttt{seed=N} parameter calls a \texttt{set\_seed()} helper
-\emph{after} param parsing, so seed can be swept from the command line
-(required by the seed-stability analysis in Sections~\ref{sec:12-round4}
-and~\ref{sec:12-round5}).
-
-\paragraph{\texttt{bin/dataset.py} and \texttt{bin/predict.py} — small patches.}
-We added an \texttt{en\_core\_web\_trf} $\to$ \texttt{en\_core\_web\_sm}
-fallback so CPU-only machines work out-of-the-box, and cast
-\texttt{batch\_size} to \texttt{int} in \texttt{predict.py}.
-
-\paragraph{New batch runners.}
-Each experiment round is driven by a self-contained bash script,
-committed alongside the code:
 \begin{itemize}[nosep]
-    \item \texttt{run\_experiments.sh} --- round~1 single-axis sweep (10 runs).
-    \item \texttt{run\_combos.sh} --- round~1 combo experiments (5 runs).
-    \item \texttt{run\_extra.sh} --- round~2 gap filling: data sweeps,
-          pretrained, seed stability, longer training (23 runs).
-    \item \texttt{run\_final.sh} --- round~3 combine-winners (5 runs).
-    \item \texttt{run\_champ.sh} --- round~4 champion audit (6 runs).
-    \item \texttt{run\_big\_seeds.sh} --- round~5 \texttt{champ\_big}
-          seed confirmation (2 runs).
+    \item \textbf{Input representation:} \texttt{use\_pref},
+          \texttt{use\_lemma}, \texttt{use\_pos} (three extra input
+          embeddings, with matching \texttt{pref\_index},
+          \texttt{lemma\_index}, \texttt{pos\_index} channels in
+          \texttt{codemaps.py}), \texttt{pretrained} (spaCy-vector
+          initialisation of the lower-cased-word channel via a new
+          \texttt{build\_pretrained\_matrix()} helper),
+          \texttt{emb\_dropout}.
+    \item \textbf{Architecture:} \texttt{lstm\_layers},
+          \texttt{lstm\_hidden}, \texttt{fc\_hidden},
+          \texttt{lstm\_dropout}, \texttt{use\_layernorm}
+          (post-LSTM LayerNorm),
+          \texttt{activation}~$\in$~\{relu, tanh, gelu\}.
+    \item \textbf{Training:} \texttt{optimizer}~$\in$~\{Adam, AdamW,
+          SGD\}, \texttt{learning\_rate}, \texttt{weight\_decay},
+          \texttt{momentum}, \texttt{epochs}, \texttt{batch\_size},
+          \texttt{seed} (required by the seed-stability analysis in
+          Sections~\ref{sec:12-round4} and~\ref{sec:12-round5}).
 \end{itemize}
+
+Each experiment round is driven by a self-contained bash script
+committed alongside the code (\texttt{run\_experiments.sh},
+\texttt{run\_combos.sh}, \texttt{run\_extra.sh},
+\texttt{run\_final.sh}, \texttt{run\_champ.sh},
+\texttt{run\_big\_seeds.sh}), so any single row in the results
+tables can be reproduced with one command.
 
 \subsection{Experimental protocol}
 
 All experiments use the preprocessed \texttt{train.pck} and
 \texttt{devel.pck} produced by \texttt{bin/run.py parse}. Unless
 otherwise specified, the defaults are \texttt{batch\_size=32},
-\texttt{max\_len=150}, \texttt{suf\_len=5}, \texttt{seed=2345}, and
-\texttt{epochs=8} in round~1, \texttt{epochs=20} from round~2 onwards.
+\texttt{max\_len=150}, \texttt{suf\_len=5}, \texttt{seed=2345},
+and \texttt{epochs=8} in round~1 (\texttt{epochs=20} from round~2
+onwards).
 Following the PDF Core Task rules, \textbf{all selection is done on
 devel and the test set is used only at the very end} on a small number
 of pre-committed candidates. The primary metric is macro-averaged~F1
@@ -712,10 +769,11 @@ final2\_05 & \texttt{pref\_len=2 suf\_len=3}   & 25 & 69.1\% \\
 \label{tab:12-round3}
 \end{table}
 
-Two candidates are essentially tied on devel: \texttt{final2\_04\_e25}
-(70.2\%) and \texttt{final2\_03\_e20\_pref2\_suf3} (70.0\%). We
-evaluated both on test (first and only test eval at this point) and
-picked the genuine winner:
+Two candidates are essentially tied on devel:
+\texttt{final2\_04\_e25} (70.2\%) and
+\texttt{final2\_03\_\allowbreak e20\_\allowbreak pref2\_suf3}
+(70.0\%). We evaluated both on test (first and only test eval at
+this point) and picked the genuine winner:
 
 \begin{table}[H]
 \centering
@@ -752,7 +810,7 @@ the true sweet spot, and does a bigger LSTM help?
 \hline
 \textbf{Seed} & \textbf{Devel F1} \\
 \hline
-2345 (original) & 70.0\% \\
+2345 (original) & \cellcolor{red!12}70.0\% \\
 111             & 68.1\% \\
 777             & 68.4\% \\
 42              & 68.0\% \\
@@ -779,8 +837,8 @@ headline. Round~3's ranking was mostly seed noise.
 \hline
 \textbf{Epochs} & \textbf{Devel F1} \\
 \hline
-18 & 70.0\% \\
-20 & 70.0\% \\
+18 & \cellcolor{green!18}\textbf{70.0\%} \\
+20 & \cellcolor{green!18}\textbf{70.0\%} \\
 22 & 69.2\% \\
 25 & 69.1\% \\
 \hline
@@ -835,9 +893,9 @@ champ\_e22 (seed 2345) & 69.2 & 69.3 \\
 \hline
 \multicolumn{3}{l}{\textit{\texttt{champ\_big} (hidden=300, 3 runs)}} \\
 champ\_big (s2345)     & 70.6 & 70.1 \\
-\rowcolor{green!10}\textbf{champ\_big\_s42} & \textbf{70.7} & 69.1 \\
-champ\_big\_s777       & 67.6 & 70.6 \\
-\textbf{mean}          & \textbf{69.6} & \textbf{69.9} \\
+\rowcolor{green!18}\textbf{champ\_big\_s42} & \textbf{70.7} & 69.1 \\
+champ\_big\_s777       & 67.6 & \cellcolor{green!18}\textbf{70.6} \\
+\textbf{mean}          & \textbf{69.6} & \cellcolor{green!18}\textbf{69.9} \\
 \hline
 \end{tabular}
 \caption{Round-5 devel+test matrix. \texttt{champ\_big} is the first
@@ -853,9 +911,11 @@ and Figure~\ref{fig:12-devtest} plots devel vs.\ test as a scatter.
     \includegraphics[width=\linewidth]{fig12_seed_variance.pdf}
     \caption{Seed variance on devel (left) and test (right) for the
     two architectures. Horizontal lines are the means. On \emph{test},
-    every single \texttt{champ\_big} run beats the \emph{best}
-    champion run --- a +1.5 point mean improvement that survives seed
-    variance.}
+    every \texttt{champ\_big} run beats the champion \emph{mean}
+    (68.4), and the \texttt{champ\_big} mean (69.9) beats the best
+    single champion run (69.3) --- a +1.5 point mean-over-mean
+    improvement that survives seed variance, though the per-run
+    ranges overlap slightly.}
     \label{fig:12-seed}
 \end{figure}
 
@@ -872,7 +932,7 @@ and Figure~\ref{fig:12-devtest} plots devel vs.\ test as a scatter.
     \label{fig:12-devtest}
 \end{figure}
 
-\textbf{Key observations:}
+\callout{Key observations:}
 \begin{itemize}[nosep]
     \item \textbf{\texttt{champ\_big} is the first robust win.} Mean
     test~F1 = 69.9\% vs.\ the regular champion's 68.4\% --- a
@@ -917,13 +977,13 @@ Table~\ref{tab:12-perclass}.
 \hline
 \textbf{Type} & \textbf{TP} & \textbf{FP} & \textbf{FN} & \textbf{P (\%)} & \textbf{R (\%)} & \textbf{F1 (\%)} \\
 \hline
-brand  &  253 &  40 &  22 & 86.3 & 92.0 & \textbf{89.1} \\
-drug   & 1915 &  97 & 236 & 95.2 & 89.0 & \textbf{92.0} \\
+brand  &  253 &  40 &  22 & 86.3 & 92.0 & \cellcolor{green!15}\textbf{89.1} \\
+drug   & 1915 &  97 & 236 & 95.2 & 89.0 & \cellcolor{green!18}\textbf{92.0} \\
 group  &  578 & 171 & 122 & 77.2 & 82.6 & 79.8 \\
-drug\_n &   10 &  16 &  92 & 38.5 &  9.8 & \textcolor{red}{15.6} \\
+drug\_n &   10 &  16 &  92 & 38.5 &  9.8 & \cellcolor{red!15}\textbf{15.6} \\
 \hline
 M.avg  & --- & --- & --- & \textbf{74.3} & \textbf{68.4} & \textbf{69.1} \\
-m.avg  & 2756 & 324 & 472 & 89.5 & 85.4 & 87.4 \\
+m.avg  & 2756 & 324 & 472 & 89.5 & 85.4 & \cellcolor{green!18}\textbf{87.4} \\
 \hline
 \end{tabular}
 \caption{Per-entity-type test results for the final champion
@@ -974,12 +1034,12 @@ per-entity-type basis.
 \hline
 \textbf{Type}  & \textbf{1.1 CRF (test)} & \textbf{1.2 NN (test)} & \textbf{$\Delta$} \\
 \hline
-brand   &  92.9\% & 89.1\% & $-$3.8 \\
+brand   &  92.9\% & 89.1\% & \cellcolor{red!12}$-$3.8 \\
 drug    &  92.1\% & 92.0\% & $-$0.1 \\
-\rowcolor{green!10} group   &  73.3\% & 79.8\% & \textbf{+6.5} \\
-\rowcolor{green!10} drug\_n &  12.6\% & 15.6\% & \textbf{+3.0} \\
+\rowcolor{green!18} group   &  73.3\% & 79.8\% & \textbf{+6.5} \\
+\rowcolor{green!18} drug\_n &  12.6\% & 15.6\% & \textbf{+3.0} \\
 \hline
-\textbf{M.avg} & \textbf{67.7\%} & \textbf{69.1\%} & \textbf{+1.4} \\
+\textbf{M.avg} & \textbf{67.7\%} & \textbf{69.1\%} & \cellcolor{green!18}\textbf{+1.4} \\
 \hline
 \end{tabular}
 \caption{Final cross-system per-type comparison.
@@ -1049,551 +1109,721 @@ numbers.
     problem, not a model problem.
 \end{itemize}
 
-\section{System 1.3 — NERC with LLMs (pending)}
-This section will be completed once the LLM prompt/few-shot/fine-tuning experiments are done.
+% ============================================================
+\section{System 1.3 — NERC with Large Language Models}
+% ============================================================
 
-\section{Conclusions (pending)}
-Final comparison across 1.1/1.2/1.3 will be completed once all systems are implemented.
+\subsection{Starting point and output format}
+\label{sec:13-start}
 
-\clearpage
-\iffalse
-% =============================
-% OLD TEMPLATE CONTENT (disabled)
-% =============================
+The System~1.3 baseline (\texttt{code/1.3.NERC-LLM/bin/}) wraps
+HuggingFace causal LLMs around a pseudo-XML I/O format: drug mentions
+are emitted as text tags (\texttt{<drug>}, \texttt{<group>},
+\texttt{<drug\_n>}, \texttt{<brand>}) and re-aligned against the input
+sentence into evaluator-compatible span tuples. We chose this over BIO
+tagging because sub-word LLM tokenisation makes token-level labels
+unreliable, whereas pseudo-XML is agnostic to tokenisation. The
+important practical consequence is that System~1.3 is scored by the
+\emph{same} \texttt{util/evaluator.py} script as Systems~1.1 and~1.2,
+on the exact same train/devel/test split, so all cross-system numbers
+in the final comparison (Section~\ref{sec:conclusions}) are directly
+comparable.
 
-\section{Introduction}
-\subsection{Context}
-Agriculture monitoring increasingly relies on aerial imagery to assess crop health, vegetation density, and irrigation practices over large areas. In arid and semi-arid regions, a key practical task is to distinguish \textbf{irrigated olive groves} from \textbf{non-irrigated terrain}, since irrigated plots typically present stronger and more homogeneous vegetation responses than the surrounding dry soil.
+The baseline exposes two pipelines: \emph{few-shot} (\texttt{fewshot.py})
+with no training, and \emph{fine-tuning} (\texttt{finetune-train.py}
+$+$ \texttt{finetune-inference.py}) with a LoRA adapter on top of a
+4-bit-quantised base model. Both pipelines consume a JSON prompt
+template (\texttt{prompts01.json} shipped) and run on the Boada
+cluster via sbatch scripts.
 
-The dataset provided for this homework consists of three aerial RGB images showing intensive olive cultivation patterns. In these scenes, the irrigated areas are expected to appear greener and denser, while the background is often sandy/arid with a weaker green component.
+\subsection{What we added}
+\label{sec:13-mods}
 
-Figure~\ref{fig:inputs-hw3} shows the three input images used throughout the work.
+To expose the experimental axes required by the task, we added a
+small number of ergonomic extensions on top of the baseline:
+two extra prompt variants (\texttt{prompts02}, \texttt{prompts03}) to
+probe the prompt axis, a class-balanced few-shot sampler (guarantees
+$\geq$3 demonstrations per class) for the rare-class ablation, and
+environment-variable plumbing for LoRA rank/alpha/epochs so that
+configurations could be swept from the sbatch scripts rather than by
+forking the Python source. A sbatch self-chaining step was added so
+that each fine-tune training job automatically submits its own
+inference job once the adapter is saved (the cluster's
+\texttt{MaxSubmitJobs} limit otherwise blocks parallel runs).
+Two small baseline bugs that blocked initial submissions were also
+fixed. Everything else is untouched.
 
-\begin{figure}[h!]
+\subsection{Experimental protocol}
+\label{sec:13-protocol}
+
+\paragraph{Hardware constraint.}
+The cluster's \texttt{cudabig3080} partition is limited to RTX~3080
+(10\,GB~VRAM, 8\,h wall-clock). A non-quantized Llama-3.2~3B-Instruct
+with LoRA \emph{does not fit} in 10\,GB once the adapter gradients and
+Adam moment estimates are materialised
+(OOM at batch~2). Every experiment therefore uses 4-bit
+NF4 BitsAndBytes quantisation of the base weights. The LoRA adapter
+itself is full-precision. Qwen-3.5~2B was also tested but the shared
+venv ships \texttt{transformers 4.57.3}, which does not yet know the
+\texttt{qwen3\_5} model type; we consequently limited the base models
+to \texttt{llama32B3} (Llama~3.2~3B~Instruct) and \texttt{qwen25B3}
+(Qwen~2.5~3B~Instruct).
+
+\paragraph{Axes swept.}
+Per the task PDF, we swept every axis the cluster budget allowed:
+\emph{number of shots} $k\in\{0,3,5,10,15\}$;
+\emph{prompt variant} $\in\{\mathtt{prompts01},\mathtt{prompts02},\mathtt{prompts03}\}$;
+\emph{shot variety} $\in\{\mathrm{random},\mathrm{balanced}\}$;
+\emph{base model} $\in\{\mathtt{llama32B3},\mathtt{qwen25B3}\}$;
+\emph{quantisation} $\in\{\mathrm{4bit},\mathrm{none}\}$ (none was OOM);
+\emph{LoRA rank/alpha} $\in\{(8,16),(32,64)\}$; and
+\emph{epochs} $\in\{10,15\}$ (20 would exceed the 8\,h wall-clock).
+
+\paragraph{Phases.}
+We ran the campaign in eight chronological phases (B through~I; phase~A
+is local code prep with no cluster time). Figure~\ref{fig:13-timeline}
+tracks the headline devel (and test, where run) micro-F1 across all
+phases.
+
+\begin{figure}[H]
     \centering
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{irrigated_1.png}
-        \caption{Input image 1.}
-        \label{fig:input-1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{irrigated_2.png}
-        \caption{Input image 2.}
-        \label{fig:input-2}
-    \end{subfigure}
-
-    \vspace{0.3cm}
-
-    \begin{subfigure}[t]{0.70\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{irrigated_3.png}
-        \caption{Input image 3.}
-        \label{fig:input-3}
-    \end{subfigure}
-    \caption{Aerial RGB images provided for Homework 3 (irrigated olive grove segmentation).}
-    \label{fig:inputs-hw3}
+    \includegraphics[width=\linewidth]{fig13_timeline.pdf}
+    \caption{Campaign progression from Phase~B (smoke-test, 37.6\%
+    devel m-F1) to Phase~I (Qwen×r=32 on test, 58.4\%). The two
+    dotted lines show the best few-shot (39.2\%) and best fine-tune
+    (63.8\%) devel anchors. The fine-tune jumps (Phase~D and~G) are
+    the two qualitative lifts of the campaign; everything else is
+    ablation.}
+    \label{fig:13-timeline}
 \end{figure}
 
-\subsection{Objective}
-The objective of this homework is to build an image-processing segmentation pipeline (restricted to techniques from this week: histogram analysis and thresholding) that produces a \textbf{binary mask} isolating irrigated olive grove areas from the non-irrigated background.
+\subsection{Phase~C --- few-shot sweep}
+\label{sec:13-phaseC}
 
-In our approach, we:
-\begin{enumerate}
-    \item enhance vegetation using the \textbf{Excess Green Index (ExG)} computed from RGB channels,
-    \item select a threshold (using \textbf{Otsu} on the ExG distribution) to obtain an initial binary mask,
-    \item apply simple \textbf{morphological post-processing} to clean noise and fill small gaps,
-    \item evaluate results using a manually created \textbf{Ground Truth} mask and the \textbf{Intersection over Union (IoU)} metric.
+Phase~C sweeps three axes of \emph{prompt-only} behaviour: number of
+shots, prompt variant, and base model. Figure~\ref{fig:13-shots}
+shows the headline shots-axis: micro-F1 climbs steeply from
+zero-shot (2.2\%, the model ignores the tagging instruction without
+a demonstration) to five shots (37.6\%), then plateaus. Fifteen
+shots wins by a small margin (39.2\%) but at the cost of a long-tail
+problem on the rare class (see below).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig13_shots_sweep.pdf}
+    \caption{Few-shot $k$-sweep (Llama~3.2~3B~Instruct,
+    \texttt{prompts01}, 4-bit quant). Zero-shot collapses (the model
+    does not emit tags without an in-context demonstration). Gains
+    saturate above $k=5$; span-F1 (no class) is consistently
+    $\sim$8~pp above micro-F1, meaning the model is better at
+    locating entity boundaries than at classifying them.}
+    \label{fig:13-shots}
+\end{figure}
+
+Figure~\ref{fig:13-prompts} crosses the prompt and shot axes. The
+refined prompts (\texttt{prompts02}, \texttt{prompts03}) beat
+\texttt{prompts01} on micro-F1 (prompts03/15 hits \textbf{40.9\%},
+the best few-shot micro in the campaign) \emph{but collapse macro-F1}
+from 32.8 down to 26.6\,\%: the terse decision-guide
+steers the model to tag only the three ``easy'' classes and
+completely zeros-out \textit{drug\_n}~F1.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig13_prompt_ablation.pdf}
+    \caption{Prompt~$\times$~shots ablation. Left: micro-F1. Right:
+    macro-F1. The refined prompts (\texttt{prompts02},
+    \texttt{prompts03}) trade macro for micro --- the best micro
+    (prompts03/15 = 40.9\%) has the \emph{worst} macro (26.6\%)
+    because \textit{drug\_n} recall goes to zero. For a
+    rare-class-sensitive task, \texttt{prompts01/15} (macro 32.8\%)
+    is the saner default.}
+    \label{fig:13-prompts}
+\end{figure}
+
+Figure~\ref{fig:13-pc-fs} shows the per-class breakdown across four
+representative few-shot configurations. The \textit{drug\_n} bar is
+the single most informative cell in the entire campaign:
+\texttt{llama-p01-15} and \texttt{llama-p03-15} (the two best-micro
+configurations) both have \textit{drug\_n}~F1~=~0. The model, under
+prompt-only supervision, is \emph{unable} to recover even one
+correct \textit{drug\_n} span. A class-balanced sampler (last bar)
+lifts \textit{drug\_n}~F1 from 0 to 25.3\,\% but costs~6\,pp of
+micro-F1 --- no free lunch (Section~\ref{sec:13-phaseG}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig13_per_class_fs.pdf}
+    \caption{Per-class devel F1 under four flagship few-shot
+    configurations. \textit{brand} and \textit{drug} are learnable
+    from 5--15 demonstrations; \textit{drug\_n} is not. Only the
+    class-balanced sampler (last group) lifts \textit{drug\_n} above
+    zero, at a 6\,pp cost on micro-F1.}
+    \label{fig:13-pc-fs}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l l c c r r r}
+\hline
+\textbf{JobID} & \textbf{Config} & \textbf{Shots} & \textbf{Bal} & \textbf{m-F1} & \textbf{M-F1} & \textbf{span-F1} \\
+\hline
+414918 & p01 & 0 & --- & \cellcolor{red!15}2.2 & \cellcolor{red!15}1.9 & \cellcolor{red!15}2.9 \\
+414919 & p01 & 3 & --- & 29.5 & 29.3 & 42.5 \\
+414791 & p01 & 5 & --- & 37.6 & 34.5 & 47.1 \\
+414920 & p01 & 10 & --- & 35.3 & 34.3 & 46.1 \\
+414921 & p01 & 15 & --- & 39.2 & 32.8 & 48.8 \\
+414922 & p02 & 5 & --- & 38.2 & 28.9 & 46.8 \\
+414923 & p03 & 5 & --- & 39.0 & 25.6 & 49.1 \\
+414924 & p01 (Qwen) & 5 & --- & 35.3 & 22.0 & 45.3 \\
+415438 & p02 & 15 & --- & 39.6 & 28.7 & 48.6 \\
+415439 & p03 & 15 & --- & \cellcolor{green!18}\textbf{40.9} & 26.6 & \cellcolor{green!18}\textbf{51.0} \\
+415466 & p01 & 15 & yes & 33.2 & \cellcolor{green!18}\textbf{32.5} & 41.1 \\
+\hline
+\end{tabular}
+\caption{Few-shot devel results (\textit{Llama 3.2 3B Instruct} +
+4-bit quant unless labelled \textit{Qwen}). All F1 in \%.
+\textbf{Best micro: p03/15 = 40.9\%}. \textbf{Best macro: balanced
+sampler = 32.5\%}. The two optima disagree because prompts03 zeros
+out \textit{drug\_n}.}
+\label{tab:13-fewshot}
+\end{table}
+
+Qwen~2.5~3B at 5-shot devel (35.3\%) \emph{underperforms} Llama
+(37.6\%) by 2.3\,pp. Its \textit{group} recall collapses to 4.0\%,
+confirming that Qwen is structurally more cautious than Llama at
+inference time. This verdict \emph{flips} once the two models are
+fine-tuned (Section~\ref{sec:13-phaseF}), a non-trivial finding.
+
+\subsection{Phase~D --- LoRA fine-tuning baseline}
+\label{sec:13-phaseD}
+
+Phase~D is the single biggest step of the campaign. We LoRA-tune
+Llama-3.2~3B~Instruct on the DDI training set using the defaults from
+the \texttt{FineTuning} wrapper ($r=8$, $\alpha=16$, 10~epochs, learning
+rate~$2\mathrm{e}{-}5$, batch~1, 4-bit base). Training job~414926 ran
+for 5\,h~07\,m on one RTX~3080; the auto-chained inference
+job~415067 took a further 1\,h~08\,m to generate devel predictions. The
+resulting system achieves \textbf{devel m-F1 = 59.7\%}, a
+\textbf{+20.5\,pp} jump over the best few-shot system (39.2\%) at
+roughly the same inference cost.
+
+The per-class F1 breakdown of the Phase~D baseline is:
+\begin{center}
+\begin{tabular}{l r r r}
+\hline
+ & P & R & F1 \\
+\hline
+brand   & 74.9\% & 72.5\% & \cellcolor{green!15}73.7\% \\
+drug    & 67.6\% & 59.1\% & 63.0\% \\
+drug\_n & 10.5\% & 24.0\% & \cellcolor{red!15}14.6\% \\
+group   & 54.0\% & 55.1\% & 54.5\% \\
+\hline
+\end{tabular}
+\end{center}
+\textit{Every} class improves versus the matched few-shot system
+(15-shot prompts01): \textit{brand} $60.2\to73.7$, \textit{drug}
+$41.3\to63.0$, \textit{group} $29.3\to54.5$, \textit{drug\_n}
+$0.0\to14.6$. Macro-F1 nearly doubles ($32.8\to51.5$).
+Fine-tuning is not just a bigger number, it
+\emph{spreads capability across classes} in a way that prompting cannot.
+
+\subsection{Phase~F --- prompt\,$\times$\,15\,shots and Qwen FT}
+\label{sec:13-phaseF}
+
+Phase~F closes two axes left open by Phase~C: the refined prompts
+(\texttt{prompts02}, \texttt{prompts03}) at 15~shots (jobs 415438,
+415439 in Table~\ref{tab:13-fewshot}) and the Qwen fine-tune under the
+same Phase-D recipe (job~415440 + auto-chained inference~415467). A
+fourth job, the non-quantised LoRA, was dropped: the 10\,GB RTX~3080
+OOMs at batch~1 before step~1.
+
+The headline Phase-F result is that \textbf{Qwen FT beats Llama FT on
+every metric except micro-F1-by-a-hair}: devel~m-F1 $61.2$
+(vs~$59.7$, $+1.5$\,pp), devel~M-F1 $56.6$ (vs~$51.5$, $+5.1$\,pp),
+and \textit{drug\_n}~F1 $33.5$ (vs~$14.6$, $+18.9$\,pp). The
+macro-F1 gap is almost entirely the \textit{drug\_n} column: Qwen is
+markedly more willing to tag the rare illicit-drug class. This
+\textbf{reverses the few-shot verdict} that Qwen was ``cautious and
+unfit'' --- with training data, Qwen's cautiousness turns into higher
+precision across the board (\textit{brand}~P $84.2$ vs Llama's
+$74.9$). \emph{The lesson: zero- and few-shot rankings of base models
+do not carry over to fine-tuned settings.}
+
+\subsection{Phase~G --- second-order ablations}
+\label{sec:13-phaseG}
+
+Phase~G tests three ablations that the report explicitly calls out as
+``axes to explore if time allows'': LoRA rank, training epochs, and
+few-shot class balance. Figure~\ref{fig:13-rank} is the key plot.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig13_rank_vs_epochs.pdf}
+    \caption{LoRA rank vs training epochs (Llama, 4-bit, \texttt{prompts01}).
+    Quadrupling rank ($r=8\to r=32$, $\alpha=16\to\alpha=64$) lifts
+    micro-F1 by \textbf{+4.1\,pp} and macro-F1 by \textbf{+8.1\,pp}
+    over the Phase-D baseline. Adding five more training epochs (15
+    vs 10) lifts micro-F1 by only +1.8\,pp. Rank capacity matters
+    more than training time.}
+    \label{fig:13-rank}
+\end{figure}
+
+\paragraph{Rank ablation (r=32).}
+Job~415464 ($r=32$, $\alpha=64$, 10~epochs, $+0\colon12$ wall-clock vs
+baseline) reaches \textbf{devel m-F1 = 63.8\,\%} and \textbf{M-F1 =
+59.6\,\%}. Every class improves: \textit{drug\_n}~$+22.7$,
+\textit{group}~$+5.5$, \textit{brand}~$+3.0$, \textit{drug}~$+1.4$.
+The baseline $r=8$ adapter was evidently \textbf{capacity-bound} on
+the boundary classes (\textit{drug\_n}, \textit{group}). $r=32$ is
+the cheapest large-gain move we found.
+
+\paragraph{Epoch ablation (15~epochs).}
+Job~415465 ($r=8$, 15~epochs, $+2\colon50$ wall-clock) reaches devel
+m-F1 $=61.5\,\%$, $+1.8$\,pp over Phase-D but still $-2.3$\,pp behind
+$r=32$. More epochs help, but less than more rank at similar
+wall-clock budget.
+
+\paragraph{Balanced few-shot sampler.}
+Figure~\ref{fig:13-bal} isolates the random vs balanced trade-off on
+the 15-shot \texttt{prompts01} setup (the best-micro few-shot config).
+A balanced sampler guarantees $\geq3$ demonstrations per class,
+\emph{including} \textit{drug\_n}. The effect is symmetric: micro-F1
+drops 6\,pp (from 39.2 to 33.2\,\%, because we gave up $\sim$3
+common-class demos to make room for rare-class ones), macro-F1 is
+essentially flat (32.8 vs~32.5), and \textit{drug\_n}~F1 goes from 0
+to 25.3\,\%. \emph{Few-shot cannot simultaneously cover the head and
+the tail of the class distribution with only~15 demonstrations}; but
+fine-tuning with $r=32$ solves this directly on the
+\textit{drug\_n} column (37.3\,\%).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig13_balanced_tradeoff.pdf}
+    \caption{Random vs class-balanced few-shot (prompts01 / 15 shots).
+    Left: headline micro/macro. Right: per-class delta (balanced~$-$~random).
+    The balanced sampler lifts \textit{drug\_n} by +25.3\,pp but
+    loses ground on all three common classes.}
+    \label{fig:13-bal}
+\end{figure}
+
+\subsection{Phase~H --- best-system consolidation}
+\label{sec:13-phaseH}
+
+With two clear Phase-G winners ($r=32$ and Qwen as base), the
+natural upper-bound probe was the Qwen~$\times$~$r=32$ combination,
+plus the \textbf{test-set} number for~$r=32$ (Phase~E only evaluated
+the $r=8$ baseline on test).
+
+\paragraph{Qwen~$\times$~$r=32$ combo (job 415524+415683).}
+Devel m-F1 $=63.0\,\%$ (0.8\,pp \emph{below} Llama~r=32) but devel
+\textbf{M-F1 = 60.8\,\%} (best macro of the campaign) and
+\textbf{\textit{drug\_n} F1 = 44.7\,\%} (best rare-class of the
+campaign). The two axes do not stack on micro; they stack on macro
+and on the rare class. Figure~\ref{fig:13-heat} gives the full
+per-class~$\times$~configuration picture, with the best cell in each
+column outlined in pink.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig13_ft_per_class_heat.pdf}
+    \caption{Per-class devel F1 heat-map across the five fine-tune
+    configurations. Pink outlines mark the best cell per column.
+    Notice how the best system \emph{per class} is not always the
+    same: Llama~r=32 wins \textit{drug} and \textit{group},
+    Qwen~r=32 wins \textit{brand} and \textit{drug\_n}.}
+    \label{fig:13-heat}
+\end{figure}
+
+\paragraph{$r=32$ on test (job 415523).}
+Reusing the Phase-G adapter, $r=32$ reaches \textbf{test m-F1 =
+58.9\,\%} (vs 57.0\% for $r=8$ --- a +1.9\,pp test-set gain from a
+training-time ablation). The devel$\to$test gap is 4.9\,pp (vs 2.7\,pp
+for $r=8$), so the larger adapter \emph{does} overfit devel slightly
+more than $r=8$, but not enough to erase the gain. \textbf{Test-set
+\textit{drug\_n} F1 jumps $27.9 \to 41.7\,\%$} (+13.8\,pp), the single
+biggest per-class test-set gain of the campaign.
+
+\subsection{Phase~I --- combo on test}
+\label{sec:13-phaseI}
+
+The Phase-H devel picture said Qwen~$\times$~$r=32$ was the
+macro/rare-class winner. Phase~I evaluated that combo on the test
+set (job~415762). The devel advantage \emph{evaporates entirely}:
+
+\begin{center}
+\begin{tabular}{l r r r}
+\hline
+ & Llama r=32 & Qwen r=32 & $\Delta$ \\
+\hline
+micro-F1 & 58.9\,\% & 58.4\,\% & $-$0.5\,pp \\
+macro-F1 & 55.7\,\% & 55.1\,\% & $-$0.6\,pp \\
+drug\_n F1 & \textbf{41.7\,\%} & 35.8\,\% & $-$5.9\,pp \\
+brand F1 & 68.9\,\% & \textbf{75.0\,\%} & $+$6.1\,pp (Qwen wins) \\
+\hline
+\end{tabular}
+\end{center}
+
+Figure~\ref{fig:13-drugn} traces the \textit{drug\_n}~F1 across the
+entire campaign and pins down exactly what changed:
+\textbf{Qwen overfit \textit{drug\_n} on devel} ($44.7\to35.8$,
+$-8.9$\,pp), while Llama's \textit{drug\_n} prediction \emph{gained}
+on the unseen split ($37.3\to41.7$, $+4.4$\,pp). Llama~$r=32$ is
+therefore the single best configuration on \emph{both} devel
+\emph{and} test, \emph{both} micro \emph{and} macro.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig13_drugn_story.pdf}
+    \caption{The \textit{drug\_n} rare-class story across the
+    campaign. Bars are devel~F1; diamonds are test-set~F1 for the
+    two test-run fine-tune configurations. The Qwen overfit on
+    devel (44.7\% devel $\to$ 35.8\% test) is the single biggest
+    surprise of Phase~I; Llama holds (and slightly improves) under
+    the same split change.}
+    \label{fig:13-drugn}
+\end{figure}
+
+\subsection{Development-set fine-tune results (summary)}
+
+Table~\ref{tab:13-ft} collects the five fine-tune configurations on
+devel; Figure~\ref{fig:13-head} is the one-glance comparison of all
+nine flagship systems (4~few-shot + 5~fine-tune).
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l l c c r r r}
+\hline
+\textbf{JobID} & \textbf{Model} & \textbf{LoRA\,$r$} & \textbf{Epochs} & \textbf{m-F1} & \textbf{M-F1} & \textbf{span-F1} \\
+\hline
+414926+415067   & llama32B3 & 8  & 10 & 59.7 & 51.5 & 62.1 \\
+415440+415467   & qwen25B3  & 8  & 10 & 61.2 & 56.6 & 63.7 \\
+415465+415516   & llama32B3 & 8  & 15 & 61.5 & 56.8 & 64.0 \\
+\rowcolor{green!18}\textbf{415464+415481} & \textbf{llama32B3} & \textbf{32} & \textbf{10} & \textbf{63.8} & 59.6 & \textbf{66.3} \\
+415524+415683   & qwen25B3  & 32 & 10 & 63.0 & \cellcolor{green!18}\textbf{60.8} & 64.9 \\
+\hline
+\end{tabular}
+\caption{Fine-tune devel results (all: \texttt{prompts01}, 4-bit
+quant, LR~$2\mathrm{e}{-}5$, batch~1). Best micro \textbf{and} best
+span: Llama-$r$=32. Best macro \textbf{and} best \textit{drug\_n}:
+Qwen-$r$=32.}
+\label{tab:13-ft}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig13_fs_vs_ft_headline.pdf}
+    \caption{Headline devel F1 across all nine flagship
+    configurations, from zero-shot (2.2\%) to the best fine-tune
+    (63.8\%). Lighter bars are macro-F1 shadows. The pink highlight
+    marks the single best-micro configuration.}
+    \label{fig:13-head}
+\end{figure}
+
+\paragraph{Training cost versus accuracy.}
+Figure~\ref{fig:13-cost} plots devel~m-F1 against training wall-clock.
+Few-shot is free (0 GPU-hours, 39--40\% micro). Fine-tuning costs
+5--8~GPU-hours and buys a $\sim$24\,pp absolute improvement. Among
+fine-tune configurations, \textbf{$r=32$ is the cheapest large-gain
+move}: +4.1\,pp over the Phase-D baseline for only +12\,min of
+training time. 15~epochs costs +2\,h~50\,m and buys less (+1.8\,pp).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig13_cost_scatter.pdf}
+    \caption{GPU-hours vs devel micro-F1. Few-shot is free but
+    capped around 40\%. Fine-tuning at $r=32$ (stars) is the
+    cheapest way to reach the 63\% regime; 15 epochs at $r=8$ is
+    both slower and weaker.}
+    \label{fig:13-cost}
+\end{figure}
+
+\subsection{Final test-set evaluation}
+\label{sec:13-test}
+
+Four systems were evaluated on the official test split
+(\texttt{data/test.xml}, 3228 entities across 4 classes), all using
+the standard \texttt{util/evaluator.py~NER} script (the same scorer
+used by Systems~1.1 and~1.2). Table~\ref{tab:13-test} reports the
+numbers; Figure~\ref{fig:13-testbars} shows per-class F1 side-by-side
+with micro-F1 bubbles.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{l l r r r r}
+\hline
+\textbf{JobID} & \textbf{System} & \textbf{devel~m} & \textbf{test~m} & \textbf{test~M} & \textbf{test span} \\
+\hline
+415437 & Few-shot best (p01/15) & 39.2 & \cellcolor{red!12}36.2 & \cellcolor{red!12}23.0 & \cellcolor{red!12}45.9 \\
+415436 & FT Llama $r=8$ / 10ep  & 59.7 & 57.0 & 51.5 & 60.9 \\
+\rowcolor{green!18}\textbf{415523} & \textbf{FT Llama $r=32$ / 10ep} & \textbf{63.8} & \textbf{58.9} & \textbf{55.7} & \textbf{62.5} \\
+415762 & FT Qwen $r=32$ / 10ep  & 63.0 & 58.4 & 55.1 & 61.7 \\
+\hline
+\end{tabular}
+\caption{Final test-set evaluation (\texttt{prompts01}, 4-bit quant).
+\textbf{Best system: Llama + $r=32$}. It wins on every test metric
+(micro, macro, span-F1), reverses the devel-set macro order (Qwen was
+winning devel macro by 1.2\,pp), and is within 3.1\,pp of
+few-shot's devel--test generalisation gap.}
+\label{tab:13-test}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig13_final_test_bars.pdf}
+    \caption{Test-set per-class F1 (coloured bars) with micro-F1 (white
+    circles) for the four systems we ran on test. The pink highlight
+    marks the winning system (Llama+$r=32$); note that Qwen+$r=32$
+    still wins \textit{brand} (75.0\,\%) and could be preferred if
+    \textit{brand} were the primary metric.}
+    \label{fig:13-testbars}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig13_devel_test_gap.pdf}
+    \caption{Devel~$\to$~test generalisation gap. Few-shot's gap is
+    3.0\,pp; the Phase-D fine-tune's gap is 2.7\,pp; $r=32$'s gap is
+    4.9\,pp; Qwen+$r=32$'s gap is 4.6\,pp. The larger adapter
+    overfits devel slightly more, but not enough to lose its
+    test-set lead.}
+    \label{fig:13-gap}
+\end{figure}
+
+Figure~\ref{fig:13-fs-vs-ft-pc} closes the ``few-shot vs fine-tune''
+story with a direct per-class comparison. Every class gains; the two
+semantically-harder classes gain the most (\textit{drug\_n}~$+37.3$,
+\textit{group}~$+32.3$), which is exactly what an in-domain
+fine-tune is supposed to deliver.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{fig13_fs_vs_ft_perclass.pdf}
+    \caption{Per-class devel F1 for the best few-shot
+    (\texttt{prompts03/15}) vs the best fine-tune (Llama $r=32$).
+    Same base model, same 4-bit quant, same prompt framing; the only
+    difference is ten epochs of LoRA training on the DDI training
+    set.}
+    \label{fig:13-fs-vs-ft-pc}
+\end{figure}
+
+\subsection{Discussion}
+\label{sec:13-disc}
+
+\begin{itemize}[nosep]
+    \item \textbf{The biggest win was LoRA fine-tuning, not prompt
+    engineering.} From the best few-shot (39.2\% devel m-F1) to the
+    Phase-D fine-tune (59.7\%) is \textbf{+20.5\,pp} absolute. Every
+    prompt-or-shot change we tried was worth $\leq$2\,pp; in-domain
+    training is an order of magnitude more effective.
+    \item \textbf{Rank capacity dominates training time.} $r=32$
+    vs~$r=8$ at the same 10~epochs: \textbf{+4.1\,pp~m-F1} and
+    \textbf{+8.1\,pp~M-F1} for +12\,min of training time. 15~epochs
+    at~$r=8$: only +1.8\,pp for +2\,h~50\,m. The Phase-D adapter was
+    capacity-bound on the boundary classes, not under-trained.
+    \item \textbf{Base-model ranking reverses between prompt and
+    fine-tune.} Qwen underperforms Llama at 5-shot
+    (35.3 vs~37.6\,\%) but \emph{beats} it once fine-tuned
+    (61.2~vs~59.7 m-F1, 56.6~vs~51.5 M-F1). Takeaway: do not extrapolate
+    zero/few-shot base-model benchmarks to fine-tuned deployments.
+    \item \textbf{Devel-set macro wins do not always survive the test
+    split.} Qwen+$r=32$ was the devel-macro and devel-\textit{drug\_n}
+    champion (60.8\,\% / 44.7\,\%); on test it loses those titles to
+    Llama+$r=32$ (55.7\,\% / 41.7\,\%). \textbf{Llama's
+    \textit{drug\_n} F1 actually grew from devel to test
+    (+4.4\,pp)}, while Qwen's fell 8.9\,pp. Without Phase~I we would
+    have reported the wrong champion.
+    \item \textbf{Prompt-only cannot solve rare-class recall.} The
+    two best-micro few-shot configurations (p01/15, p03/15) both have
+    \textit{drug\_n}~F1~$=$~0. The class-balanced sampler lifts
+    \textit{drug\_n} to 25.3\,\% but loses 6\,pp of micro-F1; on
+    15~demonstrations you cannot cover head and tail
+    simultaneously. Fine-tuning sidesteps this entirely: 37.3\,\% at
+    $r=8$, 41.7\,\% on test at~$r=32$ (both beat the best few-shot
+    in this category).
+    \item \textbf{Devel$\to$test gap is 2.7--4.9\,pp.} None of our
+    fine-tune configurations catastrophically overfit, though the
+    bigger adapter ($r=32$) does shed 4.9\,pp on the test split vs
+    $r=8$'s 2.7\,pp. The Phase-E few-shot transfer gap (3.0\,pp) is
+    \emph{smaller} than the $r=32$ fine-tune gap, consistent with
+    few-shot having nothing to overfit.
+    \item \textbf{\textit{drug\_n} is still the bottleneck.} Our best
+    system reaches 41.7\,\% test F1 on \textit{drug\_n}. That is
+    roughly $\mathbf{3\times}$ what Systems~1.1 and~1.2 achieve on
+    the same rare class (12.6\% and 15.6\,\%). The LLM's rare-class
+    handling is the single metric on which System~1.3 dominates. See
+    Figure~\ref{fig:13-cross-pc} in Section~\ref{sec:conclusions}.
+\end{itemize}
+
+% ============================================================
+\section{Conclusions}
+\label{sec:conclusions}
+% ============================================================
+
+The three systems in this report attack the same NERC task
+(DDI-2013 devel~$\to$~test) with very different inductive biases:
+System~1.1 uses hand-crafted lexical/biomedical features and a linear
+CRF; System~1.2 uses a BiLSTM tagger over learned embeddings with
+hand-crafted binary features; System~1.3 uses a 3B-parameter
+instruction-tuned LLM, 4-bit quantised, with LoRA fine-tuning. All
+three are scored by the \emph{same} \texttt{util/evaluator.py~NER}
+script on the \emph{same} test split, so the numbers are directly
+comparable.
+
+\subsection{Headline test-set results across the three systems}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig13_cross_system.pdf}
+    \caption{Cross-system headline comparison on the DDI test set.
+    Left: micro-F1 (m.avg). Right: macro-F1 (M.avg). The best
+    System~1.3 system (FT Llama $r=32$) trails System~1.2 by
+    $-$28.5\,pp on micro and $-$13.4\,pp on macro. The gap is
+    \emph{smaller on macro} --- the LLM is comparatively more competitive on
+    the harder classes than on the easy ones.}
+    \label{fig:conc-cross}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{l r r r r r r}
+\hline
+\textbf{System} & \textbf{m-F1} & \textbf{M-F1} & \textbf{brand} & \textbf{drug} & \textbf{group} & \textbf{drug\_n} \\
+\hline
+1.1 CRF    & 86.8 & 68.2 & \cellcolor{green!18}\textbf{93.3} & \cellcolor{green!18}\textbf{92.3} & 74.5 & 12.6 \\
+1.2 BiLSTM & \cellcolor{green!18}\textbf{87.4} & \cellcolor{green!18}\textbf{69.1} & 89.1 & 92.0 & \cellcolor{green!18}\textbf{79.8} & 15.6 \\
+1.3 FT-LLM & 58.9 & 55.7 & 68.9 & 61.3 & 51.0 & \cellcolor{green!18}\textbf{41.7} \\
+\hline
+\end{tabular}
+\caption{Test-set F1 comparison across the three systems (all values
+in \%; best in each column highlighted). Configurations: CRF mod8
+($c_1{=}c_2{=}0.1$); BiLSTM \texttt{champ\_big\_s42}; LLM Llama
+$r{=}32$, 10\,ep, 4-bit. CRF/BiLSTM dominate on micro, macro, and
+the common classes; the LLM only wins \textit{drug\_n} but does so
+by 26--29\,pp.}
+\label{tab:conc}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{fig13_cross_system_perclass.pdf}
+    \caption{Per-class test F1 across the three systems. The LLM
+    only wins one column (\textit{drug\_n}, the rare class) but does
+    so by a very large margin. On the three common classes, the
+    CRF's sharp character-level patterns and the BiLSTM's learned
+    embeddings dominate by 20--30\,pp.}
+    \label{fig:13-cross-pc}
+\end{figure}
+
+\subsection{Trade-offs: effort, cost, controllability, performance}
+
+The AHLT lab project asks explicitly for a comparison across
+\emph{development effort, computational cost, explainability, system
+behaviour controllability, and resulting performance}. Our
+assessment:
+
+\begin{itemize}[nosep]
+    \item \textbf{Development effort.} System~1.3 was the \emph{least}
+    code we wrote ($\sim$90 lines of modifications on top of the
+    shipped baseline); System~1.1 required the most feature
+    engineering (9 incremental feature mods and 3 algorithm
+    variants); System~1.2 was in the middle (optimizer-layer fix,
+    three new input channels, five rounds of architecture sweeps,
+    seed audit). \emph{Fewest lines of code $\neq$ fastest turnaround},
+    however: each System~1.3 fine-tune takes 5--8~GPU-hours whereas a
+    full System~1.1 CRF re-train completes in under 5~minutes on
+    CPU.
+    \item \textbf{Computational cost.} System~1.1 CRF: $\sim$3\,min CPU.
+    System~1.2 BiLSTM: $\sim$20\,min per seed on one RTX~3080
+    ($\sim$1\,h for the 3-seed audit). System~1.3 FT-LLM: 5\,h~19\,m
+    training + 1\,h~00\,m inference = \textbf{6\,h~19\,m per run};
+    the full campaign consumed $\sim$50\,GPU-hours. The LLM is
+    \emph{two orders of magnitude} more expensive per experiment.
+    \item \textbf{Explainability.} System~1.1 is the most
+    interpretable: CRF feature weights are inspectable and each
+    Mod~$k$ delta in Table~\ref{tab:feature-mods} has a concrete
+    cause (``PoS~tag added'', ``biomedical pattern added''). System~1.2
+    lies in the middle: input-channel ablations are interpretable but
+    hidden-state semantics are not. System~1.3 is the least
+    explainable: we cannot point to \emph{why} Qwen overfit
+    \textit{drug\_n} on devel; we can only observe it. LoRA weights
+    sit inside a 3B-parameter network.
+    \item \textbf{Controllability.} Prompt engineering and shot
+    selection give System~1.3 very direct behavioural handles ---
+    swapping prompts03 for prompts01 is a one-line change that
+    visibly reshapes per-class recall. But these levers are also
+    \emph{only} available at inference; once an adapter is trained
+    its behaviour is fixed. System~1.1 is controllable via feature
+    set and CRF regularisation. System~1.2 is controllable via
+    architecture flags but not at inference.
+    \item \textbf{Performance.} On this dataset, the dedicated NERC
+    systems win decisively on aggregate metrics (1.2 BiLSTM $=$
+    87.4\,\% micro vs 1.3 FT-LLM $=$ 58.9\,\% micro). \textbf{But
+    the LLM dominates the rare \textit{drug\_n} class by a factor of
+    $\sim$3}, which matters for a drug-interaction-safety downstream
+    task where missing an illicit-drug mention is costlier than
+    missing a common one. If the downstream metric weights rare
+    classes, System~1.3's advantage is real. On macro-F1 (which
+    weights all classes equally) the gap narrows from 28\,pp to
+    13\,pp.
+\end{itemize}
+
+\subsection{Why the LLM under-performs on common classes}
+
+We attribute the 28\,pp micro gap to three factors:
+
+\begin{enumerate}[nosep]
+    \item \textbf{Model size.} 3B~parameters at 4-bit is tiny by LLM
+    standards. Recent NER-tuned LLMs (e.g.\ \textit{GLiNER},
+    \textit{UniNER-7B}) reach DDI-scale performance, but those are
+    7--13B~params at full precision and would not fit the cluster.
+    \item \textbf{Generative-vs-extractive mismatch.} An LLM
+    \emph{generates} tagged text and we re-align spans post-hoc. A
+    BiLSTM/CRF tagger emits one label per token directly. Spurious
+    or mis-spelled entity text in the generated output (``5{-}HT''
+    emitted as ``5-HT3''), or word-splitting on hyphens, costs
+    precision in a way that a tagger can never lose points.
+    \item \textbf{Quantisation noise.} 4-bit NF4 is not free. The
+    same LoRA adapter fine-tuned on 16-bit weights would likely
+    gain 1--2\,pp, but we could not test this (OOM on 10\,GB).
 \end{enumerate}
 
-\section{Data and Problem Setup}
-\subsection{Provided Aerial Images}
-Three aerial RGB images are provided in PNG format. They show olive grove patterns with alternating vegetation and soil background. The images have different spatial resolutions (Table~\ref{tab:inputs-summary}), but all are standard 3-channel RGB data and can be processed with the same pipeline.
+\subsection{When is each system the right choice?}
 
-\begin{table}[h!]
-\centering
-\begin{tabular}{l c c c}
-\hline
-\textbf{File} & \textbf{Format} & \textbf{Channels} & \textbf{Resolution (W $\times$ H)} \\
-\hline
-\texttt{Irrigated land.png} & PNG & RGB & 1381 $\times$ 732 \\
-\texttt{Irrigated land 2.png} & PNG & RGB & 1092 $\times$ 651 \\
-\texttt{Irrigated land 3.png} & PNG & RGB & 801 $\times$ 606 \\
-\hline
-\end{tabular}
-\caption{Summary of the provided aerial images.}
-\label{tab:inputs-summary}
-\end{table}
-
-In this homework, the goal is to produce a binary mask of irrigated olive trees. Since irrigated vegetation is typically greener than the dry background, we focus on vegetation-sensitive indices derived from RGB values (Section~\ref{sec:pipeline}).
-
-\subsection{Ground Truth Masks}
-To evaluate segmentation quality, three binary Ground Truth (GT) masks were manually created using Photopea. In each GT mask:
-\begin{itemize}
-    \item \textbf{White pixels} correspond to the irrigated vegetation/tree areas (foreground).
-    \item \textbf{Black pixels} correspond to non-irrigated background (soil, roads, etc.).
+\begin{itemize}[nosep]
+    \item \textbf{Use System~1.1 (CRF)} when explainability, CPU
+    inference, and tight iteration loops matter. On this dataset it is
+    within 0.6\,pp micro-F1 of the best deep-learning system
+    (86.8 vs 87.4).
+    \item \textbf{Use System~1.2 (BiLSTM)} when best average
+    performance matters and a GPU is available. It is the highest
+    micro-F1 on this task.
+    \item \textbf{Use System~1.3 (LoRA-LLM)} when rare-class recall
+    matters, cost and explainability are secondary, and a mid-range
+    GPU is available. It buys $\sim$3$\times$ rare-class recall over
+    feature-based NERC on this dataset, at $\sim$100$\times$ the
+    training cost.
 \end{itemize}
 
-The GT masks match the spatial size of their corresponding input images (same width and height), ensuring a pixel-to-pixel comparison for quantitative evaluation (IoU in Section~\ref{sec:evaluation}). Figure~\ref{fig:photopea-screenshot} shows a screenshot of the Photopea editing process used to manually draw the vegetation (foreground) regions.
+\paragraph{Overall conclusion.}
+For the DDI~2013 NER task, a dedicated BiLSTM-NN remains the best
+overall system (test micro-F1~$\mathbf{87.4\,\%}$). Prompt-engineering
+alone, at the 3B-parameter scale our hardware allows, is insufficient
+(best 36.2\,\%). LoRA fine-tuning closes the bulk of that gap
+(58.9\,\%) and delivers a striking $\mathbf{3\times}$ rare-class
+recall advantage (\textit{drug\_n} F1 $41.7$ vs 15.6 vs 12.6), but
+still trails dedicated NERC systems on common classes. The single
+most important lesson across all three systems is that
+\textbf{input/representation improvements matter more than
+architecture changes}: in 1.1 the biomedical feature mod gave the
+biggest jump, in 1.2 PoS and prefix features each gave $\sim$10\,pp,
+and in 1.3 LoRA rank (an adapter-capacity knob, not a training-time
+knob) delivered the biggest single gain. On every system, the
+architecture wins are small compared with the representation wins.
 
-\begin{samepage}
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.92\linewidth]{photopea_edit.png}
-    \caption{Screenshot of the manual Ground Truth creation process in Photopea. A semi-transparent brush layer is used to delineate irrigated vegetation regions.}
-    \label{fig:photopea-screenshot}
-\end{figure}
-\end{samepage}
-
-The correspondence used in this report is:
-
-\begin{itemize}
-    \item \texttt{gt1.png} $\leftrightarrow$ \texttt{Irrigated land.png}
-    \item \texttt{gt2.png} $\leftrightarrow$ \texttt{Irrigated land 2.png}
-    \item \texttt{gt3.png} $\leftrightarrow$ \texttt{Irrigated land 3.png}
-\end{itemize}
-
-Figure~\ref{fig:gt-masks} shows the three GT masks used for evaluation.
-
-\begin{samepage}
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{gt_1.png}
-        \caption{GT for input image 1.}
-        \label{fig:gt-1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{gt_2.png}
-        \caption{GT for input image 2.}
-        \label{fig:gt-2}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{gt_3.png}
-        \caption{GT for input image 3.}
-        \label{fig:gt-3}
-    \end{subfigure}
-    \caption{Manually created Ground Truth masks (white = irrigated vegetation, black = background).}
-    \label{fig:gt-masks}
-\end{figure}
-
-\end{samepage}
-
-\section{Segmentation Pipeline}
-\label{sec:pipeline}
-\subsection{Vegetation Index: Excess Green (ExG)}
-The first step of the pipeline is to highlight vegetation using a simple index derived from RGB values. Since irrigated olive groves contain denser green vegetation than the arid background, we compute the \textbf{Excess Green Index (ExG)} per pixel:
-
-\begin{equation}
-\mathrm{ExG} = 2g - r - b
-\end{equation}
-
-where $r, g, b$ are the red, green and blue channels, respectively (normalized to the range $[0,1]$). The factor $2g$ emphasizes the green component, while subtracting $r$ and $b$ suppresses bright soil and residues. As a result, vegetation tends to have higher ExG values than the surrounding terrain.
-
-In practice, the input image is loaded in RGB, converted to floating point, and ExG is computed using a direct per-pixel formula. The following snippet is taken from \texttt{segmentation\_step1.py}:
-
-\begin{minted}[fontsize=\small, linenos]{python}
-image = Image.open(image_path).convert("RGB")
-rgb_uint8 = np.asarray(image)
-rgb = rgb_uint8.astype(np.float32) / 255.0
-
-r = rgb[..., 0]
-g = rgb[..., 1]
-b = rgb[..., 2]
-
-exg = 2.0 * g - r - b
-\end{minted}
-
-\begin{samepage}
-Figure~\ref{fig:exg-maps} shows the ExG visualizations for the three input images. In these maps, brighter regions correspond to higher ExG values, which generally coincide with greener (vegetated) areas.
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{exg_1.png}
-        \caption{ExG for input image 1.}
-        \label{fig:exg-1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{exg_2.png}
-        \caption{ExG for input image 2.}
-        \label{fig:exg-2}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{exg_3.png}
-        \caption{ExG for input image 3.}
-        \label{fig:exg-3}
-    \end{subfigure}
-    \caption{Excess Green Index (ExG) visualizations for the three inputs. Brighter pixels indicate higher ExG and typically correspond to vegetation.}
-    \label{fig:exg-maps}
-\end{figure}
-\end{samepage}
-
-\subsection{Histogram Analysis}
-After computing ExG, a convenient way to understand the separability between vegetation and background is to inspect the \textbf{histogram of ExG values}. In many outdoor scenes, ExG produces a distribution where soil/background pixels concentrate at lower values and vegetation pixels shift toward higher values. This motivates a threshold-based segmentation.
-
-The histograms are computed by flattening the ExG image and counting values across fixed bins (256 bins in our implementation). Figure~\ref{fig:exg-hists} shows the ExG histograms for the three images.
-
-\begin{samepage}
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{exg_hist_1.png}
-        \caption{Histogram for input image 1.}
-        \label{fig:hist-1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{exg_hist_2.png}
-        \caption{Histogram for input image 2.}
-        \label{fig:hist-2}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{exg_hist_3.png}
-        \caption{Histogram for input image 3.}
-        \label{fig:hist-3}
-    \end{subfigure}
-    \caption{ExG value histograms (256 bins) used to guide threshold selection.}
-    \label{fig:exg-hists}
-\end{figure}
-\end{samepage}
-
-\subsection{Thresholding (Otsu / Manual)}
-To obtain a binary segmentation from the ExG map, we apply a global threshold $T$ and classify pixels as vegetation when:
-
-\begin{equation}
-\text{mask}(x,y) = \begin{cases}
-1 & \text{if } \mathrm{ExG}(x,y) \geq T \\
-0 & \text{otherwise}
-\end{cases}
-\end{equation}
-
-In this homework we use \textbf{Otsu's method} to automatically select $T$ from the ExG histogram. Otsu selects the threshold that maximizes the \emph{between-class variance} (equivalently, it finds the split that best separates two classes in the 1D distribution).
-
-The following snippet (from \texttt{segmentation\_step1.py}) shows the thresholding step and the creation of the initial binary mask:
-
-\begin{minted}[fontsize=\small, linenos]{python}
-threshold = otsu_threshold(exg)
-mask = exg >= threshold
-\end{minted}
-
-For completeness, Table~\ref{tab:otsu-thresholds} reports the Otsu thresholds obtained for the three images.
-
-\begin{table}[h!]
-\centering
-\begin{tabular}{l c}
-\hline
-\textbf{Image} & \textbf{Otsu threshold $T$ (ExG)} \\
-\hline
-Input image 1 & 0.0540 \\
-Input image 2 & 0.0538 \\
-Input image 3 & 0.0709 \\
-\hline
-\end{tabular}
-\caption{Otsu thresholds computed on the ExG maps (rounded to 4 decimals).}
-\label{tab:otsu-thresholds}
-\end{table}
-
-Figure~\ref{fig:raw-masks} shows the initial binary masks produced by thresholding ExG before post-processing.
-
-\begin{samepage}
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{mask_raw_1.png}
-        \caption{Raw mask for input image 1.}
-        \label{fig:mask-raw-1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{mask_raw_2.png}
-        \caption{Raw mask for input image 2.}
-        \label{fig:mask-raw-2}
-    \end{subfigure}
-
-    \vspace{0.3cm}
-
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{mask_raw_3.png}
-        \caption{Raw mask for input image 3.}
-        \label{fig:mask-raw-3}
-    \end{subfigure}
-    \caption{Initial binary masks obtained by thresholding the ExG maps using Otsu's method (before cleanup).}
-    \label{fig:raw-masks}
-\end{figure}
-\end{samepage}
-
-\subsection{Post-processing (Morphology and Cleaning)}
-The raw masks obtained by a single global threshold (Figure~\ref{fig:raw-masks}) may contain small isolated pixels, small holes inside tree blobs, and fragmented regions. To improve the visual quality of the segmentation while staying within classical image processing techniques, we apply a lightweight post-processing step:
-
-\begin{itemize}
-    \item \textbf{Opening} (erosion followed by dilation) with a small square structuring element to remove small noise.
-    \item \textbf{Closing} (dilation followed by erosion) to fill small gaps and connect fragmented vegetation blobs.
-    \item \textbf{Small component removal} to discard connected components below a minimum size threshold.
-\end{itemize}
-
-In our implementation we use kernel sizes $3\times 3$ for opening and $5\times 5$ for closing, and we remove connected components smaller than 200 pixels. The key operations (from \texttt{segmentation\_step1.py}) are shown below:
-
-\begin{minted}[fontsize=\small, linenos]{python}
-opened = binary_open(mask, k=3)
-closed = binary_close(opened, k=5)
-cleaned = remove_small_components(closed, min_size=200)
-\end{minted}
-
-Figure~\ref{fig:clean-masks} shows the resulting cleaned masks. Figure~\ref{fig:clean-overlays} shows the same masks overlaid in red on the original images for easier qualitative inspection.
-
-\begin{samepage}
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{mask_clean_1.png}
-        \caption{Clean mask for input image 1.}
-        \label{fig:mask-clean-1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{mask_clean_2.png}
-        \caption{Clean mask for input image 2.}
-        \label{fig:mask-clean-2}
-    \end{subfigure}
-
-    \vspace{0.3cm}
-
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{mask_clean_3.png}
-        \caption{Clean mask for input image 3.}
-        \label{fig:mask-clean-3}
-    \end{subfigure}
-    \caption{Final cleaned binary masks after morphological operations and small component removal.}
-    \label{fig:clean-masks}
-\end{figure}
-\end{samepage}
-
-\begin{samepage}
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{overlay_clean_1.png}
-        \caption{Overlay for input image 1.}
-        \label{fig:overlay-clean-1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{overlay_clean_2.png}
-        \caption{Overlay for input image 2.}
-        \label{fig:overlay-clean-2}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.32\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{overlay_clean_3.png}
-        \caption{Overlay for input image 3.}
-        \label{fig:overlay-clean-3}
-    \end{subfigure}
-    \caption{Qualitative visualization of the final masks overlaid in red on the original images.}
-    \label{fig:clean-overlays}
-\end{figure}
-\end{samepage}
-
-\section{Results}
-\subsection{ExG Visualizations and Histograms}
-This section summarizes the intermediate outputs produced by the vegetation-enhancement step. The ExG maps (Figure~\ref{fig:exg-maps}) provide a spatial visualization of vegetation likelihood: higher values (brighter pixels) generally correspond to greener canopy regions, while lower values correspond to soil and non-vegetated background.
-
-The corresponding ExG histograms (Figure~\ref{fig:exg-hists}) help interpret the overall distribution of ExG values per image and motivate the use of global thresholding. In all three cases, the distributions span both negative and positive values, indicating that the ExG index provides contrast between background (lower ExG) and vegetation (higher ExG).
-
-To complement the visual inspection, Table~\ref{tab:exg-stats} reports basic statistics of the ExG distributions for each input.
-
-\begin{table}[h!]
-\centering
-\begin{tabular}{l c c c c c c}
-\hline
-\textbf{Image} & \textbf{Min} & \textbf{Mean} & \textbf{Max} & \textbf{P5} & \textbf{P50} & \textbf{P95} \\
-\hline
-Input image 1 & -0.1804 & 0.0273 & 0.3529 & -0.0627 & 0.0118 & 0.1686 \\
-Input image 2 & -0.2000 & 0.0156 & 0.3725 & -0.0627 & 0.0000 & 0.1608 \\
-Input image 3 & -0.1725 & 0.0300 & 0.3765 & -0.0667 & 0.0078 & 0.2039 \\
-\hline
-\end{tabular}
-\caption{Summary statistics of ExG values for each input image. P5/P50/P95 denote the 5th/50th/95th percentiles.}
-\label{tab:exg-stats}
-\end{table}
-
-\subsection{Predicted Binary Masks}
-Figure~\ref{fig:raw-masks} shows the raw masks obtained by Otsu thresholding on ExG. These masks capture most of the vegetated canopy patterns but may include small isolated detections and fragmented regions, especially where the background exhibits mild green tones or where illumination changes affect the ExG response.
-
-Figure~\ref{fig:clean-masks} shows the final cleaned masks after morphological post-processing. Compared to the raw masks, the cleaned masks are more coherent: small speckles are reduced, small gaps are filled, and the orchard structure appears more connected. These cleaned masks are the predictions used for the quantitative evaluation (Section~\ref{sec:evaluation}).
-
-\subsection{Overlay Visualizations}
-Figure~\ref{fig:clean-overlays} overlays the final masks in red on the original RGB images. The highlighted regions generally follow the regular orchard texture and tree-canopy layout, while most bare-soil areas remain unmarked.
-
-This visualization is helpful to spot typical failure modes: (i) false positives on background patches with a slightly higher green response, and (ii) false negatives in shadowed canopy regions where ExG is reduced.
-
-\section{Evaluation and Error Measurement}
-\label{sec:evaluation}
-\subsection{Intersection over Union (IoU)}
-To quantitatively assess segmentation quality, we compare each predicted binary mask against its corresponding Ground Truth (GT) mask using the \textbf{Intersection over Union (IoU)} metric (also called the Jaccard index). For a predicted foreground set $P$ and GT foreground set $G$ (foreground = irrigated vegetation), IoU is defined as:
-
-\begin{equation}
-\mathrm{IoU}(P, G) = \frac{|P \cap G|}{|P \cup G|}
-\end{equation}
-
-where $|\cdot|$ denotes the number of foreground pixels. IoU ranges from 0 to 1: a value of 1 corresponds to perfect overlap, while 0 indicates no overlap.
-
-In this report, $P$ is the \textbf{final cleaned mask} produced by the pipeline (Section~\ref{sec:pipeline}), and $G$ is the manually created GT mask (Section~2.2). The IoU values are computed per image and summarized in the next subsection.
-\subsection{Numerical Results}
-Table~\ref{tab:iou-results} reports IoU for the three images (and their mean). These values were obtained by running the evaluation script \texttt{segmentation\_eval\_iou.py} on the final cleaned predictions.
-
-\begin{table}[h!]
-\centering
-\begin{tabular}{l c}
-\hline
-\textbf{Image} & \textbf{IoU} \\
-\hline
-Input image 1 & 0.0521 \\
-Input image 2 & 0.4921 \\
-Input image 3 & 0.0050 \\
-\hline
-\textbf{Mean} & \textbf{0.1831} \\
-\hline
-\end{tabular}
-\caption{Intersection over Union (IoU) between the final predicted masks and the manual GT masks.}
-\label{tab:iou-results}
-\end{table}
-
-Overall, the pipeline achieves its best agreement with GT on input image 2. The lower IoU values in images 1 and 3 indicate a larger mismatch between the predicted vegetation regions and the manual GT, which can arise from differences in annotation granularity, illumination/shadows affecting ExG responses, and thresholding errors in regions where the background becomes moderately green.
-\subsection{Error Maps (TP/FP/FN)}
-To better understand the types of errors, we visualize pixel-wise comparisons between prediction and GT as \textbf{error maps}. Each pixel is categorized as:
-
-\begin{itemize}
-    \item \textbf{True Positive (TP)}: predicted foreground and GT foreground (shown in \textcolor{green}{green}).
-    \item \textbf{False Positive (FP)}: predicted foreground but GT background (shown in \textcolor{red}{red}).
-    \item \textbf{False Negative (FN)}: predicted background but GT foreground (shown in \textcolor{blue}{blue}).
-\end{itemize}
-
-Figure~\ref{fig:errormaps} shows the TP/FP/FN maps for the three inputs.
-
-\begin{samepage}
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{errormap_1.png}
-        \caption{Error map (input image 1).}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{errormap_2.png}
-        \caption{Error map (input image 2).}
-    \end{subfigure}
-
-    \vspace{0.3cm}
-
-    \begin{subfigure}[t]{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{errormap_3.png}
-        \caption{Error map (input image 3).}
-    \end{subfigure}
-    \caption{TP/FP/FN error maps comparing final predictions to Ground Truth. TP=green, FP=red, FN=blue.}
-    \label{fig:errormaps}
-\end{figure}
-\end{samepage}
-
-\section{Implementation}
-\subsection{Code Structure}
-The implementation is organized as two small Python scripts:
-
-\begin{itemize}
-    \item \textbf{Segmentation pipeline:} \texttt{segmentation\_step1.py}. This script loads each input RGB image, computes the ExG map, applies Otsu thresholding, performs morphological cleanup, and saves the intermediate and final visual outputs.
-    \item \textbf{Evaluation:} \texttt{segmentation\_eval\_iou.py}. This script recomputes the final prediction masks, loads the manual GT masks (\texttt{gt1.png}, \texttt{gt2.png}, \texttt{gt3.png}), computes IoU, and saves a CSV summary plus TP/FP/FN error maps.
-\end{itemize}
-
-The workspace uses the following folders for outputs:
-\begin{itemize}
-    \item \texttt{outputs\_step1/}: ExG visualizations and histograms, raw masks, cleaned masks, and red overlay images.
-    \item \texttt{outputs\_eval/}: IoU results in \texttt{iou\_results.csv}, and evaluation visualizations (error maps and overlays).
-    \item \texttt{report/}: LaTeX report source (\texttt{main.tex}), compiled PDF, and a copy of the figures with LaTeX-safe filenames.
-\end{itemize}
-
-All scripts are designed to run with Python 3 and standard scientific packages used in this homework (NumPy, PIL/Pillow, Matplotlib).
-\subsection{How to Run}
-The commands below reproduce the segmentation outputs and evaluation results used in this report. They assume the current directory is the homework root folder (the one containing the three \texttt{Irrigated land*.png} images).
-
-\begin{minted}[fontsize=\small, linenos]{bash}
-python3 segmentation_step1.py
-python3 segmentation_eval_iou.py
-\end{minted}
-
-After running these scripts, the generated images will be available in \texttt{outputs\_step1/} and \texttt{outputs\_eval/}. The report figures are referenced from the \texttt{report/} folder (copies of the required images are placed there using safe filenames).
-
-
-\section{Conclusion}
-This homework implemented a classical image-processing pipeline to segment irrigated olive groves from RGB aerial imagery using only techniques from this week (histogram analysis and thresholding).
-
-The proposed approach combines (i) a vegetation-sensitive ExG index, (ii) a global Otsu threshold to obtain an initial binary mask, and (iii) lightweight post-processing (opening/closing and small-component removal) to produce cleaner and more spatially coherent predictions. Qualitatively, the red-overlay visualizations show that the segmented regions follow the regular orchard texture and canopy layout.
-
-Quantitatively, IoU evaluation against manually created GT masks shows a strong dependence on scene conditions and annotation details: the method performs best on the second image, while performance drops on the first and third images where illumination changes, shadows, or background-green responses make global thresholding less reliable.
-
-\section{References}
-\begin{itemize}
-    \item N. Otsu. ``A Threshold Selection Method from Gray-Level Histograms.'' \textit{IEEE Transactions on Systems, Man, and Cybernetics}, 9(1):62--66, 1979.
-    \item P. Jaccard. ``Étude comparative de la distribution florale dans une portion des Alpes et des Jura.'' \textit{Bulletin de la Société Vaudoise des Sciences Naturelles}, 37:547--579, 1901. (Jaccard index / IoU)
-    \item D. M. Woebbecke, G. E. Meyer, K. Von Bargen, and D. A. Mortensen. ``Color Indices for Weed Identification Under Various Soil, Residue, and Lighting Conditions.'' \textit{Transactions of the ASAE}, 38(1):259--269, 1995. (Vegetation indices related to ExG)
-\end{itemize}
-
-\appendix
-\section{Appendix}
-\subsection{Generated Output Files}
-This subsection lists the main files generated by the provided scripts. (Exact filenames may vary slightly depending on the input image names.)
-
-\begin{itemize}
-    \item \textbf{Segmentation outputs:} \texttt{outputs\_step1/}
-    \begin{itemize}
-        \item ExG visualizations: \texttt{*\_exg.png}
-        \item ExG histograms: \texttt{*\_exg\_hist.png}
-        \item Raw masks (Otsu): \texttt{*\_mask.png} / \texttt{mask\_raw\_*.png} (copies used in report)
-        \item Clean masks: \texttt{*\_mask\_clean.png} / \texttt{mask\_clean\_*.png} (copies used in report)
-        \item Red overlays: \texttt{*\_overlay\_mask\_clean.png} / \texttt{overlay\_clean\_*.png} (copies used in report)
-    \end{itemize}
-
-    \item \textbf{Evaluation outputs:} \texttt{outputs\_eval/}
-    \begin{itemize}
-        \item IoU summary CSV: \texttt{iou\_results.csv}
-        \item Error maps (TP/FP/FN): \texttt{*\_errormap.png}
-        \item Prediction overlays (evaluation): \texttt{*\_overlay\_pred\_red.png}
-    \end{itemize}
-
-    \item \textbf{Report assets and build:} \texttt{report/}
-    \begin{itemize}
-        \item LaTeX source: \texttt{main.tex}
-        \item Compiled PDF: \texttt{main.pdf}
-        \item Figure copies with LaTeX-safe names: \texttt{irrigated\_*.png}, \texttt{gt\_*.png}, \texttt{exg\_*.png}, \texttt{exg\_hist\_*.png}, \texttt{mask\_raw\_*.png}, \texttt{mask\_clean\_*.png}, \texttt{overlay\_clean\_*.png}, \texttt{errormap\_*.png}
-    \end{itemize}
-\end{itemize}
-
-\fi
 \end{document}
