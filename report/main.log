@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.4.5)  20 APR 2026 13:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.4.5)  20 APR 2026 13:55
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1450,7 +1450,7 @@ f/fonts/type1/public/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmri
 ts/type1/public/lm/lmtk10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pf
 b></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb></usr/share/texmf/fonts/ty
 pe1/public/lm/lmtti10.pfb>
-Output written on main.pdf (39 pages, 1130790 bytes).
+Output written on main.pdf (39 pages, 1130767 bytes).
 PDF statistics:
  2974 PDF objects out of 2984 (max. 8388607)
  880 compressed objects within 9 object streams
