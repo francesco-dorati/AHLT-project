@@ -399,7 +399,7 @@ drug\_n &   8 &  17 &  94 & 32.0 &  7.8 & \cellcolor{red!15}\textbf{12.6} \\
 \callout{Aggregate scores.} Summing the per-class counts above gives
 $\sum\text{TP}=2725$, $\sum\text{FP}=325$, $\sum\text{FN}=503$, which yields
 \textbf{micro-averaged F1 = 86.8\%} (P = 89.3\%, R = 84.4\%) and
-\textbf{macro-averaged F1 = 68.2\%}. The large gap between the two (18.4~pp)
+\textbf{macro-averaged F1 = 68.2\%}. The large gap between the two (18.6~pp)
 reflects the collapse on \textit{drug\_n}: micro is dominated by the frequent
 \textit{drug} class (67\% of entities), while macro weights all four types
 equally. These are the two numbers reported for System~1.1 in the final
@@ -1018,7 +1018,7 @@ per-entity-type basis.
     \centering
     \includegraphics[width=\linewidth]{fig12_per_entity.pdf}
     \caption{Per-entity-type test F1. The NN system dominates on
-    \textit{group} (+6.5) and slightly improves on \textit{drug\_n}
+    \textit{group} (+5.3) and slightly improves on \textit{drug\_n}
     (+3.0), ties on \textit{drug}, and loses a few points on
     \textit{brand}. The pattern is consistent: the BiLSTM picks up
     distributional context (which helps semantic classes like
@@ -1034,17 +1034,17 @@ per-entity-type basis.
 \hline
 \textbf{Type}  & \textbf{1.1 CRF (test)} & \textbf{1.2 NN (test)} & \textbf{$\Delta$} \\
 \hline
-brand   &  92.9\% & 89.1\% & \cellcolor{red!12}$-$3.8 \\
-drug    &  92.1\% & 92.0\% & $-$0.1 \\
-\rowcolor{green!18} group   &  73.3\% & 79.8\% & \textbf{+6.5} \\
+brand   &  93.3\% & 89.1\% & \cellcolor{red!12}$-$4.2 \\
+drug    &  92.3\% & 92.0\% & $-$0.3 \\
+\rowcolor{green!18} group   &  74.5\% & 79.8\% & \textbf{+5.3} \\
 \rowcolor{green!18} drug\_n &  12.6\% & 15.6\% & \textbf{+3.0} \\
 \hline
-\textbf{M.avg} & \textbf{67.7\%} & \textbf{69.1\%} & \cellcolor{green!18}\textbf{+1.4} \\
+\textbf{M.avg} & \textbf{68.2\%} & \textbf{69.1\%} & \cellcolor{green!18}\textbf{+0.9} \\
 \hline
 \end{tabular}
 \caption{Final cross-system per-type comparison.
 System~1.2 (\texttt{champ\_big\_s42}) improves total macro-F1 by
-+1.4~pt over System~1.1 (CRF~mod8), with all of the gain coming from
++0.9~pt over System~1.1 (CRF~mod8, run~23), with all of the gain coming from
 \textit{group} and \textit{drug\_n}.}
 \label{tab:12-cross}
 \end{table}
@@ -1070,9 +1070,9 @@ numbers.
     \centering
     \includegraphics[width=0.85\linewidth]{fig12_cross_system.pdf}
     \caption{Final headline comparison. System~1.1 (CRF mod8) reaches
-    67.7\% test; System~1.2 reaches \textbf{69.1\%}
+    68.2\% test; System~1.2 reaches \textbf{69.1\%}
     (single-seed, PDF-compliant) or \textbf{69.9\%} (3-seed mean), a
-    +1.4 or +2.2 point improvement respectively.}
+    +0.9 or +1.7 point improvement respectively.}
     \label{fig:12-cross}
 \end{figure}
 
@@ -1099,10 +1099,10 @@ numbers.
     improvement. This is the single most valuable methodological
     lesson of the project.
     \item \textbf{NN vs.\ CRF tradeoff is per-class.} The NN wins on
-    semantic classes (\textit{group}, +6.5; \textit{drug\_n}, +3.0)
+    semantic classes (\textit{group}, +5.3; \textit{drug\_n}, +3.0)
     and loses a few points on trademark-like \textit{brand}, where
     CRF's sharp character-level patterns still win. Overall the NN
-    is +1.4~pt (or +2.2~pt in 3-seed mean) better on test.
+    is +0.9~pt (or +1.7~pt in 3-seed mean) better on test.
     \item \textbf{\textit{drug\_n} remains the bottleneck.}
     Both systems fail on this rare class ($<$16\% F1). With only 102
     \textit{drug\_n} entities in test, this is a data-scarcity
@@ -1643,8 +1643,8 @@ what an in-domain fine-tune is supposed to deliver.
     class-balanced sampler lifts \textit{drug\_n} to 29.9\,\% at a
     5.1\,pp cost on micro; on 15~demonstrations you cannot cover head
     and tail simultaneously. Fine-tuning resolves this directly:
-    45.2\,\% devel at~$r=32$, 51.3\,\% on test --- 1.8$\times$ the
-    best few-shot \textit{drug\_n} F1.
+    45.2\,\% devel at~$r=32$, 51.3\,\% on test --- 1.7$\times$ the
+    class-balanced few-shot \textit{drug\_n} F1 (29.9\,\%).
     \item \textbf{Devel$\to$test gap is $-0.8$ to $+2.0$\,pp.} None of
     our fine-tune configurations overfit; the $r=8$ adapter actually
     \emph{gains} on the test split ($+0.8$\,pp). The $r=32$ adapter
@@ -1809,7 +1809,7 @@ that no amount of prompting can repair:
     (86.8 vs 87.4).
     \item \textbf{Use System~1.2 (BiLSTM)} when best micro-F1 matters
     and a GPU is available. It remains the top micro-F1 system on
-    this task by a narrow 0.4--1.4\,pp margin.
+    this task by a narrow 0.6--1.4\,pp margin.
     \item \textbf{Use System~1.3 (LoRA-LLM)} when rare-class recall or
     class-balanced accuracy matters. It wins macro-F1 by
     $+$7.2\,pp over BiLSTM and \textit{drug\_n} by $+$35.7\,pp, at

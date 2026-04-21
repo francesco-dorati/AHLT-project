@@ -419,8 +419,8 @@ entity_types = ['brand', 'drug', 'drug_n', 'group']
 nn_new  = [89.1, 92.0, 15.6, 79.8]
 # final04 (round-1 champion on test, from §5.3)
 nn_old  = [87.5, 91.0, 15.3, 80.9]
-# 1.1 CRF best on test (from README §5.13 + 1.1 report)
-crf_11  = [92.9, 92.1, 12.6, 73.3]
+# 1.1 CRF best on test — run 23, mod8 c1=c2=0.1 iter=50 (canonical 1.1 champion)
+crf_11  = [93.3, 92.3, 12.6, 74.5]
 
 fig, ax = plt.subplots(figsize=(10, 5))
 x = np.arange(len(entity_types))
@@ -494,8 +494,8 @@ for i, v in zip(mean_x, mean_y):
                 fontweight='bold', color=C_BIG)
 
 # 1.1 baseline reference
-ax.axhline(y=67.7, color=C_CRF, linestyle=':', alpha=0.6, linewidth=1.5)
-ax.text(0.05, 67.85, '1.1 CRF test = 67.7', fontsize=9, color=C_CRF, ha='left', va='bottom')
+ax.axhline(y=68.2, color=C_CRF, linestyle=':', alpha=0.6, linewidth=1.5)
+ax.text(0.05, 68.35, '1.1 CRF test = 68.2', fontsize=9, color=C_CRF, ha='left', va='bottom')
 
 ax.set_xticks(x)
 ax.set_xticklabels(rounds, fontsize=9)
@@ -517,7 +517,7 @@ print("8. Timeline saved.")
 # =============================================================================
 systems = ['1.1 CRF\n(mod8)', '1.2 NN R1\n(final04)', '1.2 NN final\n(champ_big_s42)',
            '1.2 NN final\n(3-seed mean)']
-tests   = [67.7, 68.7, 69.1, 69.9]
+tests   = [68.2, 68.7, 69.1, 69.9]
 colors_sys = [C_CRF, '#8FBFDB', C_NN, C_BIG]
 
 fig, ax = plt.subplots(figsize=(9, 4))
@@ -529,7 +529,7 @@ for i, (bar, val) in enumerate(zip(bars, tests)):
     if i == 0:
         txt = f'{val:.1f}%'
     else:
-        d = val - 67.7
+        d = val - 68.2
         txt = f'{val:.1f}%  ({d:+.1f})'
     ax.text(val + 0.08, bar.get_y() + bar.get_height()/2,
             txt, va='center', fontsize=11, fontweight=fw)
@@ -540,7 +540,7 @@ ax.set_xlabel('Test macro-F1 (%)')
 ax.set_title('Final Test Results — Cross-System')
 ax.set_xlim(66.5, 71.5)
 ax.invert_yaxis()
-ax.axvline(x=67.7, color=GREY, linestyle=':', alpha=0.5)
+ax.axvline(x=68.2, color=GREY, linestyle=':', alpha=0.5)
 
 # ∆ inlined with the value above
 

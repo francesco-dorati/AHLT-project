@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.4.5)  21 APR 2026 15:06
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.4.5)  21 APR 2026 15:28
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1152,12 +1152,12 @@ LaTeX Font Info:    Trying to load font information for OT1+lmtt on input line
  (/usr/share/texmf/tex/latex/lm/ot1lmtt.fd
 File: ot1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-<fig13_timeline.pdf, id=1628, 729.36552pt x 346.40356pt>
+<fig13_timeline.pdf, id=1629, 729.36552pt x 346.40356pt>
 File: fig13_timeline.pdf Graphic file (type pdf)
 <use fig13_timeline.pdf>
 Package pdftex.def Info: fig13_timeline.pdf  used on input line 1190.
 (pdftex.def)             Requested size: 452.9679pt x 215.13269pt.
-<fig13_shots_sweep.pdf, id=1630, 498.30226pt x 313.20639pt>
+<fig13_shots_sweep.pdf, id=1631, 498.30226pt x 313.20639pt>
 File: fig13_shots_sweep.pdf Graphic file (type pdf)
 <use fig13_shots_sweep.pdf>
 Package pdftex.def Info: fig13_shots_sweep.pdf  used on input line 1213.
@@ -1172,7 +1172,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [25{/usr/share/texmf/fonts/enc/dvips/lm/lm-rmtt.enc} <./fig13_timeline.pdf>]
-<fig13_prompt_ablation.pdf, id=1751, 701.9318pt x 336.30269pt>
+<fig13_prompt_ablation.pdf, id=1752, 701.9318pt x 336.30269pt>
 File: fig13_prompt_ablation.pdf Graphic file (type pdf)
 <use fig13_prompt_ablation.pdf>
 Package pdftex.def Info: fig13_prompt_ablation.pdf  used on input line 1233.
@@ -1187,7 +1187,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [26 <./fig13_shots_sweep.pdf> <./fig13_prompt_ablation.pdf>]
-<fig13_per_class_fs.pdf, id=1884, 610.3208pt x 336.47845pt>
+<fig13_per_class_fs.pdf, id=1885, 610.3208pt x 336.47845pt>
 File: fig13_per_class_fs.pdf Graphic file (type pdf)
 <use fig13_per_class_fs.pdf>
 Package pdftex.def Info: fig13_per_class_fs.pdf  used on input line 1255.
@@ -1241,7 +1241,7 @@ Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                \kern 1.95871pt
 (hyperref)                removed on input line 1332.
 
-<fig13_rank_vs_epochs.pdf, id=1949, 589.3424pt x 339.92256pt>
+<fig13_rank_vs_epochs.pdf, id=1950, 589.3424pt x 339.92256pt>
 File: fig13_rank_vs_epochs.pdf Graphic file (type pdf)
 <use fig13_rank_vs_epochs.pdf>
 Package pdftex.def Info: fig13_rank_vs_epochs.pdf  used on input line 1363.
@@ -1255,7 +1255,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [28]
-<fig13_balanced_tradeoff.pdf, id=1956, 764.14519pt x 342.80194pt>
+<fig13_balanced_tradeoff.pdf, id=1957, 764.14519pt x 342.80194pt>
 File: fig13_balanced_tradeoff.pdf Graphic file (type pdf)
 <use fig13_balanced_tradeoff.pdf>
 Package pdftex.def Info: fig13_balanced_tradeoff.pdf  used on input line 1404.
@@ -1270,7 +1270,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [29 <./fig13_rank_vs_epochs.pdf>]
-<fig13_ft_per_class_heat.pdf, id=2043, 573.1339pt x 297.82079pt>
+<fig13_ft_per_class_heat.pdf, id=2044, 573.1339pt x 297.82079pt>
 File: fig13_ft_per_class_heat.pdf Graphic file (type pdf)
 <use fig13_ft_per_class_heat.pdf>
 Package pdftex.def Info: fig13_ft_per_class_heat.pdf  used on input line 1431.
@@ -1285,7 +1285,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [30 <./fig13_balanced_tradeoff.pdf>]
-<fig13_drugn_story.pdf, id=2121, 666.6437pt x 341.45705pt>
+<fig13_drugn_story.pdf, id=2122, 666.6437pt x 341.45705pt>
 File: fig13_drugn_story.pdf Graphic file (type pdf)
 <use fig13_drugn_story.pdf>
 Package pdftex.def Info: fig13_drugn_story.pdf  used on input line 1480.
@@ -1300,7 +1300,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [31 <./fig13_ft_per_class_heat.pdf>]
-<fig13_fs_vs_ft_headline.pdf, id=2195, 796.46306pt x 368.8543pt>
+<fig13_fs_vs_ft_headline.pdf, id=2196, 796.46306pt x 368.8543pt>
 File: fig13_fs_vs_ft_headline.pdf Graphic file (type pdf)
 <use fig13_fs_vs_ft_headline.pdf>
 Package pdftex.def Info: fig13_fs_vs_ft_headline.pdf  used on input line 1519.
@@ -1315,7 +1315,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [32 <./fig13_drugn_story.pdf>]
-<fig13_cost_scatter.pdf, id=2300, 582.31615pt x 352.1599pt>
+<fig13_cost_scatter.pdf, id=2301, 582.31615pt x 352.1599pt>
 File: fig13_cost_scatter.pdf Graphic file (type pdf)
 <use fig13_cost_scatter.pdf>
 Package pdftex.def Info: fig13_cost_scatter.pdf  used on input line 1537.
@@ -1330,12 +1330,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [33 <./fig13_fs_vs_ft_headline.pdf> <./fig13_cost_scatter.pdf>]
-<fig13_final_test_bars.pdf, id=2447, 645.35164pt x 368.32782pt>
+<fig13_final_test_bars.pdf, id=2448, 645.35164pt x 368.32782pt>
 File: fig13_final_test_bars.pdf Graphic file (type pdf)
 <use fig13_final_test_bars.pdf>
 Package pdftex.def Info: fig13_final_test_bars.pdf  used on input line 1578.
 (pdftex.def)             Requested size: 452.9679pt x 258.52461pt.
-<fig13_devel_test_gap.pdf, id=2448, 526.30692pt x 337.46437pt>
+<fig13_devel_test_gap.pdf, id=2449, 526.30692pt x 337.46437pt>
 File: fig13_devel_test_gap.pdf Graphic file (type pdf)
 <use fig13_devel_test_gap.pdf>
 Package pdftex.def Info: fig13_devel_test_gap.pdf  used on input line 1589.
@@ -1350,7 +1350,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [34 <./fig13_final_test_bars.pdf>]
-<fig13_fs_vs_ft_perclass.pdf, id=2524, 561.33775pt x 304.38933pt>
+<fig13_fs_vs_ft_perclass.pdf, id=2525, 561.33775pt x 304.38933pt>
 File: fig13_fs_vs_ft_perclass.pdf Graphic file (type pdf)
 <use fig13_fs_vs_ft_perclass.pdf>
 Package pdftex.def Info: fig13_fs_vs_ft_perclass.pdf  used on input line 1605.
@@ -1365,7 +1365,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [35 <./fig13_devel_test_gap.pdf> <./fig13_fs_vs_ft_perclass.pdf>]
-<fig13_cross_system.pdf, id=2658, 757.37018pt x 390.7694pt>
+<fig13_cross_system.pdf, id=2659, 757.37018pt x 390.7694pt>
 File: fig13_cross_system.pdf Graphic file (type pdf)
 <use fig13_cross_system.pdf>
 Package pdftex.def Info: fig13_cross_system.pdf  used on input line 1680.
@@ -1380,7 +1380,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-15.11652pt}.
 
 [36]
-<fig13_cross_system_perclass.pdf, id=2665, 645.35164pt x 326.64848pt>
+<fig13_cross_system_perclass.pdf, id=2666, 645.35164pt x 326.64848pt>
 File: fig13_cross_system_perclass.pdf Graphic file (type pdf)
 <use fig13_cross_system_perclass.pdf>
 Package pdftex.def Info: fig13_cross_system_perclass.pdf  used on input line 17
@@ -1459,9 +1459,9 @@ f/fonts/type1/public/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmri
 ts/type1/public/lm/lmtk10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pf
 b></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb></usr/share/texmf/fonts/ty
 pe1/public/lm/lmtti10.pfb>
-Output written on main.pdf (40 pages, 1131176 bytes).
+Output written on main.pdf (40 pages, 1131532 bytes).
 PDF statistics:
- 2981 PDF objects out of 2984 (max. 8388607)
+ 2982 PDF objects out of 2984 (max. 8388607)
  883 compressed objects within 9 object streams
  162 named destinations out of 1000 (max. 500000)
  531 words of extra memory for PDF output out of 10000 (max. 10000000)
