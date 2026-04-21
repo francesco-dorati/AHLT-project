@@ -60,6 +60,6 @@
 \contentsline {section}{\numberline {6}Conclusions}{36}{section.6}%
 \contentsline {subsection}{\numberline {6.1}Headline test-set results across the three systems}{37}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}Trade-offs: effort, cost, controllability, performance}{38}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}Why the LLM under-performs on common classes}{39}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.3}Where the small remaining gap comes from}{39}{subsection.6.3}%
 \contentsline {subsection}{\numberline {6.4}When is each system the right choice?}{39}{subsection.6.4}%
 \contentsline {paragraph}{Overall conclusion.}{39}{paragraph*.66}%

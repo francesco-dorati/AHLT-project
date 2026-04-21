@@ -77,9 +77,9 @@ def _save(fig, name):
 #    Jobs: 414918 (k=0), 414919 (k=3), 414791 (k=5), 414920 (k=10), 414921 (k=15)
 # =============================================================================
 shots  = [0, 3, 5, 10, 15]
-mF1    = [2.2, 29.5, 37.6, 35.3, 39.2]
-MF1    = [1.9, 29.3, 34.5, 34.3, 32.8]
-span   = [2.9, 42.5, 47.1, 46.1, 48.8]
+mF1    = [2.1, 36.3, 46.9, 45.3, 50.3]
+MF1    = [1.9, 34.5, 40.1, 41.5, 39.6]
+span   = [2.9, 54.3, 58.8, 60.9, 62.9]
 
 fig, ax = plt.subplots(figsize=(8, 4.5))
 ax.plot(shots, mF1,  'o-', color=C_LLAMA, linewidth=2.2, markersize=8,
@@ -93,8 +93,8 @@ for k, m in zip(shots, mF1):
     ax.annotate(f'{m:.1f}', xy=(k, m), xytext=(0, 8), textcoords='offset points',
                 ha='center', fontsize=9, color=C_LLAMA, fontweight='bold')
 
-ax.axhline(39.2, color=C_LLAMA, linestyle=':', alpha=0.3)
-ax.annotate('best FS m-F1\n(k=15, 39.2 %)', xy=(15, 39.2), xytext=(11.5, 44),
+ax.axhline(50.3, color=C_LLAMA, linestyle=':', alpha=0.3)
+ax.annotate('best FS m-F1\n(k=15, 50.3 %)', xy=(15, 50.3), xytext=(11.5, 57),
             ha='center', fontsize=9, color=C_LLAMA,
             arrowprops=dict(arrowstyle='->', color=C_LLAMA, alpha=0.6))
 
@@ -102,7 +102,7 @@ ax.set_xticks(shots)
 ax.set_xlabel('Number of few-shot demonstrations  (k)')
 ax.set_ylabel('Devel F1 (%)')
 ax.set_title('Few-shot k sweep — Llama 3.2 3B Instruct / prompts01 / 4-bit quant')
-ax.set_ylim(0, 55)
+ax.set_ylim(0, 70)
 ax.legend(loc='lower right', framealpha=0.95)
 _save(fig, 'fig13_shots_sweep')
 
@@ -113,10 +113,10 @@ _save(fig, 'fig13_shots_sweep')
 #          414921 (p01/15), 415438 (p02/15), 415439 (p03/15)
 # =============================================================================
 prompts_lbl = ['prompts01\n(generic)', 'prompts02\n(strict)', 'prompts03\n(terse)']
-mF1_5       = [37.6, 38.2, 39.0]
-mF1_15      = [39.2, 39.6, 40.9]
-MF1_5       = [34.5, 28.9, 25.6]
-MF1_15      = [32.8, 28.7, 26.6]
+mF1_5       = [46.9, 46.4, 51.3]
+mF1_15      = [50.3, 50.9, 54.2]
+MF1_5       = [40.1, 34.2, 33.5]
+MF1_15      = [39.6, 36.4, 35.3]
 
 fig, (axL, axR) = plt.subplots(1, 2, figsize=(11, 4.5))
 x = np.arange(len(prompts_lbl))
@@ -128,12 +128,12 @@ axL.bar(x + w/2, mF1_15, w, color=C_LLAMA, edgecolor='white', label='15 shots')
 for i, (m5, m15) in enumerate(zip(mF1_5, mF1_15)):
     axL.text(i - w/2, m5  + 0.3, f'{m5:.1f}',  ha='center', fontsize=9)
     axL.text(i + w/2, m15 + 0.3, f'{m15:.1f}', ha='center', fontsize=9,
-             fontweight='bold' if m15 >= 40.9 else 'normal',
-             color=C_BEST if m15 >= 40.9 else 'black')
+             fontweight='bold' if m15 >= 54.2 else 'normal',
+             color=C_BEST if m15 >= 54.2 else 'black')
 axL.set_xticks(x); axL.set_xticklabels(prompts_lbl, fontsize=9)
 axL.set_ylabel('Devel micro-F1 (%)')
 axL.set_title('Micro-F1 — prompt × shots')
-axL.set_ylim(0, 48)
+axL.set_ylim(0, 62)
 axL.legend(loc='lower right')
 
 # Panel B: macro-F1
@@ -145,7 +145,7 @@ for i, (m5, m15) in enumerate(zip(MF1_5, MF1_15)):
 axR.set_xticks(x); axR.set_xticklabels(prompts_lbl, fontsize=9)
 axR.set_ylabel('Devel macro-F1 (%)')
 axR.set_title('Macro-F1 — refined prompts collapse rare-class recall')
-axR.set_ylim(0, 45)
+axR.set_ylim(0, 50)
 
 fig.suptitle('Prompt × Shots ablation  (Llama 3.2 3B / 4-bit quant)',
              fontsize=13, y=1.02)
@@ -157,10 +157,10 @@ _save(fig, 'fig13_prompt_ablation')
 #    Numbers pulled from .stats files on Boada (via /tmp/boada_perclass.py)
 # =============================================================================
 fs_configs = ['llama-p01-5',  'llama-p01-15', 'llama-p03-15', 'llama-p01-15\nbalanced']
-fs_brand   = [55.9,            60.2,            67.9,           50.9]
-fs_drug    = [45.0,            41.3,            42.3,           34.1]
-fs_drugn   = [ 6.0,             0.0,             0.0,           25.3]
-fs_group   = [29.5,            29.3,            27.7,           21.0]
+fs_brand   = [46.9,            50.6,            39.8,           52.1]
+fs_drug    = [56.0,            60.2,            64.2,           53.2]
+fs_drugn   = [29.7,            14.3,             0.0,           29.9]
+fs_group   = [27.8,            33.2,            37.3,           32.0]
 
 fig, ax = plt.subplots(figsize=(10, 4.8))
 x = np.arange(len(fs_configs))
@@ -178,8 +178,8 @@ for i, vals in enumerate(zip(fs_brand, fs_drug, fs_drugn, fs_group)):
 
 ax.set_xticks(x); ax.set_xticklabels(fs_configs, fontsize=9)
 ax.set_ylabel('Devel F1 (%)')
-ax.set_title('Few-shot per-class F1 — prompts/shots cannot cover the rare class, balanced sampler can\n'
-             'drug_n F1 = 0 for two best-micro FS configs → rare-class blind spot',
+ax.set_title('Few-shot per-class F1 — terser prompts lift the common classes but kill drug_n\n'
+             'p03/15 reaches drug F1 = 64.2 % but drug_n collapses to 0 % → rare-class blind spot',
              fontsize=11.5)
 ax.set_ylim(0, 85)
 ax.legend(loc='upper right', ncols=4, fontsize=9)
@@ -194,8 +194,8 @@ fig, (axL, axR) = plt.subplots(1, 2, figsize=(11.5, 4.5))
 
 # Panel A — grouped bars: micro and macro side-by-side (no overlay)
 samplers   = ['random\n(15 shots)', 'balanced\n(15 shots)']
-micro_vals = [39.2, 33.2]
-macro_vals = [32.8, 32.5]
+micro_vals = [50.3, 45.2]
+macro_vals = [39.6, 41.8]
 xA = np.arange(len(samplers))
 wA = 0.35
 bars_m = axL.bar(xA - wA/2, micro_vals, wA, color=[C_FS, C_BAL],
@@ -208,16 +208,16 @@ for i, v in enumerate(macro_vals):
     axL.text(i + wA/2, v + 0.6, f'{v:.1f}', ha='center', fontsize=9, color=GREY)
 axL.set_xticks(xA); axL.set_xticklabels(samplers)
 axL.set_ylabel('Devel F1 (%)')
-axL.set_title('Headline: micro ↓ 6 pp, macro flat')
-axL.set_ylim(0, 48)
+axL.set_title('Headline: micro ↓ 5.1 pp, macro ↑ 2.2 pp')
+axL.set_ylim(0, 58)
 axL.legend(loc='upper right', fontsize=9, framealpha=0.95)
 
 # Panel B — per-class deltas (horizontal diverging bars)
 # Labels placed OUTSIDE the axes region opposite the y-axis tick labels
 # so they never collide with the class names on the left.
 classes = CLASSES
-rand = {'brand': 60.2, 'drug': 41.3, 'drug_n':  0.0, 'group': 29.3}
-bal  = {'brand': 50.9, 'drug': 34.1, 'drug_n': 25.3, 'group': 21.0}
+rand = {'brand': 50.6, 'drug': 60.2, 'drug_n': 14.3, 'group': 33.2}
+bal  = {'brand': 52.1, 'drug': 53.2, 'drug_n': 29.9, 'group': 32.0}
 deltas = [bal[c] - rand[c] for c in classes]
 colors = [C_BAL if d > 0 else C_BAD for d in deltas]
 axR.barh(classes, deltas, color=colors, edgecolor='white', height=0.6)
@@ -237,7 +237,7 @@ for i, (c, d) in enumerate(zip(classes, deltas)):
 axR.axvline(0, color='black', linewidth=0.9)
 axR.set_xlabel('balanced − random  (pp F1)')
 axR.set_title('Per-class delta: drug_n rescued at the cost of the common classes')
-axR.set_xlim(-12, 32)
+axR.set_xlim(-12, 22)
 
 fig.suptitle('Phase G — class-balanced few-shot sampler  (prompts01 / 15 shots)',
              fontsize=13, y=1.02)
@@ -250,7 +250,8 @@ _save(fig, 'fig13_balanced_tradeoff')
 head_configs = [
     'zero-shot',
     'FS random 5',
-    'FS random 15 (best FS micro)',
+    'FS random 15',
+    'FS random 15 (p03, best FS micro)',
     'FS balanced 15',
     'FT llama r=8 / 10ep  (baseline)',
     'FT qwen  r=8 / 10ep  (Phase F)',
@@ -258,9 +259,9 @@ head_configs = [
     'FT llama r=32 / 10ep (best FT)',
     'FT qwen  r=32 / 10ep (best macro)',
 ]
-head_mF1 = [2.2, 37.6, 39.2, 33.2, 59.7, 61.2, 61.5, 63.8, 63.0]
-head_MF1 = [1.9, 34.5, 32.8, 32.5, 51.5, 56.6, 56.8, 59.6, 60.8]
-head_kind = ['FS', 'FS', 'FS', 'FS', 'FT-L', 'FT-Q', 'FT-L', 'FT-L', 'FT-Q']
+head_mF1 = [2.1, 46.9, 50.3, 54.2, 45.2, 82.5, 84.2, 84.8, 88.0, 87.1]
+head_MF1 = [1.9, 40.1, 39.6, 35.3, 41.8, 68.2, 73.5, 74.6, 78.1, 78.5]
+head_kind = ['FS', 'FS', 'FS', 'FS', 'FS', 'FT-L', 'FT-Q', 'FT-L', 'FT-L', 'FT-Q']
 kind_color = {'FS': C_FS, 'FT-L': C_LLAMA, 'FT-Q': C_QWEN}
 head_colors = [kind_color[k] for k in head_kind]
 
@@ -285,7 +286,7 @@ ax.set_yticks(y); ax.set_yticklabels(head_configs, fontsize=10)
 ax.invert_yaxis()
 ax.set_xlabel('Devel F1 (%)')
 ax.set_title('From zero-shot to best fine-tune — headline devel F1 per configuration')
-ax.set_xlim(0, 72)
+ax.set_xlim(0, 100)
 
 legend_patches = [
     mpatches.Patch(color=C_FS,    label='few-shot'),
@@ -294,7 +295,6 @@ legend_patches = [
 ]
 ax.legend(handles=legend_patches, loc='upper right',
           bbox_to_anchor=(0.98, 0.98), fontsize=9, framealpha=0.95)
-ax.set_xlim(0, 78)
 _save(fig, 'fig13_fs_vs_ft_headline')
 
 
@@ -304,9 +304,9 @@ _save(fig, 'fig13_fs_vs_ft_headline')
 # =============================================================================
 labels = ['r=8\n10 epochs\n(baseline)', 'r=32\n10 epochs\n(Phase G)',
           'r=8\n15 epochs\n(Phase G)']
-mF1    = [59.7, 63.8, 61.5]
-MF1    = [51.5, 59.6, 56.8]
-drugn  = [14.6, 37.3, 35.1]
+mF1    = [82.5, 88.0, 84.8]
+MF1    = [68.2, 78.1, 74.6]
+drugn  = [19.7, 45.2, 42.9]
 
 fig, ax = plt.subplots(figsize=(9.5, 4.8))
 x = np.arange(len(labels))
@@ -325,14 +325,14 @@ for i, (m, M, d) in enumerate(zip(mF1, MF1, drugn)):
 
 # Annotate the large r=32 gain
 ax.annotate('rank ↑ helps MORE\nthan epochs ↑',
-            xy=(1, 63.8), xytext=(1.55, 70),
+            xy=(1, 88.0), xytext=(1.55, 96),
             ha='center', fontsize=9.5, color=C_BEST, fontweight='bold',
             arrowprops=dict(arrowstyle='->', color=C_BEST, alpha=0.7))
 
 ax.set_xticks(x); ax.set_xticklabels(labels)
 ax.set_ylabel('Devel F1 (%)')
 ax.set_title('LoRA rank vs training epochs  (llama32B3 / prompts01 / quant)')
-ax.set_ylim(0, 78)
+ax.set_ylim(0, 105)
 ax.legend(loc='upper left', fontsize=9)
 _save(fig, 'fig13_rank_vs_epochs')
 
@@ -344,20 +344,20 @@ rows = ['FT-llama r=8 / 10ep',   'FT-qwen  r=8 / 10ep',
         'FT-llama r=8 / 15ep',   'FT-llama r=32 / 10ep', 'FT-qwen  r=32 / 10ep']
 cols = CLASSES
 mat = np.array([
-    [73.7, 63.0, 14.6, 54.5],   # llama r=8
-    [77.2, 62.7, 33.5, 52.9],   # qwen  r=8
-    [75.9, 64.1, 35.1, 57.6],   # llama r=8 / 15ep  (from .stats tail on Boada)
-    [76.7, 64.4, 37.3, 60.0],   # llama r=32
-    [77.7, 63.2, 44.7, 57.5],   # qwen  r=32  (best macro)
+    [87.1, 89.6, 19.7, 76.5],   # llama r=8
+    [89.4, 89.0, 41.2, 74.2],   # qwen  r=8
+    [87.6, 89.7, 42.9, 78.3],   # llama r=8 / 15ep
+    [92.3, 91.6, 45.2, 83.5],   # llama r=32
+    [90.9, 90.6, 51.9, 80.8],   # qwen  r=32  (best macro)
 ])
 
 fig, ax = plt.subplots(figsize=(8.2, 4.5))
-im = ax.imshow(mat, cmap='viridis', aspect='auto', vmin=0, vmax=85)
+im = ax.imshow(mat, cmap='viridis', aspect='auto', vmin=0, vmax=100)
 for i in range(mat.shape[0]):
     for j in range(mat.shape[1]):
         v = mat[i, j]
         ax.text(j, i, f'{v:.1f}', ha='center', va='center',
-                color='white' if v < 55 else 'black',
+                color='white' if v < 65 else 'black',
                 fontsize=10, fontweight='bold')
 ax.set_xticks(range(len(cols)))
 ax.set_xticklabels(cols, fontsize=10)
@@ -379,10 +379,10 @@ _save(fig, 'fig13_ft_per_class_heat')
 # 8. fig13_devel_test_gap — slope chart for FT configs (devel → test)
 # =============================================================================
 slope = [
-    ('FS llama p01/15',       39.2, 36.2, C_FS),
-    ('FT llama r=8 / 10ep',   59.7, 57.0, C_LLAMA),
-    ('FT llama r=32 / 10ep',  63.8, 58.9, C_BEST),
-    ('FT qwen  r=32 / 10ep',  63.0, 58.4, C_QWEN),
+    ('FS llama p01/15',       50.3, 48.8, C_FS),
+    ('FT llama r=8 / 10ep',   82.5, 83.3, C_LLAMA),
+    ('FT llama r=32 / 10ep',  88.0, 86.0, C_BEST),
+    ('FT qwen  r=32 / 10ep',  87.1, 85.3, C_QWEN),
 ]
 
 fig, ax = plt.subplots(figsize=(8.5, 5.2))
@@ -427,8 +427,8 @@ drugn_configs = [
     'FT llama r=8',      'FT qwen  r=8',   'FT llama r=8 15ep',
     'FT llama r=32',     'FT qwen  r=32',
 ]
-drugn_dev = [6.0, 0.0, 25.3, 14.6, 33.5, 35.1, 37.3, 44.7]
-drugn_ts  = [None, None, None, None, None, None, 41.7, 35.8]
+drugn_dev = [29.7, 14.3, 29.9, 19.7, 41.2, 42.9, 45.2, 51.9]
+drugn_ts  = [None, None, None, 32.2, None, None, 51.3, 46.9]
 
 fig, ax = plt.subplots(figsize=(11, 4.8))
 x = np.arange(len(drugn_configs))
@@ -451,18 +451,18 @@ for i, v in enumerate(drugn_dev):
 
 ax.set_xticks(x); ax.set_xticklabels(drugn_configs, rotation=20, ha='right', fontsize=9)
 ax.set_ylabel('drug_n F1 (%)')
-ax.set_title('The rare-class story: drug_n F1 — from 0 % to 44.7 % on devel, 41.7 % on test')
-ax.set_ylim(0, 62)
+ax.set_title('The rare-class story: drug_n F1 — from 14.3 % (best FS) to 51.9 % on devel, 51.3 % on test')
+ax.set_ylim(0, 68)
 
 # annotate devel→test deltas in a clear band above the bars (no crossing arrows)
-ax.annotate('Llama r=32 devel → test:  37.3 → 41.7  (+4.4 pp, generalises)',
+ax.annotate('Llama r=32 devel → test:  45.2 → 51.3  (+6.1 pp, generalises)',
             xy=(0.02, 0.94), xycoords='axes fraction', ha='left',
             fontsize=9, color='#007A33', fontweight='bold')
-ax.annotate('Qwen  r=32 devel → test:  44.7 → 35.8  (−8.9 pp, overfits devel)',
+ax.annotate('Qwen  r=32 devel → test:  51.9 → 46.9  (−5.0 pp, slight overfit)',
             xy=(0.02, 0.87), xycoords='axes fraction', ha='left',
             fontsize=9, color=C_BAD, fontweight='bold')
 
-ax.annotate('♦  = test-set F1  (only H and I run on test)',
+ax.annotate('♦  = test-set F1  (Phases E, H, I)',
             xy=(0.02, 0.80), xycoords='axes fraction', ha='left',
             fontsize=8.5, color='black')
 _save(fig, 'fig13_drugn_story')
@@ -474,12 +474,12 @@ _save(fig, 'fig13_drugn_story')
 test_systems = ['FS 15\n(Phase E)',  'FT r=8\n(Phase E)',
                 'FT r=32\n(Phase H)', 'Qwen r=32\n(Phase I)']
 # per-class F1 on test
-test_brand  = [48.5, 69.4, 68.9, 75.0]   # 48.5 back-computed from 36.2 m-F1 break-down
-test_drug   = [38.8, 60.1, 61.3, 60.2]
-test_drugn  = [ 0.0, 27.9, 41.7, 35.8]
-test_group  = [20.0, 48.4, 51.0, 49.6]
+test_brand  = [36.0, 83.0, 84.4, 92.1]
+test_drug   = [61.1, 89.5, 91.0, 89.3]
+test_drugn  = [ 0.0, 32.2, 51.3, 46.9]
+test_group  = [28.5, 74.8, 78.4, 75.7]
 # micro-F1 overlay
-test_micro  = [36.2, 57.0, 58.9, 58.4]
+test_micro  = [48.8, 83.3, 86.0, 85.3]
 
 fig, ax = plt.subplots(figsize=(10.5, 5))
 x = np.arange(len(test_systems))
@@ -495,7 +495,7 @@ for i in range(len(test_systems)):
 
 # micro-F1 reference markers — placed ABOVE all per-class bars (top row)
 # with horizontal label to the right so nothing collides with value labels.
-MICRO_Y = 82.0
+MICRO_Y = 102.0
 for i, m in enumerate(test_micro):
     ax.plot(i, MICRO_Y, 'o', color='black', markersize=11, markerfacecolor='white',
             markeredgewidth=2)
@@ -510,7 +510,7 @@ ax.axvspan(winner - 0.42, winner + 0.42, color=C_BEST, alpha=0.06)
 ax.set_xticks(x); ax.set_xticklabels(test_systems, fontsize=9.5)
 ax.set_ylabel('Test F1 (%)')
 ax.set_title('Test-set per-class F1 — final head-to-head between our four test-run systems')
-ax.set_ylim(0, 95)
+ax.set_ylim(0, 115)
 # legend below the axes so it doesn't compete with the m-F1 row
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.14), ncols=4,
           fontsize=9, framealpha=0.95)
@@ -521,14 +521,14 @@ _save(fig, 'fig13_final_test_bars')
 # 11. fig13_timeline — experiments B…I on a horizontal time axis
 # =============================================================================
 phases = [
-    ('B',  1, 'smoke',              37.6, C_FS),
-    ('C',  2, 'FS grid',            39.2, C_FS),
-    ('D',  3, 'LoRA baseline',      59.7, C_LLAMA),
-    ('E',  4, 'test — r=8',         57.0, C_LLAMA),
-    ('F',  5, 'Qwen FT / pXX x15',  61.2, C_QWEN),
-    ('G',  6, 'r=32 / ep15 / bal',  63.8, C_BEST),
-    ('H',  7, 'test — r=32',        58.9, C_BEST),
-    ('I',  8, 'test — Qwen r=32',   58.4, C_QWEN),
+    ('B',  1, 'smoke',              46.9, C_FS),
+    ('C',  2, 'FS grid (best p03)', 54.2, C_FS),
+    ('D',  3, 'LoRA baseline',      82.5, C_LLAMA),
+    ('E',  4, 'test — r=8',         83.3, C_LLAMA),
+    ('F',  5, 'Qwen FT / pXX x15',  84.2, C_QWEN),
+    ('G',  6, 'r=32 / ep15 / bal',  88.0, C_BEST),
+    ('H',  7, 'test — r=32',        86.0, C_BEST),
+    ('I',  8, 'test — Qwen r=32',   85.3, C_QWEN),
 ]
 fig, ax = plt.subplots(figsize=(12, 4.5))
 xs  = [p[1] for p in phases]
@@ -550,15 +550,15 @@ for ph, x_, desc, y_, col in phases:
                 xy=(x_, y_), xytext=(dx, dy),
                 textcoords='offset points', ha='center', fontsize=8.5,
                 color=col, fontweight='bold')
-ax.axhline(39.2, color=C_FS,    linestyle=':', alpha=0.5,
-           label='best few-shot (39.2 %)')
-ax.axhline(63.8, color=C_BEST,  linestyle=':', alpha=0.5,
-           label='best FT devel (63.8 %)')
+ax.axhline(54.2, color=C_FS,    linestyle=':', alpha=0.5,
+           label='best few-shot (54.2 %)')
+ax.axhline(88.0, color=C_BEST,  linestyle=':', alpha=0.5,
+           label='best FT devel (88.0 %)')
 
 ax.set_xlabel('Experiment phase  (chronological order)')
 ax.set_ylabel('Headline micro-F1 (%)')
 ax.set_title('Phase B → I — campaign progression  (devel m-F1 unless otherwise noted)')
-ax.set_ylim(28, 74)
+ax.set_ylim(40, 100)
 ax.set_xlim(0.4, 8.6)
 ax.set_xticks(xs)
 ax.set_xticklabels([p[0] for p in phases])
@@ -573,13 +573,11 @@ _save(fig, 'fig13_timeline')
 # =============================================================================
 cross_sys  = ['System 1.1\nCRF mod8',
               'System 1.2\nBiLSTM champ_big',
-              'System 1.3\nFS  best (p03/15)',
+              'System 1.3\nFS  best (p01/15)',
               'System 1.3\nFT  r=8',
               'System 1.3\nFT  r=32 (best)']
-cross_mic  = [86.8, 87.4, 45.9, 60.9, 62.5]  # m.avg test  — fig12_final_results / 1.2 stats / FS span, FT r=8 span
-# correction: m.avg with classes, not span
-cross_mic  = [86.8, 87.4, 36.2, 57.0, 58.9]
-cross_mac  = [68.2, 69.1, 23.0, 51.5, 55.7]
+cross_mic  = [86.8, 87.4, 48.8, 83.3, 86.0]
+cross_mac  = [68.2, 69.1, 31.4, 69.9, 76.3]
 cross_col  = [C_CRF, C_NN, C_FS, C_LLAMA, C_BEST]
 
 fig, (axM, axL) = plt.subplots(1, 2, figsize=(12.5, 5))
@@ -597,17 +595,18 @@ for ax, vals, title in [(axM, cross_mic, 'Test micro-F1 (m.avg)'),
     ax.axhline(vals[1], color=C_NN, linestyle=':', alpha=0.4)
     # gap annotation
     gap = vals[-1] - vals[1]
+    gap_col = '#007A33' if gap >= 0 else C_BAD
     ax.annotate(f'Δ = {gap:+.1f} pp\nvs 1.2 BiLSTM',
-                xy=(4, vals[-1]), xytext=(3.5, 80),
-                ha='center', fontsize=9, color=C_BAD, fontweight='bold',
-                arrowprops=dict(arrowstyle='->', color=C_BAD, alpha=0.7))
+                xy=(4, vals[-1]), xytext=(3.5, 20),
+                ha='center', fontsize=9, color=gap_col, fontweight='bold',
+                arrowprops=dict(arrowstyle='->', color=gap_col, alpha=0.7))
     for lbl in ax.get_xticklabels():
         lbl.set_fontsize(9)
         lbl.set_rotation(15)
         lbl.set_ha('right')
 
-fig.suptitle('Cross-system comparison on the DDI test set — small quantised LLMs trail dedicated NERC systems\n'
-             '(macro gap 13 pp, micro gap 28 pp — the LLM under-performs most on the common classes)',
+fig.suptitle('Cross-system comparison on the DDI test set — fine-tuned 3B LLM matches dedicated NERC systems\n'
+             '(micro within 1.4 pp of 1.2 BiLSTM; macro +7.2 pp — LLM wins on the rare class)',
              fontsize=12, y=1.02)
 _save(fig, 'fig13_cross_system')
 
@@ -619,7 +618,7 @@ _save(fig, 'fig13_cross_system')
 cross_perclass = {
     'System 1.1 (CRF mod8)'            : {'brand': 93.3, 'drug': 92.3, 'drug_n': 12.6, 'group': 74.5},
     'System 1.2 (BiLSTM champ_big_s42)': {'brand': 89.1, 'drug': 92.0, 'drug_n': 15.6, 'group': 79.8},
-    'System 1.3 (FT Llama r=32)'       : {'brand': 68.9, 'drug': 61.3, 'drug_n': 41.7, 'group': 51.0},
+    'System 1.3 (FT Llama r=32)'       : {'brand': 84.4, 'drug': 91.0, 'drug_n': 51.3, 'group': 78.4},
 }
 fig, ax = plt.subplots(figsize=(10.5, 5))
 x = np.arange(len(CLASSES))
@@ -641,9 +640,9 @@ ax.set_ylim(0, 118)
 ax.legend(loc='upper left', bbox_to_anchor=(0.0, 1.0), fontsize=9, framealpha=0.95)
 
 # callout: LLM wins drug_n — arrow points at the TOP of the 1.3 bar
-# (so the label and the "41.7" value marker never compete for the same pixels)
-ax.annotate('1.3 wins drug_n\n+26 pp vs 1.2,  +29 pp vs 1.1',
-            xy=(2 + 0.27, 48), xytext=(2.7, 85),
+# (so the label and the "51.3" value marker never compete for the same pixels)
+ax.annotate('1.3 wins drug_n\n+35.7 pp vs 1.2,  +38.7 pp vs 1.1',
+            xy=(2 + 0.27, 56), xytext=(2.7, 95),
             ha='center', fontsize=9.5, color='#007A33', fontweight='bold',
             arrowprops=dict(arrowstyle='->', color='#007A33', alpha=0.8))
 _save(fig, 'fig13_cross_system_perclass')
@@ -655,15 +654,15 @@ _save(fig, 'fig13_cross_system_perclass')
 # (train-hours, devel mF1, label, marker, color, label_offset_xy)
 # label_offset_xy hand-tuned to disambiguate the dense upper cluster
 points = [
-    (0.00, 37.6, 'FS 5',             'o', C_FS,    (0.22, -0.1)),
-    (0.00, 39.2, 'FS 15',            'o', C_FS,    (0.22, -0.1)),
-    (0.00, 40.9, 'FS p03/15',        'o', C_FS,    (0.22, -0.1)),
-    (0.00, 33.2, 'FS bal',           'o', C_BAL,   (0.22, -0.1)),
-    (5.13, 59.7, 'FT r=8 / 10ep',    's', C_LLAMA, (0.00, -2.3)),
-    (5.95, 61.2, 'FT qwen r=8',      's', C_QWEN,  (0.15,  0.3)),
-    (7.96, 61.5, 'FT r=8 / 15ep',    's', C_LLAMA, (-0.55, -2.3)),
-    (5.33, 63.8, 'FT r=32 / 10ep',   '*', C_BEST,  (-0.65,  1.4)),
-    (6.50, 63.0, 'FT qwen r=32',     '*', C_QWEN,  (0.15,  1.4)),
+    (0.00, 46.9, 'FS 5',             'o', C_FS,    (0.22, -0.1)),
+    (0.00, 50.3, 'FS 15',            'o', C_FS,    (0.22, -0.1)),
+    (0.00, 54.2, 'FS p03/15',        'o', C_FS,    (0.22, -0.1)),
+    (0.00, 45.2, 'FS bal',           'o', C_BAL,   (0.22, -0.1)),
+    (5.13, 82.5, 'FT r=8 / 10ep',    's', C_LLAMA, (0.00, -2.6)),
+    (5.95, 84.2, 'FT qwen r=8',      's', C_QWEN,  (0.15,  0.3)),
+    (7.96, 84.8, 'FT r=8 / 15ep',    's', C_LLAMA, (-0.55, -2.6)),
+    (5.33, 88.0, 'FT r=32 / 10ep',   '*', C_BEST,  (-0.65,  1.4)),
+    (6.50, 87.1, 'FT qwen r=32',     '*', C_QWEN,  (0.15,  1.4)),
 ]
 fig, ax = plt.subplots(figsize=(9.5, 5.2))
 for h, f, name, mk, col, (xo, yo) in points:
@@ -677,7 +676,7 @@ ax.set_xlabel('Training wall-clock  (GPU-hours, RTX-3080)')
 ax.set_ylabel('Devel micro-F1 (%)')
 ax.set_title('Cost vs. accuracy — rank-32 LoRA is the cheapest large-gain move')
 ax.set_xlim(-0.6, 9.3)
-ax.set_ylim(25, 70)
+ax.set_ylim(40, 95)
 
 # legend markers
 leg_patches = [
@@ -693,16 +692,16 @@ _save(fig, 'fig13_cost_scatter')
 # 14. fig13_fs_vs_ft_perclass — direct bar-pair: best FS (p03/15) vs best FT (r=32) per class
 # =============================================================================
 # best FS per-class F1 = prompts03/15 (job 415439)
-fs_pc    = {'brand': 67.9, 'drug': 42.3, 'drug_n':  0.0, 'group': 27.7}
-ft_pc    = {'brand': 76.7, 'drug': 64.4, 'drug_n': 37.3, 'group': 60.0}
+fs_pc    = {'brand': 39.8, 'drug': 64.2, 'drug_n':  0.0, 'group': 37.3}
+ft_pc    = {'brand': 92.3, 'drug': 91.6, 'drug_n': 45.2, 'group': 83.5}
 
 fig, ax = plt.subplots(figsize=(9, 4.6))
 x = np.arange(len(CLASSES))
 w = 0.36
 ax.bar(x - w/2, [fs_pc[c] for c in CLASSES], w, color=C_FS, edgecolor='white',
-       label='best few-shot (prompts03 / 15, m-F1 40.9 %)')
+       label='best few-shot (prompts03 / 15, m-F1 54.2 %)')
 ax.bar(x + w/2, [ft_pc[c] for c in CLASSES], w, color=C_BEST, edgecolor='white',
-       label='best fine-tune (Llama r=32 / 10ep, m-F1 63.8 %)')
+       label='best fine-tune (Llama r=32 / 10ep, m-F1 88.0 %)')
 
 for i, c in enumerate(CLASSES):
     fv, tv = fs_pc[c], ft_pc[c]
@@ -716,7 +715,7 @@ for i, c in enumerate(CLASSES):
 ax.set_xticks(x); ax.set_xticklabels(CLASSES)
 ax.set_ylabel('Devel F1 (%)')
 ax.set_title('Few-shot → fine-tune gains per class  (same base model, same 4-bit quant)')
-ax.set_ylim(0, 90)
+ax.set_ylim(0, 115)
 ax.legend(loc='upper right', fontsize=9)
 _save(fig, 'fig13_fs_vs_ft_perclass')
 

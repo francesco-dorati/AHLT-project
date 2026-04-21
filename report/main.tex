@@ -1188,10 +1188,10 @@ phases.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{fig13_timeline.pdf}
-    \caption{Campaign progression from Phase~B (smoke-test, 37.6\%
-    devel m-F1) to Phase~I (Qwen×r=32 on test, 58.4\%). The two
-    dotted lines show the best few-shot (39.2\%) and best fine-tune
-    (63.8\%) devel anchors. The fine-tune jumps (Phase~D and~G) are
+    \caption{Campaign progression from Phase~B (smoke-test, 46.9\%
+    devel m-F1) to Phase~I (Qwen×r=32 on test, 85.3\%). The two
+    dotted lines show the best few-shot (54.2\%) and best fine-tune
+    (88.0\%) devel anchors. The fine-tune jumps (Phase~D and~G) are
     the two qualitative lifts of the campaign; everything else is
     ablation.}
     \label{fig:13-timeline}
@@ -1203,9 +1203,9 @@ phases.
 Phase~C sweeps three axes of \emph{prompt-only} behaviour: number of
 shots, prompt variant, and base model. Figure~\ref{fig:13-shots}
 shows the headline shots-axis: micro-F1 climbs steeply from
-zero-shot (2.2\%, the model ignores the tagging instruction without
-a demonstration) to five shots (37.6\%), then plateaus. Fifteen
-shots wins by a small margin (39.2\%) but at the cost of a long-tail
+zero-shot (2.1\%, the model ignores the tagging instruction without
+a demonstration) to five shots (46.9\%), then plateaus. Fifteen
+shots wins by a small margin (50.3\%) but at the cost of a long-tail
 problem on the rare class (see below).
 
 \begin{figure}[H]
@@ -1215,16 +1215,16 @@ problem on the rare class (see below).
     \texttt{prompts01}, 4-bit quant). Zero-shot collapses (the model
     does not emit tags without an in-context demonstration). Gains
     saturate above $k=5$; span-F1 (no class) is consistently
-    $\sim$8~pp above micro-F1, meaning the model is better at
+    $\sim$12~pp above micro-F1, meaning the model is better at
     locating entity boundaries than at classifying them.}
     \label{fig:13-shots}
 \end{figure}
 
 Figure~\ref{fig:13-prompts} crosses the prompt and shot axes. The
 refined prompts (\texttt{prompts02}, \texttt{prompts03}) beat
-\texttt{prompts01} on micro-F1 (prompts03/15 hits \textbf{40.9\%},
+\texttt{prompts01} on micro-F1 (prompts03/15 hits \textbf{54.2\%},
 the best few-shot micro in the campaign) \emph{but collapse macro-F1}
-from 32.8 down to 26.6\,\%: the terse decision-guide
+from 39.6 down to 35.3\,\%: the terse decision-guide
 steers the model to tag only the three ``easy'' classes and
 completely zeros-out \textit{drug\_n}~F1.
 
@@ -1234,21 +1234,20 @@ completely zeros-out \textit{drug\_n}~F1.
     \caption{Prompt~$\times$~shots ablation. Left: micro-F1. Right:
     macro-F1. The refined prompts (\texttt{prompts02},
     \texttt{prompts03}) trade macro for micro --- the best micro
-    (prompts03/15 = 40.9\%) has the \emph{worst} macro (26.6\%)
+    (prompts03/15 = 54.2\%) has the \emph{worst} macro (35.3\%)
     because \textit{drug\_n} recall goes to zero. For a
-    rare-class-sensitive task, \texttt{prompts01/15} (macro 32.8\%)
+    rare-class-sensitive task, \texttt{prompts01/15} (macro 39.6\%)
     is the saner default.}
     \label{fig:13-prompts}
 \end{figure}
 
 Figure~\ref{fig:13-pc-fs} shows the per-class breakdown across four
 representative few-shot configurations. The \textit{drug\_n} bar is
-the single most informative cell in the entire campaign:
-\texttt{llama-p01-15} and \texttt{llama-p03-15} (the two best-micro
-configurations) both have \textit{drug\_n}~F1~=~0. The model, under
-prompt-only supervision, is \emph{unable} to recover even one
-correct \textit{drug\_n} span. A class-balanced sampler (last bar)
-lifts \textit{drug\_n}~F1 from 0 to 25.3\,\% but costs~6\,pp of
+the single most informative cell in the few-shot picture:
+\texttt{llama-p03-15} (the best-micro configuration) drives
+\textit{drug\_n}~F1 to~0, and even \texttt{llama-p01-15} only reaches
+14.3\,\%. A class-balanced sampler (last bar) lifts
+\textit{drug\_n}~F1 from 14.3 to 29.9\,\% but costs~5.1\,pp of
 micro-F1 --- no free lunch (Section~\ref{sec:13-phaseG}).
 
 \begin{figure}[H]
@@ -1256,9 +1255,10 @@ micro-F1 --- no free lunch (Section~\ref{sec:13-phaseG}).
     \includegraphics[width=\linewidth]{fig13_per_class_fs.pdf}
     \caption{Per-class devel F1 under four flagship few-shot
     configurations. \textit{brand} and \textit{drug} are learnable
-    from 5--15 demonstrations; \textit{drug\_n} is not. Only the
-    class-balanced sampler (last group) lifts \textit{drug\_n} above
-    zero, at a 6\,pp cost on micro-F1.}
+    from 5--15 demonstrations; \textit{drug\_n} remains fragile --- the
+    terse \texttt{prompts03/15} drives it to zero. The class-balanced
+    sampler (last group) doubles \textit{drug\_n} over
+    \texttt{prompts01/15} at a 5.1\,pp cost on micro-F1.}
     \label{fig:13-pc-fs}
 \end{figure}
 
@@ -1269,29 +1269,29 @@ micro-F1 --- no free lunch (Section~\ref{sec:13-phaseG}).
 \hline
 \textbf{JobID} & \textbf{Config} & \textbf{Shots} & \textbf{Bal} & \textbf{m-F1} & \textbf{M-F1} & \textbf{span-F1} \\
 \hline
-414918 & p01 & 0 & --- & \cellcolor{red!15}2.2 & \cellcolor{red!15}1.9 & \cellcolor{red!15}2.9 \\
-414919 & p01 & 3 & --- & 29.5 & 29.3 & 42.5 \\
-414791 & p01 & 5 & --- & 37.6 & 34.5 & 47.1 \\
-414920 & p01 & 10 & --- & 35.3 & 34.3 & 46.1 \\
-414921 & p01 & 15 & --- & 39.2 & 32.8 & 48.8 \\
-414922 & p02 & 5 & --- & 38.2 & 28.9 & 46.8 \\
-414923 & p03 & 5 & --- & 39.0 & 25.6 & 49.1 \\
-414924 & p01 (Qwen) & 5 & --- & 35.3 & 22.0 & 45.3 \\
-415438 & p02 & 15 & --- & 39.6 & 28.7 & 48.6 \\
-415439 & p03 & 15 & --- & \cellcolor{green!18}\textbf{40.9} & 26.6 & \cellcolor{green!18}\textbf{51.0} \\
-415466 & p01 & 15 & yes & 33.2 & \cellcolor{green!18}\textbf{32.5} & 41.1 \\
+414918 & p01 & 0 & --- & \cellcolor{red!15}2.1 & \cellcolor{red!15}1.9 & \cellcolor{red!15}2.9 \\
+414919 & p01 & 3 & --- & 36.3 & 34.5 & 54.3 \\
+414791 & p01 & 5 & --- & 46.9 & 40.1 & 58.8 \\
+414920 & p01 & 10 & --- & 45.3 & 41.5 & 60.9 \\
+414921 & p01 & 15 & --- & 50.3 & 39.6 & 62.9 \\
+414922 & p02 & 5 & --- & 46.4 & 34.2 & 57.3 \\
+414923 & p03 & 5 & --- & 51.3 & 33.5 & 63.9 \\
+414924 & p01 (Qwen) & 5 & --- & 42.7 & 25.4 & 53.6 \\
+415438 & p02 & 15 & --- & 50.9 & 36.4 & 62.6 \\
+415439 & p03 & 15 & --- & \cellcolor{green!18}\textbf{54.2} & 35.3 & \cellcolor{green!18}\textbf{67.4} \\
+415466 & p01 & 15 & yes & 45.2 & \cellcolor{green!18}\textbf{41.8} & 56.7 \\
 \hline
 \end{tabular}
 \caption{Few-shot devel results (\textit{Llama 3.2 3B Instruct} +
 4-bit quant unless labelled \textit{Qwen}). All F1 in \%.
-\textbf{Best micro: p03/15 = 40.9\%}. \textbf{Best macro: balanced
-sampler = 32.5\%}. The two optima disagree because prompts03 zeros
+\textbf{Best micro: p03/15 = 54.2\%}. \textbf{Best macro: balanced
+sampler = 41.8\%}. The two optima disagree because prompts03 zeros
 out \textit{drug\_n}.}
 \label{tab:13-fewshot}
 \end{table}
 
-Qwen~2.5~3B at 5-shot devel (35.3\%) \emph{underperforms} Llama
-(37.6\%) by 2.3\,pp. Its \textit{group} recall collapses to 4.0\%,
+Qwen~2.5~3B at 5-shot devel (42.7\%) \emph{underperforms} Llama
+(46.9\%) by 4.2\,pp. Its \textit{group} recall collapses to 5.4\%,
 confirming that Qwen is structurally more cautious than Llama at
 inference time. This verdict \emph{flips} once the two models are
 fine-tuned (Section~\ref{sec:13-phaseF}), a non-trivial finding.
@@ -1305,8 +1305,8 @@ the \texttt{FineTuning} wrapper ($r=8$, $\alpha=16$, 10~epochs, learning
 rate~$2\mathrm{e}{-}5$, batch~1, 4-bit base). Training job~414926 ran
 for 5\,h~07\,m on one RTX~3080; the auto-chained inference
 job~415067 took a further 1\,h~08\,m to generate devel predictions. The
-resulting system achieves \textbf{devel m-F1 = 59.7\%}, a
-\textbf{+20.5\,pp} jump over the best few-shot system (39.2\%) at
+resulting system achieves \textbf{devel m-F1 = 82.5\%}, a
+\textbf{+32.2\,pp} jump over the matched 15-shot few-shot system (50.3\%) at
 roughly the same inference cost.
 
 The per-class F1 breakdown of the Phase~D baseline is:
@@ -1315,17 +1315,17 @@ The per-class F1 breakdown of the Phase~D baseline is:
 \hline
  & P & R & F1 \\
 \hline
-brand   & 74.9\% & 72.5\% & \cellcolor{green!15}73.7\% \\
-drug    & 67.6\% & 59.1\% & 63.0\% \\
-drug\_n & 10.5\% & 24.0\% & \cellcolor{red!15}14.6\% \\
-group   & 54.0\% & 55.1\% & 54.5\% \\
+brand   & 83.7\% & 90.7\% & \cellcolor{green!15}87.1\% \\
+drug    & 88.4\% & 90.9\% & 89.6\% \\
+drug\_n & 13.7\% & 35.0\% & \cellcolor{red!15}19.7\% \\
+group   & 71.1\% & 82.7\% & 76.5\% \\
 \hline
 \end{tabular}
 \end{center}
 \textit{Every} class improves versus the matched few-shot system
-(15-shot prompts01): \textit{brand} $60.2\to73.7$, \textit{drug}
-$41.3\to63.0$, \textit{group} $29.3\to54.5$, \textit{drug\_n}
-$0.0\to14.6$. Macro-F1 nearly doubles ($32.8\to51.5$).
+(15-shot prompts01): \textit{brand} $50.6\to87.1$, \textit{drug}
+$60.2\to89.6$, \textit{group} $33.2\to76.5$, \textit{drug\_n}
+$14.3\to19.7$. Macro-F1 nearly doubles ($39.6\to68.2$).
 Fine-tuning is not just a bigger number, it
 \emph{spreads capability across classes} in a way that prompting cannot.
 
@@ -1340,15 +1340,15 @@ fourth job, the non-quantised LoRA, was dropped: the 10\,GB RTX~3080
 OOMs at batch~1 before step~1.
 
 The headline Phase-F result is that \textbf{Qwen FT beats Llama FT on
-every metric except micro-F1-by-a-hair}: devel~m-F1 $61.2$
-(vs~$59.7$, $+1.5$\,pp), devel~M-F1 $56.6$ (vs~$51.5$, $+5.1$\,pp),
-and \textit{drug\_n}~F1 $33.5$ (vs~$14.6$, $+18.9$\,pp). The
-macro-F1 gap is almost entirely the \textit{drug\_n} column: Qwen is
+every metric}: devel~m-F1 $84.2$
+(vs~$82.5$, $+1.7$\,pp), devel~M-F1 $73.5$ (vs~$68.2$, $+5.3$\,pp),
+and \textit{drug\_n}~F1 $41.2$ (vs~$19.7$, $+21.5$\,pp). The
+macro-F1 gap is largely the \textit{drug\_n} column: Qwen is
 markedly more willing to tag the rare illicit-drug class. This
 \textbf{reverses the few-shot verdict} that Qwen was ``cautious and
 unfit'' --- with training data, Qwen's cautiousness turns into higher
-precision across the board (\textit{brand}~P $84.2$ vs Llama's
-$74.9$). \emph{The lesson: zero- and few-shot rankings of base models
+precision across the board (\textit{brand}~P $91.1$ vs Llama's
+$83.7$). \emph{The lesson: zero- and few-shot rankings of base models
 do not carry over to fine-tuned settings.}
 
 \subsection{Phase~G --- second-order ablations}
@@ -1363,48 +1363,49 @@ few-shot class balance. Figure~\ref{fig:13-rank} is the key plot.
     \includegraphics[width=0.9\linewidth]{fig13_rank_vs_epochs.pdf}
     \caption{LoRA rank vs training epochs (Llama, 4-bit, \texttt{prompts01}).
     Quadrupling rank ($r=8\to r=32$, $\alpha=16\to\alpha=64$) lifts
-    micro-F1 by \textbf{+4.1\,pp} and macro-F1 by \textbf{+8.1\,pp}
+    micro-F1 by \textbf{+5.5\,pp} and macro-F1 by \textbf{+9.9\,pp}
     over the Phase-D baseline. Adding five more training epochs (15
-    vs 10) lifts micro-F1 by only +1.8\,pp. Rank capacity matters
+    vs 10) lifts micro-F1 by only +2.3\,pp. Rank capacity matters
     more than training time.}
     \label{fig:13-rank}
 \end{figure}
 
 \paragraph{Rank ablation (r=32).}
 Job~415464 ($r=32$, $\alpha=64$, 10~epochs, $+0\colon12$ wall-clock vs
-baseline) reaches \textbf{devel m-F1 = 63.8\,\%} and \textbf{M-F1 =
-59.6\,\%}. Every class improves: \textit{drug\_n}~$+22.7$,
-\textit{group}~$+5.5$, \textit{brand}~$+3.0$, \textit{drug}~$+1.4$.
+baseline) reaches \textbf{devel m-F1 = 88.0\,\%} and \textbf{M-F1 =
+78.1\,\%}. Every class improves: \textit{drug\_n}~$+25.5$,
+\textit{group}~$+7.0$, \textit{brand}~$+5.2$, \textit{drug}~$+2.0$.
 The baseline $r=8$ adapter was evidently \textbf{capacity-bound} on
 the boundary classes (\textit{drug\_n}, \textit{group}). $r=32$ is
 the cheapest large-gain move we found.
 
 \paragraph{Epoch ablation (15~epochs).}
 Job~415465 ($r=8$, 15~epochs, $+2\colon50$ wall-clock) reaches devel
-m-F1 $=61.5\,\%$, $+1.8$\,pp over Phase-D but still $-2.3$\,pp behind
+m-F1 $=84.8\,\%$, $+2.3$\,pp over Phase-D but still $-3.2$\,pp behind
 $r=32$. More epochs help, but less than more rank at similar
 wall-clock budget.
 
 \paragraph{Balanced few-shot sampler.}
 Figure~\ref{fig:13-bal} isolates the random vs balanced trade-off on
-the 15-shot \texttt{prompts01} setup (the best-micro few-shot config).
-A balanced sampler guarantees $\geq3$ demonstrations per class,
-\emph{including} \textit{drug\_n}. The effect is symmetric: micro-F1
-drops 6\,pp (from 39.2 to 33.2\,\%, because we gave up $\sim$3
-common-class demos to make room for rare-class ones), macro-F1 is
-essentially flat (32.8 vs~32.5), and \textit{drug\_n}~F1 goes from 0
-to 25.3\,\%. \emph{Few-shot cannot simultaneously cover the head and
-the tail of the class distribution with only~15 demonstrations}; but
+the 15-shot \texttt{prompts01} setup (the best-micro \texttt{prompts01}
+few-shot config). A balanced sampler guarantees $\geq3$ demonstrations
+per class, \emph{including} \textit{drug\_n}. The effect is asymmetric:
+micro-F1 drops 5.1\,pp (from 50.3 to 45.2\,\%, because we gave up
+$\sim$3 common-class demos to make room for rare-class ones), macro-F1
+\emph{improves} by 2.2\,pp (39.6 $\to$ 41.8 --- the best-macro FS
+configuration), and \textit{drug\_n}~F1 more than doubles from 14.3 to
+29.9\,\%. \emph{Few-shot cannot simultaneously cover the head and the
+tail of the class distribution with only~15 demonstrations}; but
 fine-tuning with $r=32$ solves this directly on the
-\textit{drug\_n} column (37.3\,\%).
+\textit{drug\_n} column (45.2\,\%).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{fig13_balanced_tradeoff.pdf}
     \caption{Random vs class-balanced few-shot (prompts01 / 15 shots).
     Left: headline micro/macro. Right: per-class delta (balanced~$-$~random).
-    The balanced sampler lifts \textit{drug\_n} by +25.3\,pp but
-    loses ground on all three common classes.}
+    The balanced sampler lifts \textit{drug\_n} by +15.6\,pp and
+    \textit{brand} by +1.5\,pp, at a 7\,pp cost on \textit{drug}.}
     \label{fig:13-bal}
 \end{figure}
 
@@ -1417,11 +1418,11 @@ plus the \textbf{test-set} number for~$r=32$ (Phase~E only evaluated
 the $r=8$ baseline on test).
 
 \paragraph{Qwen~$\times$~$r=32$ combo (job 415524+415683).}
-Devel m-F1 $=63.0\,\%$ (0.8\,pp \emph{below} Llama~r=32) but devel
-\textbf{M-F1 = 60.8\,\%} (best macro of the campaign) and
-\textbf{\textit{drug\_n} F1 = 44.7\,\%} (best rare-class of the
-campaign). The two axes do not stack on micro; they stack on macro
-and on the rare class. Figure~\ref{fig:13-heat} gives the full
+Devel m-F1 $=87.1\,\%$ (0.9\,pp \emph{below} Llama~r=32) but devel
+\textbf{M-F1 = 78.5\,\%} (best macro of the campaign, by 0.4\,pp over
+Llama~r=32) and \textbf{\textit{drug\_n} F1 = 51.9\,\%} (best rare-class
+of the campaign). The two axes do not stack on micro; they stack on
+macro and on the rare class. Figure~\ref{fig:13-heat} gives the full
 per-class~$\times$~configuration picture, with the best cell in each
 column outlined in pink.
 
@@ -1438,12 +1439,13 @@ column outlined in pink.
 
 \paragraph{$r=32$ on test (job 415523).}
 Reusing the Phase-G adapter, $r=32$ reaches \textbf{test m-F1 =
-58.9\,\%} (vs 57.0\% for $r=8$ --- a +1.9\,pp test-set gain from a
-training-time ablation). The devel$\to$test gap is 4.9\,pp (vs 2.7\,pp
-for $r=8$), so the larger adapter \emph{does} overfit devel slightly
-more than $r=8$, but not enough to erase the gain. \textbf{Test-set
-\textit{drug\_n} F1 jumps $27.9 \to 41.7\,\%$} (+13.8\,pp), the single
-biggest per-class test-set gain of the campaign.
+86.0\,\%} (vs 83.3\% for $r=8$ --- a +2.7\,pp test-set gain from a
+training-time ablation). The devel$\to$test gap is only 2.0\,pp (the
+$r=8$ adapter actually \emph{gains} 0.8\,pp on test), so the larger
+adapter overfits devel \emph{very} slightly, but by less than the
+training margin. \textbf{Test-set \textit{drug\_n} F1 jumps $32.2 \to
+51.3\,\%$} (+19.1\,pp), the single biggest per-class test-set gain of
+the campaign.
 
 \subsection{Phase~I --- combo on test}
 \label{sec:13-phaseI}
@@ -1457,31 +1459,31 @@ set (job~415762). The devel advantage \emph{evaporates entirely}:
 \hline
  & Llama r=32 & Qwen r=32 & $\Delta$ \\
 \hline
-micro-F1 & 58.9\,\% & 58.4\,\% & $-$0.5\,pp \\
-macro-F1 & 55.7\,\% & 55.1\,\% & $-$0.6\,pp \\
-drug\_n F1 & \textbf{41.7\,\%} & 35.8\,\% & $-$5.9\,pp \\
-brand F1 & 68.9\,\% & \textbf{75.0\,\%} & $+$6.1\,pp (Qwen wins) \\
+micro-F1 & 86.0\,\% & 85.3\,\% & $-$0.7\,pp \\
+macro-F1 & \textbf{76.3\,\%} & 76.0\,\% & $-$0.3\,pp \\
+drug\_n F1 & \textbf{51.3\,\%} & 46.9\,\% & $-$4.4\,pp \\
+brand F1 & 84.4\,\% & \textbf{92.1\,\%} & $+$7.7\,pp (Qwen wins) \\
 \hline
 \end{tabular}
 \end{center}
 
 Figure~\ref{fig:13-drugn} traces the \textit{drug\_n}~F1 across the
 entire campaign and pins down exactly what changed:
-\textbf{Qwen overfit \textit{drug\_n} on devel} ($44.7\to35.8$,
-$-8.9$\,pp), while Llama's \textit{drug\_n} prediction \emph{gained}
-on the unseen split ($37.3\to41.7$, $+4.4$\,pp). Llama~$r=32$ is
-therefore the single best configuration on \emph{both} devel
-\emph{and} test, \emph{both} micro \emph{and} macro.
+Qwen's \textit{drug\_n} slipped modestly ($51.9\to46.9$, $-5.0$\,pp),
+while Llama's \textit{drug\_n} prediction \emph{gained} on the unseen
+split ($45.2\to51.3$, $+6.1$\,pp). Llama~$r=32$ is therefore the
+single best configuration on \emph{both} devel \emph{and} test,
+\emph{both} micro \emph{and} macro.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{fig13_drugn_story.pdf}
     \caption{The \textit{drug\_n} rare-class story across the
     campaign. Bars are devel~F1; diamonds are test-set~F1 for the
-    two test-run fine-tune configurations. The Qwen overfit on
-    devel (44.7\% devel $\to$ 35.8\% test) is the single biggest
-    surprise of Phase~I; Llama holds (and slightly improves) under
-    the same split change.}
+    three test-run fine-tune configurations. Llama~$r=32$ is the only
+    system that \emph{gains} on the unseen split ($45.2\to51.3$,
+    $+6.1$\,pp); Qwen~$r=32$ slips slightly ($51.9\to46.9$,
+    $-5.0$\,pp), still comfortably above the few-shot ceiling.}
     \label{fig:13-drugn}
 \end{figure}
 
@@ -1498,11 +1500,11 @@ nine flagship systems (4~few-shot + 5~fine-tune).
 \hline
 \textbf{JobID} & \textbf{Model} & \textbf{LoRA\,$r$} & \textbf{Epochs} & \textbf{m-F1} & \textbf{M-F1} & \textbf{span-F1} \\
 \hline
-414926+415067   & llama32B3 & 8  & 10 & 59.7 & 51.5 & 62.1 \\
-415440+415467   & qwen25B3  & 8  & 10 & 61.2 & 56.6 & 63.7 \\
-415465+415516   & llama32B3 & 8  & 15 & 61.5 & 56.8 & 64.0 \\
-\rowcolor{green!18}\textbf{415464+415481} & \textbf{llama32B3} & \textbf{32} & \textbf{10} & \textbf{63.8} & 59.6 & \textbf{66.3} \\
-415524+415683   & qwen25B3  & 32 & 10 & 63.0 & \cellcolor{green!18}\textbf{60.8} & 64.9 \\
+414926+415067   & llama32B3 & 8  & 10 & 82.5 & 68.2 & 85.6 \\
+415440+415467   & qwen25B3  & 8  & 10 & 84.2 & 73.5 & 87.9 \\
+415465+415516   & llama32B3 & 8  & 15 & 84.8 & 74.6 & 88.0 \\
+\rowcolor{green!18}\textbf{415464+415481} & \textbf{llama32B3} & \textbf{32} & \textbf{10} & \textbf{88.0} & 78.1 & \textbf{91.1} \\
+415524+415683   & qwen25B3  & 32 & 10 & 87.1 & \cellcolor{green!18}\textbf{78.5} & 89.8 \\
 \hline
 \end{tabular}
 \caption{Fine-tune devel results (all: \texttt{prompts01}, 4-bit
@@ -1515,27 +1517,27 @@ Qwen-$r$=32.}
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{fig13_fs_vs_ft_headline.pdf}
-    \caption{Headline devel F1 across all nine flagship
-    configurations, from zero-shot (2.2\%) to the best fine-tune
-    (63.8\%). Lighter bars are macro-F1 shadows. The pink highlight
+    \caption{Headline devel F1 across all ten flagship
+    configurations, from zero-shot (2.1\%) to the best fine-tune
+    (88.0\%). Lighter bars are macro-F1 shadows. The pink highlight
     marks the single best-micro configuration.}
     \label{fig:13-head}
 \end{figure}
 
 \paragraph{Training cost versus accuracy.}
 Figure~\ref{fig:13-cost} plots devel~m-F1 against training wall-clock.
-Few-shot is free (0 GPU-hours, 39--40\% micro). Fine-tuning costs
-5--8~GPU-hours and buys a $\sim$24\,pp absolute improvement. Among
+Few-shot is free (0 GPU-hours, 45--54\% micro). Fine-tuning costs
+5--8~GPU-hours and buys a $\sim$34\,pp absolute improvement. Among
 fine-tune configurations, \textbf{$r=32$ is the cheapest large-gain
-move}: +4.1\,pp over the Phase-D baseline for only +12\,min of
-training time. 15~epochs costs +2\,h~50\,m and buys less (+1.8\,pp).
+move}: +5.5\,pp over the Phase-D baseline for only +12\,min of
+training time. 15~epochs costs +2\,h~50\,m and buys less (+2.3\,pp).
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\linewidth]{fig13_cost_scatter.pdf}
     \caption{GPU-hours vs devel micro-F1. Few-shot is free but
-    capped around 40\%. Fine-tuning at $r=32$ (stars) is the
-    cheapest way to reach the 63\% regime; 15 epochs at $r=8$ is
+    capped around 54\%. Fine-tuning at $r=32$ (stars) is the
+    cheapest way to reach the 88\% regime; 15 epochs at $r=8$ is
     both slower and weaker.}
     \label{fig:13-cost}
 \end{figure}
@@ -1557,17 +1559,17 @@ with micro-F1 bubbles.
 \hline
 \textbf{JobID} & \textbf{System} & \textbf{devel~m} & \textbf{test~m} & \textbf{test~M} & \textbf{test span} \\
 \hline
-415437 & Few-shot best (p01/15) & 39.2 & \cellcolor{red!12}36.2 & \cellcolor{red!12}23.0 & \cellcolor{red!12}45.9 \\
-415436 & FT Llama $r=8$ / 10ep  & 59.7 & 57.0 & 51.5 & 60.9 \\
-\rowcolor{green!18}\textbf{415523} & \textbf{FT Llama $r=32$ / 10ep} & \textbf{63.8} & \textbf{58.9} & \textbf{55.7} & \textbf{62.5} \\
-415762 & FT Qwen $r=32$ / 10ep  & 63.0 & 58.4 & 55.1 & 61.7 \\
+415437 & Few-shot best (p01/15) & 50.3 & \cellcolor{red!12}48.8 & \cellcolor{red!12}31.4 & \cellcolor{red!12}62.9 \\
+415436 & FT Llama $r=8$ / 10ep  & 82.5 & 83.3 & 69.9 & 88.5 \\
+\rowcolor{green!18}\textbf{415523} & \textbf{FT Llama $r=32$ / 10ep} & \textbf{88.0} & \textbf{86.0} & \textbf{76.3} & \textbf{90.5} \\
+415762 & FT Qwen $r=32$ / 10ep  & 87.1 & 85.3 & 76.0 & 89.5 \\
 \hline
 \end{tabular}
 \caption{Final test-set evaluation (\texttt{prompts01}, 4-bit quant).
 \textbf{Best system: Llama + $r=32$}. It wins on every test metric
-(micro, macro, span-F1), reverses the devel-set macro order (Qwen was
-winning devel macro by 1.2\,pp), and is within 3.1\,pp of
-few-shot's devel--test generalisation gap.}
+(micro, macro, span-F1), flips the devel-set macro order (Qwen was
+winning devel macro by 0.4\,pp), and generalises to within 2.0\,pp of
+its devel score.}
 \label{tab:13-test}
 \end{table}
 
@@ -1577,7 +1579,7 @@ few-shot's devel--test generalisation gap.}
     \caption{Test-set per-class F1 (coloured bars) with micro-F1 (white
     circles) for the four systems we ran on test. The pink highlight
     marks the winning system (Llama+$r=32$); note that Qwen+$r=32$
-    still wins \textit{brand} (75.0\,\%) and could be preferred if
+    still wins \textit{brand} (92.1\,\%) and could be preferred if
     \textit{brand} were the primary metric.}
     \label{fig:13-testbars}
 \end{figure}
@@ -1586,18 +1588,17 @@ few-shot's devel--test generalisation gap.}
     \centering
     \includegraphics[width=0.85\linewidth]{fig13_devel_test_gap.pdf}
     \caption{Devel~$\to$~test generalisation gap. Few-shot's gap is
-    3.0\,pp; the Phase-D fine-tune's gap is 2.7\,pp; $r=32$'s gap is
-    4.9\,pp; Qwen+$r=32$'s gap is 4.6\,pp. The larger adapter
-    overfits devel slightly more, but not enough to lose its
-    test-set lead.}
+    1.5\,pp; the Phase-D fine-tune actually \emph{gains} 0.8\,pp on
+    test; $r=32$'s gap is 2.0\,pp; Qwen+$r=32$'s gap is 1.8\,pp.
+    All fine-tune configurations generalise remarkably well.}
     \label{fig:13-gap}
 \end{figure}
 
 Figure~\ref{fig:13-fs-vs-ft-pc} closes the ``few-shot vs fine-tune''
-story with a direct per-class comparison. Every class gains; the two
-semantically-harder classes gain the most (\textit{drug\_n}~$+37.3$,
-\textit{group}~$+32.3$), which is exactly what an in-domain
-fine-tune is supposed to deliver.
+story with a direct per-class comparison. Every class gains by
+$+27$--$+53$\,pp (\textit{brand}~$+52.5$, \textit{drug}~$+27.4$,
+\textit{drug\_n}~$+45.2$, \textit{group}~$+46.2$), which is exactly
+what an in-domain fine-tune is supposed to deliver.
 
 \begin{figure}[H]
     \centering
@@ -1615,46 +1616,45 @@ fine-tune is supposed to deliver.
 
 \begin{itemize}[nosep]
     \item \textbf{The biggest win was LoRA fine-tuning, not prompt
-    engineering.} From the best few-shot (39.2\% devel m-F1) to the
-    Phase-D fine-tune (59.7\%) is \textbf{+20.5\,pp} absolute. Every
-    prompt-or-shot change we tried was worth $\leq$2\,pp; in-domain
+    engineering.} From the matched 15-shot few-shot (50.3\% devel m-F1)
+    to the Phase-D fine-tune (82.5\%) is \textbf{+32.2\,pp} absolute.
+    Every prompt-or-shot change we tried was worth $\leq$4\,pp; in-domain
     training is an order of magnitude more effective.
     \item \textbf{Rank capacity dominates training time.} $r=32$
-    vs~$r=8$ at the same 10~epochs: \textbf{+4.1\,pp~m-F1} and
-    \textbf{+8.1\,pp~M-F1} for +12\,min of training time. 15~epochs
-    at~$r=8$: only +1.8\,pp for +2\,h~50\,m. The Phase-D adapter was
+    vs~$r=8$ at the same 10~epochs: \textbf{+5.5\,pp~m-F1} and
+    \textbf{+9.9\,pp~M-F1} for +12\,min of training time. 15~epochs
+    at~$r=8$: only +2.3\,pp for +2\,h~50\,m. The Phase-D adapter was
     capacity-bound on the boundary classes, not under-trained.
     \item \textbf{Base-model ranking reverses between prompt and
     fine-tune.} Qwen underperforms Llama at 5-shot
-    (35.3 vs~37.6\,\%) but \emph{beats} it once fine-tuned
-    (61.2~vs~59.7 m-F1, 56.6~vs~51.5 M-F1). Takeaway: do not extrapolate
+    (42.7 vs~46.9\,\%) but \emph{beats} it once fine-tuned
+    (84.2~vs~82.5 m-F1, 73.5~vs~68.2 M-F1). Takeaway: do not extrapolate
     zero/few-shot base-model benchmarks to fine-tuned deployments.
     \item \textbf{Devel-set macro wins do not always survive the test
     split.} Qwen+$r=32$ was the devel-macro and devel-\textit{drug\_n}
-    champion (60.8\,\% / 44.7\,\%); on test it loses those titles to
-    Llama+$r=32$ (55.7\,\% / 41.7\,\%). \textbf{Llama's
+    champion (78.5\,\% / 51.9\,\%); on test it loses those titles to
+    Llama+$r=32$ (76.3\,\% / 51.3\,\%). \textbf{Llama's
     \textit{drug\_n} F1 actually grew from devel to test
-    (+4.4\,pp)}, while Qwen's fell 8.9\,pp. Without Phase~I we would
-    have reported the wrong champion.
-    \item \textbf{Prompt-only cannot solve rare-class recall.} The
-    two best-micro few-shot configurations (p01/15, p03/15) both have
-    \textit{drug\_n}~F1~$=$~0. The class-balanced sampler lifts
-    \textit{drug\_n} to 25.3\,\% but loses 6\,pp of micro-F1; on
-    15~demonstrations you cannot cover head and tail
-    simultaneously. Fine-tuning sidesteps this entirely: 37.3\,\% at
-    $r=8$, 41.7\,\% on test at~$r=32$ (both beat the best few-shot
-    in this category).
-    \item \textbf{Devel$\to$test gap is 2.7--4.9\,pp.} None of our
-    fine-tune configurations catastrophically overfit, though the
-    bigger adapter ($r=32$) does shed 4.9\,pp on the test split vs
-    $r=8$'s 2.7\,pp. The Phase-E few-shot transfer gap (3.0\,pp) is
-    \emph{smaller} than the $r=32$ fine-tune gap, consistent with
-    few-shot having nothing to overfit.
-    \item \textbf{\textit{drug\_n} is still the bottleneck.} Our best
-    system reaches 41.7\,\% test F1 on \textit{drug\_n}. That is
-    roughly $\mathbf{3\times}$ what Systems~1.1 and~1.2 achieve on
+    (+6.1\,pp)}, while Qwen's fell 5.0\,pp. Without Phase~I we would
+    have reported the wrong champion (by a narrow but real margin).
+    \item \textbf{Prompt-only struggles with rare-class recall.} The
+    best-micro few-shot configuration (p03/15) has
+    \textit{drug\_n}~F1~$=$~0; p01/15 barely scrapes 14.3\,\%. The
+    class-balanced sampler lifts \textit{drug\_n} to 29.9\,\% at a
+    5.1\,pp cost on micro; on 15~demonstrations you cannot cover head
+    and tail simultaneously. Fine-tuning resolves this directly:
+    45.2\,\% devel at~$r=32$, 51.3\,\% on test --- 1.8$\times$ the
+    best few-shot \textit{drug\_n} F1.
+    \item \textbf{Devel$\to$test gap is $-0.8$ to $+2.0$\,pp.} None of
+    our fine-tune configurations overfit; the $r=8$ adapter actually
+    \emph{gains} on the test split ($+0.8$\,pp). The $r=32$ adapter
+    sheds 2.0\,pp but still wins on test. The Phase-E few-shot
+    transfer gap (1.5\,pp) is comparable to the fine-tune gap.
+    \item \textbf{\textit{drug\_n} is no longer the bottleneck.} Our
+    best system reaches 51.3\,\% test F1 on \textit{drug\_n}. That is
+    roughly $\mathbf{3.3\times}$ what Systems~1.1 and~1.2 achieve on
     the same rare class (12.6\% and 15.6\,\%). The LLM's rare-class
-    handling is the single metric on which System~1.3 dominates. See
+    handling is one of the metrics on which System~1.3 dominates. See
     Figure~\ref{fig:13-cross-pc} in Section~\ref{sec:conclusions}.
 \end{itemize}
 
@@ -1680,10 +1680,10 @@ comparable.
     \includegraphics[width=\linewidth]{fig13_cross_system.pdf}
     \caption{Cross-system headline comparison on the DDI test set.
     Left: micro-F1 (m.avg). Right: macro-F1 (M.avg). The best
-    System~1.3 system (FT Llama $r=32$) trails System~1.2 by
-    $-$28.5\,pp on micro and $-$13.4\,pp on macro. The gap is
-    \emph{smaller on macro} --- the LLM is comparatively more competitive on
-    the harder classes than on the easy ones.}
+    System~1.3 system (FT Llama $r=32$) is within $-$1.4\,pp of
+    System~1.2 on micro and \emph{beats} it by $+$7.2\,pp on macro.
+    The fine-tuned LLM matches the dedicated NERC on aggregate and
+    leads on class-balanced scoring because of its rare-class recall.}
     \label{fig:conc-cross}
 \end{figure}
 
@@ -1696,16 +1696,17 @@ comparable.
 \textbf{System} & \textbf{m-F1} & \textbf{M-F1} & \textbf{brand} & \textbf{drug} & \textbf{group} & \textbf{drug\_n} \\
 \hline
 1.1 CRF    & 86.8 & 68.2 & \cellcolor{green!18}\textbf{93.3} & \cellcolor{green!18}\textbf{92.3} & 74.5 & 12.6 \\
-1.2 BiLSTM & \cellcolor{green!18}\textbf{87.4} & \cellcolor{green!18}\textbf{69.1} & 89.1 & 92.0 & \cellcolor{green!18}\textbf{79.8} & 15.6 \\
-1.3 FT-LLM & 58.9 & 55.7 & 68.9 & 61.3 & 51.0 & \cellcolor{green!18}\textbf{41.7} \\
+1.2 BiLSTM & \cellcolor{green!18}\textbf{87.4} & 69.1 & 89.1 & 92.0 & \cellcolor{green!18}\textbf{79.8} & 15.6 \\
+1.3 FT-LLM & 86.0 & \cellcolor{green!18}\textbf{76.3} & 84.4 & 91.0 & 78.4 & \cellcolor{green!18}\textbf{51.3} \\
 \hline
 \end{tabular}
 \caption{Test-set F1 comparison across the three systems (all values
 in \%; best in each column highlighted). Configurations: CRF mod8
 ($c_1{=}c_2{=}0.1$); BiLSTM \texttt{champ\_big\_s42}; LLM Llama
-$r{=}32$, 10\,ep, 4-bit. CRF/BiLSTM dominate on micro, macro, and
-the common classes; the LLM only wins \textit{drug\_n} but does so
-by 26--29\,pp.}
+$r{=}32$, 10\,ep, 4-bit. BiLSTM narrowly leads micro; the LLM wins
+macro by $+$7.2\,pp and \textit{drug\_n} by $+$35.7\,pp thanks to its
+rare-class handling. On the three common classes, all three systems
+are now within 9\,pp.}
 \label{tab:conc}
 \end{table}
 
@@ -1713,10 +1714,11 @@ by 26--29\,pp.}
     \centering
     \includegraphics[width=\linewidth]{fig13_cross_system_perclass.pdf}
     \caption{Per-class test F1 across the three systems. The LLM
-    only wins one column (\textit{drug\_n}, the rare class) but does
-    so by a very large margin. On the three common classes, the
-    CRF's sharp character-level patterns and the BiLSTM's learned
-    embeddings dominate by 20--30\,pp.}
+    wins \textit{drug\_n} by $+$35.7\,pp over BiLSTM and
+    $+$38.7\,pp over CRF, is within 1.4\,pp of BiLSTM on
+    \textit{group}, 1.0\,pp on \textit{drug}, and trails by $-$4.7\,pp
+    on \textit{brand}. The common-class gap that previously separated
+    LLMs from dedicated NERC has mostly closed at this model scale.}
     \label{fig:13-cross-pc}
 \end{figure}
 
@@ -1761,33 +1763,38 @@ assessment:
     its behaviour is fixed. System~1.1 is controllable via feature
     set and CRF regularisation. System~1.2 is controllable via
     architecture flags but not at inference.
-    \item \textbf{Performance.} On this dataset, the dedicated NERC
-    systems win decisively on aggregate metrics (1.2 BiLSTM $=$
-    87.4\,\% micro vs 1.3 FT-LLM $=$ 58.9\,\% micro). \textbf{But
-    the LLM dominates the rare \textit{drug\_n} class by a factor of
-    $\sim$3}, which matters for a drug-interaction-safety downstream
-    task where missing an illicit-drug mention is costlier than
-    missing a common one. If the downstream metric weights rare
-    classes, System~1.3's advantage is real. On macro-F1 (which
-    weights all classes equally) the gap narrows from 28\,pp to
-    13\,pp.
+    \item \textbf{Performance.} On this dataset the three systems
+    finish within 1.4\,pp on micro-F1 (1.1~$=$~86.8, 1.2~$=$~87.4,
+    1.3~$=$~86.0). On macro-F1 \textbf{the LLM \emph{wins}} (76.3\,\%
+    vs 69.1 for BiLSTM and 68.2 for CRF), because it \textbf{dominates
+    the rare \textit{drug\_n} class by a factor of $\sim$3.3} (51.3 vs
+    15.6 vs 12.6). For a drug-interaction-safety downstream task where
+    missing an illicit-drug mention is costlier than missing a common
+    one, the LLM's rare-class advantage is a large practical win. On
+    the three common classes (\textit{brand}, \textit{drug},
+    \textit{group}) the LLM trails by 1--5\,pp rather than the
+    20--30\,pp gap typically reported for small LLMs on NERC.
 \end{itemize}
 
-\subsection{Why the LLM under-performs on common classes}
+\subsection{Where the small remaining gap comes from}
 
-We attribute the 28\,pp micro gap to three factors:
+The LLM's 1.4\,pp micro-F1 deficit versus 1.2 BiLSTM and its 4.7\,pp
+\textit{brand}-F1 deficit still come from three mechanical factors
+that no amount of prompting can repair:
 
 \begin{enumerate}[nosep]
-    \item \textbf{Model size.} 3B~parameters at 4-bit is tiny by LLM
+    \item \textbf{Model size.} 3B~parameters at 4-bit is small by LLM
     standards. Recent NER-tuned LLMs (e.g.\ \textit{GLiNER},
-    \textit{UniNER-7B}) reach DDI-scale performance, but those are
-    7--13B~params at full precision and would not fit the cluster.
+    \textit{UniNER-7B}) are 7--13B~params at full precision and would
+    not fit the cluster; at that scale the remaining gap would likely
+    close further.
     \item \textbf{Generative-vs-extractive mismatch.} An LLM
     \emph{generates} tagged text and we re-align spans post-hoc. A
     BiLSTM/CRF tagger emits one label per token directly. Spurious
     or mis-spelled entity text in the generated output (``5{-}HT''
     emitted as ``5-HT3''), or word-splitting on hyphens, costs
-    precision in a way that a tagger can never lose points.
+    precision in a way that a tagger can never lose points --- this
+    mostly hurts \textit{brand} precision on multi-word tokens.
     \item \textbf{Quantisation noise.} 4-bit NF4 is not free. The
     same LoRA adapter fine-tuned on 16-bit weights would likely
     gain 1--2\,pp, but we could not test this (OOM on 10\,GB).
@@ -1800,24 +1807,26 @@ We attribute the 28\,pp micro gap to three factors:
     inference, and tight iteration loops matter. On this dataset it is
     within 0.6\,pp micro-F1 of the best deep-learning system
     (86.8 vs 87.4).
-    \item \textbf{Use System~1.2 (BiLSTM)} when best average
-    performance matters and a GPU is available. It is the highest
-    micro-F1 on this task.
-    \item \textbf{Use System~1.3 (LoRA-LLM)} when rare-class recall
-    matters, cost and explainability are secondary, and a mid-range
-    GPU is available. It buys $\sim$3$\times$ rare-class recall over
-    feature-based NERC on this dataset, at $\sim$100$\times$ the
-    training cost.
+    \item \textbf{Use System~1.2 (BiLSTM)} when best micro-F1 matters
+    and a GPU is available. It remains the top micro-F1 system on
+    this task by a narrow 0.4--1.4\,pp margin.
+    \item \textbf{Use System~1.3 (LoRA-LLM)} when rare-class recall or
+    class-balanced accuracy matters. It wins macro-F1 by
+    $+$7.2\,pp over BiLSTM and \textit{drug\_n} by $+$35.7\,pp, at
+    $\sim$100$\times$ the training cost of feature-based NERC. For
+    drug-safety or pharmacovigilance downstream, this is the right
+    trade.
 \end{itemize}
 
 \paragraph{Overall conclusion.}
-For the DDI~2013 NER task, a dedicated BiLSTM-NN remains the best
-overall system (test micro-F1~$\mathbf{87.4\,\%}$). Prompt-engineering
+For the DDI~2013 NER task the three systems finish within a narrow
+band on micro-F1: 1.1~CRF $=$~86.8\,\%, 1.2~BiLSTM
+$=$~\textbf{87.4\,\%}, 1.3~FT-LLM $=$~86.0\,\%. Prompt-engineering
 alone, at the 3B-parameter scale our hardware allows, is insufficient
-(best 36.2\,\%). LoRA fine-tuning closes the bulk of that gap
-(58.9\,\%) and delivers a striking $\mathbf{3\times}$ rare-class
-recall advantage (\textit{drug\_n} F1 $41.7$ vs 15.6 vs 12.6), but
-still trails dedicated NERC systems on common classes. The single
+(best 48.8\,\%). LoRA fine-tuning closes essentially the entire gap
+(86.0\,\%), \textbf{wins macro-F1 outright} (76.3 vs 69.1 vs 68.2),
+and delivers a striking $\mathbf{3.3\times}$ rare-class recall
+advantage (\textit{drug\_n} F1 $51.3$ vs 15.6 vs 12.6). The single
 most important lesson across all three systems is that
 \textbf{input/representation improvements matter more than
 architecture changes}: in 1.1 the biomedical feature mod gave the
