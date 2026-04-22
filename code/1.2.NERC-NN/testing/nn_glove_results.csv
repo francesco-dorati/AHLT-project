@@ -1,0 +1,7 @@
+Model_Name,Batch_Size,Max_Len,Suf_Len,Epochs,Macro_Avg_F1,Status
+NN_bs16_ml100_sl4_ep5,16,100,4,5,62.6%,SUCCESS
+NN_bs16_ml100_sl4_ep10,16,100,4,10,67.2%,SUCCESS
+NN_bs16_ml100_sl4_ep15,16,100,4,15,68.0%,SUCCESS
+NN_bs16_ml100_sl4_ep20,16,100,4,20,64.9%,SUCCESS
+NN_bs16_ml100_sl5_ep10,16,100,5,10,67.2%,SUCCESS
+NN_bs16_ml100_sl5_ep15,16,100,5,15,65.9%,SUCCESS
