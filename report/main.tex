@@ -1092,6 +1092,17 @@ numbers.
     negative result.} Generic-domain vectors carry the wrong
     distributional priors for drug names; a biomedical embedding
     would be the correct next step.
+    \item \textbf{GloVe with strong regularisation is worth
+    revisiting.} A 24-configuration follow-up grid search kept the
+    \texttt{champ\_big} architecture (2-layer BiLSTM, dropout~0.3,
+    LayerNorm, GELU) but replaced the random word-embedding
+    initialisation with Stanford GloVe~100d ($\sim$80\,\% vocabulary
+    coverage). A single-seed peak reached 71.8\,\% devel / 69.8\,\%
+    test macro-F1, marginally above \texttt{champ\_big\_s42}
+    (70.7~/~69.1). This suggests the spaCy-\texttt{md} negative
+    result above could be reconsidered with stronger regularisation,
+    though a proper multi-seed audit (cf.\ Round~5) would be required
+    to confirm the gain is not seed luck --- left as future work.
     \item \textbf{Seed audit completely rewrote the story.} Without
     rounds~4 and~5, we would have reported 70.0/68.8 for
     \texttt{final2\_03} and missed both facts that (i)~70.0 was the

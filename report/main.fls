@@ -403,13 +403,13 @@ INPUT ./fig13_timeline.pdf
 INPUT ./fig13_timeline.pdf
 INPUT ./fig13_timeline.pdf
 INPUT /usr/share/texmf/fonts/tfm/public/lm/ts1-lmri10.tfm
+INPUT /usr/share/texmf/fonts/enc/dvips/lm/lm-rmtt.enc
 INPUT ./fig13_shots_sweep.pdf
 INPUT ./fig13_shots_sweep.pdf
 INPUT ./fig13_shots_sweep.pdf
 INPUT ./fig13_shots_sweep.pdf
 INPUT ./fig13_shots_sweep.pdf
 INPUT /usr/share/texmf/fonts/tfm/public/lm/rm-lmtt10.tfm
-INPUT /usr/share/texmf/fonts/enc/dvips/lm/lm-rmtt.enc
 INPUT ./fig13_prompt_ablation.pdf
 INPUT ./fig13_prompt_ablation.pdf
 INPUT ./fig13_prompt_ablation.pdf
