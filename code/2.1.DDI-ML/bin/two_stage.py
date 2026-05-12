@@ -22,7 +22,7 @@ def _build_X(ds):
     return X, Y, fidx
 
 def train(train_feat, model_path, C=1.0, solver="lbfgs", max_iter=1500,
-          stage1_balanced=True):
+          stage1_balanced=True, stage2_balanced=False):
     """Train stage 1 (binary null vs positive) and stage 2 (4-way on positives)."""
     ds = Dataset(train_feat)
     fidx = ds.feature_index()
@@ -39,10 +39,12 @@ def train(train_feat, model_path, C=1.0, solver="lbfgs", max_iter=1500,
 
     # Stage 2: keep only positive examples, train 4-way
     pos_idx = [i for i, y in enumerate(Y) if y != "null"]
-    print(f"Stage2 will train on {len(pos_idx)} positive examples", file=sys.stderr)
+    print(f"Stage2 will train on {len(pos_idx)} positive examples (balanced={stage2_balanced})", file=sys.stderr)
     X2 = X[pos_idx]
     Y2 = [Y[i] for i in pos_idx]
-    stage2 = LogisticRegression(C=C, solver=solver, max_iter=max_iter, verbose=0)
+    cw2 = "balanced" if stage2_balanced else None
+    stage2 = LogisticRegression(C=C, solver=solver, max_iter=max_iter,
+                                class_weight=cw2, verbose=0)
     stage2.fit(X2, Y2)
 
     with open(model_path, "wb") as f:
@@ -90,9 +92,12 @@ if __name__ == "__main__":
     ap.add_argument("--threshold", type=float, default=0.5)
     ap.add_argument("--no_balance", action="store_true",
                     help="Disable class_weight=balanced in stage1")
+    ap.add_argument("--s2_balance", action="store_true",
+                    help="Enable class_weight=balanced in stage2 (positive-only 4-way)")
     args = ap.parse_args()
     if args.action == "train":
         train(args.featfile, args.modelfile, C=args.C, solver=args.solver,
-              max_iter=args.max_iter, stage1_balanced=not args.no_balance)
+              max_iter=args.max_iter, stage1_balanced=not args.no_balance,
+              stage2_balanced=args.s2_balance)
     else:
         predict(args.featfile, args.modelfile, args.out, threshold=args.threshold)

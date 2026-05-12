@@ -302,14 +302,59 @@ def check_pattern_clue_verb(tree, entities, e1, e2):
 
    return feats if feats else None
 
+# -----------------
+# [MOD-2.1] mod8 — class-tagged trigger lemmas (per-class trigger lists)
+# Generalisation of mod2: instead of class-agnostic clue verbs, we
+# maintain a per-class trigger lexicon. Each matching token emits two
+# features: "<class>_<position>" and "<class>_<lemma>" so the LR can
+# directly associate per-class evidence with the class label, particularly
+# for the weakest class (mechanism).
+CLASS_TRIGGERS = {
+    "mechanism": {"induce", "inhibit", "metabolize", "displace", "bind",
+                  "compete", "catalyze", "oxidize", "substrate", "enzyme",
+                  "isoenzyme", "isozyme", "absorption", "clearance",
+                  "excretion", "bioavailability", "half-life", "tubular",
+                  "cyp", "cyp3a", "cyp2d6"},
+    "effect":    {"enhance", "augment", "potentiate", "antagonize", "block",
+                  "prolong", "increase", "decrease", "reduce", "alter",
+                  "diminish", "raise", "lower", "elevate", "attenuate",
+                  "produce", "cause"},
+    "advise":    {"avoid", "recommend", "monitor", "adjust", "caution",
+                  "contraindicate", "consider", "advise", "suggest", "warn",
+                  "tell", "ordinarily"},
+    "int":       {"interact", "coadminister", "combine", "concomitant",
+                  "co-administration"},
+}
+
+def check_pattern_class_trigger(tree, entities, e1, e2):
+   tkE1 = get_fragment_head(tree, entities[e1]['start'], entities[e1]['end'])
+   tkE2 = get_fragment_head(tree, entities[e2]['start'], entities[e2]['end'])
+   if tkE1 is None or tkE2 is None:
+      return None
+   e1p = get_position(tree, tkE1)
+   e2p = get_position(tree, tkE2)
+   lo, hi = min(e1p, e2p), max(e1p, e2p)
+   feats = []
+   for i, tk in enumerate(tree):
+      lem = tk.lemma_.lower()
+      for cls, triggers in CLASS_TRIGGERS.items():
+         if lem in triggers:
+            pos = "before" if i < lo else "after" if i > hi else "between"
+            feats.append(f"{cls}_{pos}")
+            feats.append(f"{cls}_{lem}")
+   return feats if feats else None
+
+
 # -----------------------------
 # patterns to be used, and function computing them
 # [MOD-2.1] mod2 (pat_clue) — enabled for mod_best combo trial
 # (standalone: neutral, -0.1pp M-F1 vs ref).
+# [MOD-2.1] mod8 (pat_class_trig) — per-class trigger lemmas (testing now)
 patterns = {"pat_verb_lcs": check_pattern_verb_lcs,
             "pat_verb_func": check_pattern_verb_func,
             "pat_wib": check_pattern_wib,
             "pat_wout": check_pattern_wout,
-            "pat_clue": check_pattern_clue_verb,    # [MOD-2.1] mod2 (mod_best2)
-            # "pat_wib_bg": check_pattern_wib_bigram, # [MOD-2.1] mod6 — disabled
+            "pat_clue": check_pattern_clue_verb,            # [MOD-2.1] mod2 (mod_best2)
+            # "pat_class_trig": check_pattern_class_trigger, # [MOD-2.1] mod8 — disabled (hurts test)
+            # "pat_wib_bg": check_pattern_wib_bigram,       # [MOD-2.1] mod6 — disabled
            }

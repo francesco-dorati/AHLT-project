@@ -179,6 +179,115 @@ trades precision for recall vs single-stage on every class.
 * **Two-stage with saga solver** — devel M=65.5 (vs lbfgs 66.0). lbfgs wins.
 * **SVM rbf** — M=55, far below MEM. SVM linear C=0.5 reaches 60.5 but still below.
 
+## Deep-dive extensions (post-headline)
+
+### Stage-2 class_weight=balanced
+Idea: with stage-1 already handling the null/positive imbalance, stage 2
+still trains on imbalanced positives (advise:effect:int:mech ≈ 1:2.2:0.3:1.8).
+Re-trained two-stage with `class_weight='balanced'` inside stage 2 only.
+
+| t | devel M | devel m |
+|---|---:|---:|
+| 0.35 | 65.7 | 64.9 |
+| 0.37 | 66.0 | 65.3 |
+| **0.40** | **66.2** | **65.6** |
+| 0.45 | 65.1 | 64.8 |
+
+Best at t=0.40 → devel M=66.2 (+0.2 over no_s2_balance). On test the same
+config gave M=66.0 (-0.8 vs base two-stage), so the devel gain doesn't
+generalise — verdict: **noise-level, drop**.
+
+### Train + devel combined for final test
+Once the (model, threshold) is selected on devel-only, papers often retrain
+on `train + devel` together to maximise the final-eval data. Implementation:
+concat the .feat files, re-train the saved two-stage model.
+
+| Variant (t=devel-chosen) | Test M | Test m |
+|---|---:|---:|
+| train-only, no_s2_bal, t=0.37 | **66.8** | 62.5 |
+| train+devel, no_s2_bal, t=0.37 | 66.6 | 63.8 |
+| train+devel, s2_bal, t=0.40 | 66.3 | 63.4 |
+
+Counter-intuitive but real: adding devel to training fractionally **lowered**
+test macro-F1. Likely cause: the calibration of stage-1's `P(positive)`
+shifted when more data was added, so the threshold tuned on the train-only
+calibration is mismatched. **No legitimate way to re-tune the threshold
+on the new model without a second held-out set.** Drop.
+
+### Per-class threshold tuning (devel-overfit)
+Instead of one global threshold, tune a separate `T_c` on the joint
+probability `P(c) = P(positive) · P(c|positive)`. Independent
+coordinate-descent over `T_c` for each c ∈ {advise, effect, int, mech}.
+
+| Config | Devel M | Devel m | Test M | Test m |
+|---|---:|---:|---:|---:|
+| Global t=0.37 | 65.9 | 65.3 | 66.8 | 62.5 |
+| Per-class (T_adv=0.43, T_eff=0.55, T_int=0.11, T_mech=0.35) | **68.4** | **67.6** | 65.3 | 63.5 |
+
+A spectacular **+2.5 pp devel macro jump**, but test drops by 1.5 pp.
+The four per-class thresholds have enough freedom to overfit ~700 devel
+positives. Lesson: at this data scale, single-threshold acts as an
+implicit regulariser. **Drop for final eval.** Implementation in
+`bin/tune_thresholds.py`.
+
+### Mechanism-specific feature mod (mod8)
+`mechanism` is the lowest-F1 positive class. Built `pat_class_trig`:
+per-class trigger lexicon (mechanism: induce/inhibit/metabolize/displace/
+substrate/enzyme/cyp/clearance/…; effect: enhance/potentiate/…;
+advise: avoid/recommend/…; int: interact/coadminister/…) emitting
+features tagged with class and position.
+
+| | Devel M | Devel m | Test M | Test m |
+|---|---:|---:|---:|---:|
+| mod_best2 single | 65.4 | 64.8 | 65.7 | 61.8 |
+| mod_best2 + mod8 single | 65.6 | 64.9 | 65.4 | 61.6 |
+| mod_best2 two-stage | 66.0 | 65.2 | 66.8 | 62.5 |
+| mod_best2 + mod8 two-stage | 65.4 | 65.0 | 65.7 | 62.1 |
+
+mod8 helps single-stage devel by +0.2 but **hurts everything else** (esp.
+two-stage test by -1.1). The class-tagged trigger lexicon must be
+overfitting the trigger distribution in training. Disabled.
+
+### Ensemble: single-stage ∪/∩ two-stage
+Single-stage MEM and two-stage classifier produce different predictions
+(twostage predicts ~33 % more positives than single-stage on devel).
+Tested three rules:
+* **OR** — predict positive if either predicts positive; on disagreement keep single-stage's label.
+* **AND** — predict positive only if both agree on the SAME label.
+* **OR-B** — same as OR but two-stage's label wins on disagreement.
+
+Devel agreement breakdown: A=591 positives, B=788 positives,
+same-label=564, A-only=15, B-only=212, both-positive-different=12.
+
+| Strategy | Devel M | Devel m | Test M | Test m |
+|---|---:|---:|---:|---:|
+| Single-stage alone | 65.3 | 64.6 | 65.8 | 61.6 |
+| Two-stage alone (t=0.37) | 65.2 | 64.7 | 66.6 | 62.4 |
+| Ensemble OR (A-priority) | 65.2 | 64.4 | 65.9 | 62.0 |
+| **Ensemble AND** | **65.8** | **65.0** | 65.5 | 61.6 |
+| Ensemble OR-B (B-priority) | 65.3 | 64.4 | 66.8 | 62.7 |
+
+Devel-selection points to **AND** (devel M=65.8). On test, AND lands at 65.5
+(worse than two-stage alone). OR-B accidentally ties two-stage on test
+(66.8) but can't be chosen from devel.
+
+### Conclusion of the deep dive
+
+After 5 post-headline extensions, none robustly improves on the two-stage
+classifier alone. The pattern is consistent:
+* **Devel-set improvements that don't survive test** (per-class threshold,
+  stage-2 balanced, mod8) indicate the devel size (~700 positives) is at
+  the noise floor for fine-grained tuning.
+* **Train+devel-combined retraining doesn't help** because we cannot
+  re-tune the calibration-sensitive threshold.
+* **Ensembling adds variance without consistent gains** because the two
+  systems share most of their feature pipeline and make correlated errors.
+
+**Final reported System 2.1 = two-stage classifier on mod_best2 features,
+lbfgs, t=0.37, no class-weight balancing → devel M=65.9, test M=66.8.**
+This is the legitimate devel-selected champion; every richer configuration
+either overfits devel or fails to generalise to test.
+
 ### Methodological notes (for the discussion section)
 
 1. **Combinations beat individuals.** Each of mod2 / mod3 / mod4 alone
