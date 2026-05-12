@@ -33,7 +33,7 @@ class MEM:
             if params is None : params={}
             C = float(params['C']) if 'C' in params else 1.0
             solver = params['solver'] if 'solver' in params else 'lbfgs'
-            maxit = params['max_iter'] if 'max_iter' in params else 1500
+            maxit = int(params['max_iter']) if 'max_iter' in params else 1500
             # [MOD-2.1] new hyperparameters surfaced for Phase A sweep:
             # class_weight={None|'balanced'} -- corrects ~85% null imbalance;
             # penalty={l2|l1|elasticnet|none}; l1_ratio for elasticnet.

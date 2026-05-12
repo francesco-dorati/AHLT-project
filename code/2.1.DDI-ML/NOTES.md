@@ -58,7 +58,143 @@ are excluded from F1 by construction.
 | mod3-MEM | MEM | shipped + mod3 | C=1 lbfgs maxit=1500 | 64.0 | 64.0 | — | — | micro +0.8 / macro −0.3; helps 3/4 classes, hurts `int` (−4.3) |
 | mod4-MEM | MEM | shipped + mod4 | C=1 lbfgs maxit=1500 | 63.1 | 64.1 | — | — | −0.2 pp M — neutral; type-pair combined feature doesn't move the needle alone |
 | mod5-MEM | MEM | shipped + mod5 | C=1 lbfgs maxit=1500 | 62.8 | 63.0 | — | — | **−1.3 pp M — hurt; bag-of-negation cues without scoping** |
-| **mod_best-MEM** | MEM | shipped + mod2+mod3+mod4 | C=1 lbfgs maxit=1500 | **65.1** | **65.2** | **63.0** | **66.8** | **+0.9 pp M / +1.9 pp m on devel vs ref; tested on test → M=66.8 (the System 2.1 final number)** |
+| mod_best-MEM | MEM | shipped + mod2+mod3+mod4 | C=1 lbfgs maxit=1500 | 65.1 | 65.2 | 63.0 | 66.8 | First combo. +0.9 pp M / +1.9 pp m devel vs ref. (Later beaten by mod_best2 on devel.) |
+| ablate-mod2-from-mb | MEM | shipped + mod3+mod4 | C=1 lbfgs maxit=1500 | 64.2 | 64.5 | — | — | mod2 contributes +0.7 M / +0.9 m to mod_best |
+| ablate-mod3-from-mb | MEM | shipped + mod2+mod4 | C=1 lbfgs maxit=1500 | 63.2 | 64.4 | — | — | mod3 contributes +0.8 M / +1.9 m to mod_best |
+| ablate-mod4-from-mb | MEM | shipped + mod2+mod3 | C=1 lbfgs maxit=1500 | **64.8** | **65.4** | **61.8** | **65.7** | **mod4 *hurts*: dropping it on devel gives M=65.4. New legit champion by devel selection.** |
+| mod_best2-MEM | MEM | shipped + mod2+mod3 | C=1 lbfgs maxit=1500 | 64.8 | 65.4 | 61.8 | 65.7 | Synonym for ablate-mod4-from-mb. Devel-selected champion under feature-only campaign. |
+| mod_best2 + mod6 | MEM | shipped + mod2+mod3 + mod6 | C=1 lbfgs maxit=1500 | 64.7 | 64.6 | — | — | mod6 (lemma bigrams in pat_wib region) HURTS (-0.8 M) |
+| mod_best2 + mod7 | MEM | shipped + mod2+mod3 + mod7 | C=1 lbfgs maxit=1500 | 64.8 | 65.1 | — | — | mod7 (LCS subtree shape) HURTS (-0.3 M) |
+| mod_best2 + mod6 + mod7 | MEM | shipped + mod2+mod3 + mod6 + mod7 | C=1 lbfgs maxit=1500 | 65.0 | 65.0 | — | — | mod6+mod7 stacked: also worse than mod_best2 |
+
+### Saga sweep on mod_best2 (multinomial l1/l2/elasticnet)
+
+| solver | penalty | C | l1_ratio | max_iter | M | m |
+|---|---|---|---|---|---:|---:|
+| lbfgs | l2 | 0.7 | — | 1500 | 64.7 | 64.4 |
+| lbfgs | l2 | 1.0 | — | 1500 | 65.2 | 64.6 |
+| lbfgs | l2 | 1.5 | — | 1500 | 64.4 | 64.1 |
+| saga | l2 | 0.5 | — | 3000 | 64.7 | 64.1 |
+| saga | l2 | 1.0 | — | 3000 | **65.5** | 64.7 |
+| saga | l2 | 2.0 | — | 3000 | 65.1 | 64.3 |
+| saga | l2 | 5.0 | — | 3000 | 64.1 | 63.4 |
+| saga | l1 | 1.0 | — | 5000 | 63.8 | 61.8 |
+| saga | l1 | 2.0 | — | 5000 | 62.8 | 60.4 |
+| saga | elasticnet | 1.0 | 0.3 | 5000 | 64.6 | 63.7 |
+| saga | elasticnet | 1.0 | 0.7 | 5000 | 63.6 | 61.9 |
+| liblinear | l1/l2 | — | — | — | — | — | (multiclass unsupported by liblinear in sklearn 1.x; skipped) |
+
+Best single-stage: **saga l2 C=1 max_iter=3000 → M=65.5** (just +0.1 over lbfgs default).
+HP tuning gives essentially nothing on top of `mod_best2 + lbfgs default`.
+
+### Two-stage classifier on mod_best2 features
+
+Stage 1: binary LR (null vs positive). Stage 2: 4-way LR on positive-only
+training subset. Inference uses `predict_proba(stage1)` and routes to
+stage 2 if P(positive) >= threshold. Code: `bin/two_stage.py`.
+
+| class_weight | threshold | devel M | devel m | test M | test m |
+|---|---|---:|---:|---:|---:|
+| balanced | 0.30 | 59.4 | 56.9 | — | — |
+| balanced | 0.50 | 61.7 | 61.6 | — | — |
+| balanced | 0.70 | 63.4 | 63.7 | — | — |
+| **none** | 0.20 | 63.3 | 62.1 | — | — |
+| none | 0.30 | 64.8 | 63.9 | — | — |
+| none | 0.35 | 65.3 | 64.7 | — | — |
+| **none** | **0.37** | **66.0** | **65.2** | **66.6** | **62.4** |
+| none | 0.40 | 65.8 | 65.2 | 66.6 | 62.5 |
+| none | 0.42 | 65.7 | 65.1 | — | — |
+| none | 0.45 | 64.7 | 64.7 | — | — |
+| none | 0.50 | 64.4 | 64.8 | — | — |
+
+**Winner: two-stage, no class-balance, threshold=0.37 → devel M=66.0, test M=66.6.**
+Beats single-stage `mod_best2-MEM` by +1.2 pp devel macro and +0.9 pp test macro.
+
+### Two-stage per-class on test (threshold=0.37)
+
+```
+                P     R    F1
+advise        67.4  61.2  64.2     (+2.1 vs mod_best2 62.1)
+effect        60.2  65.5  62.7     (-0.3 vs mod_best2 63.0)
+int           93.3  70.0  80.0     (+1.2 vs mod_best2 78.8)
+mechanism     54.9  65.1  59.6     (+0.7 vs mod_best2 58.9)
+M.avg         68.9  65.5  66.6     (+0.9 vs mod_best2 65.7)
+m.avg         60.4  64.6  62.4     (+0.6 vs mod_best2 61.8)
+```
+
+The two-stage approach trades precision for recall on each class — exactly
+what we expect when the stage-1 binary classifier (which sees the full
+85% null imbalance) is no longer fighting an inter-positive boundary.
+
+### Confusion-matrix snapshot of mod_best2 errors (devel)
+
+```
+                       PREDICTED
+GOLD\PRED  advise  effect    int  mechanism   null    Σ
+advise         92       7      1       2       41    143
+effect         13     181      0       2      120    316
+int             0       0     26       1       16     43
+mechanism      12       2      0     139      108    261
+null           23      34      6      44     4007   4114
+```
+
+Take-aways for the report:
+* **Recall failures dominate**: 29-41% of every positive class is misrouted to `null`. This is the imbalance, not class confusion.
+* **Inter-positive confusion is small**: at most 13 effect → advise. The classifier separates positive classes well; it just doesn't activate them often enough.
+* **null → mechanism** is the largest false-positive direction (44). This makes intuitive sense — `mechanism` lexicalisations like "induce", "inhibit" overlap with neutral pharmacology vocabulary.
+
+### Final champion summary (canonical re-run after revert to mod_best2 + two-stage)
+
+| System | Selection metric (devel) | Devel M | Devel m | Test M | Test m |
+|---|---|---:|---:|---:|---:|
+| 2.0 rule-based | — | 22.2 | 13.1 | 26.9 | 20.8 |
+| 2.1 ref-MEM | — | 64.3 | 63.2 | — | — |
+| 2.1 mod_best2-MEM (single-stage) | feature combo | 65.4 | 64.8 | 65.7 | 61.8 |
+| **2.1 two-stage on mod_best2 (t=0.37)** | devel-tuned threshold | **65.9** | **65.3** | **66.8** | **62.5** |
+
+The two-stage classifier on mod_best2 features is the System 2.1 final
+configuration we'll report. **+39.9 pp test macro over rule-based 2.0**
+(26.9 → 66.8); **+2.5 pp devel macro over ref-MEM** (64.3 → 65.9).
+
+### Final per-class breakdown (test)
+
+```
+                P     R    F1
+advise        68.8  61.2  64.8
+effect        60.1  66.2  63.0
+int           93.3  70.0  80.0     ← biggest single-class win
+mechanism     54.8  64.5  59.3
+M.avg         69.3  65.5  66.8
+m.avg         60.6  64.6  62.5
+```
+
+`int` is the easiest positive class (concentrated trigger lexicon).
+`mechanism` is the hardest (diffuse phrasing). The two-stage classifier
+trades precision for recall vs single-stage on every class.
+
+### Also tested but abandoned (one-line each)
+
+* **mod_best (mod2+mod3+mod4) two-stage** — devel 65.3 / test 66.1; mod4 helps single-stage but hurts two-stage. Dropped.
+* **Two-stage with class_weight=balanced in stage1** — over-corrects; devel M tops at 63.4 (vs 66.0 unbalanced).
+* **Two-stage with saga solver** — devel M=65.5 (vs lbfgs 66.0). lbfgs wins.
+* **SVM rbf** — M=55, far below MEM. SVM linear C=0.5 reaches 60.5 but still below.
+
+### Methodological notes (for the discussion section)
+
+1. **Combinations beat individuals.** Each of mod2 / mod3 / mod4 alone
+   was neutral-to-marginal, but mod2+mod3 (=mod_best2) gained +1.1 pp
+   devel macro over ref. mod4 helped mod_best on test but hurt on devel
+   — devel-only selection (per the spec) keeps mod4 out.
+2. **Hyperparameter tuning ≈ 0**. Default C=1 lbfgs l2 is optimal on
+   ref and on mod_best2 features. saga at C=1 l2 gains +0.1 pp.
+3. **Two-stage is the largest single jump.** A binary stage-1 router
+   followed by a 4-way stage-2 classifier on positives lifts devel
+   macro by +0.6 pp and test macro by +0.9 pp. The hyperparameter
+   `class_weight` in stage-1 must stay at `None` — balancing
+   overcorrects because the eval format discards `null` predictions.
+4. **Threshold of 0.37** is well below 0.5 because the binary stage-1
+   classifier's `positive` class is itself rare (15% of training);
+   demanding 0.5 probability rejects too many borderline true positives.
 
 ### Phase R/F/A summary (devel, no test except mod_best)
 

@@ -155,6 +155,34 @@ def check_pattern_verb_lcs(tree,entities,e1,e2):
    return None
 
 # -----------------
+# [MOD-2.1] mod6 — content-lemma bigrams in the between-entity span
+# Rationale: pat_wib emits unigram lemmas in between E1 and E2. Bigrams
+# (adjacent content-word pairs) can capture short interaction phrases
+# like "co-administered with", "concomitantly inhibits", "rate exceeds"
+# that the unigram bag dissolves.
+def check_pattern_wib_bigram(tree, entities, e1, e2):
+   tkE1 = get_fragment_head(tree, entities[e1]['start'], entities[e1]['end'])
+   tkE2 = get_fragment_head(tree, entities[e2]['start'], entities[e2]['end'])
+   if tkE1 is None or tkE2 is None:
+      return None
+   l1, r1 = entities[e1]['start'], entities[e1]['end']
+   l2, r2 = entities[e2]['start'], entities[e2]['end']
+   e1pos = get_position(tree, tkE1)
+   e2pos = get_position(tree, tkE2)
+   content_ = []
+   for i in range(e1pos+1, e2pos):
+      tk = tree[i]
+      if is_stopword(tk):
+         continue
+      l, r = tk.idx, tk.idx+len(tk.text)
+      if r1 < l and r < l2:
+         content_.append(tk.lemma_)
+   feats = []
+   for i in range(len(content_) - 1):
+      feats.append(content_[i] + "_" + content_[i+1])
+   return feats if feats else None
+
+# -----------------
 # check pattern: words in between
 def check_pattern_wib(tree,entities,e1,e2):
 
@@ -282,5 +310,6 @@ patterns = {"pat_verb_lcs": check_pattern_verb_lcs,
             "pat_verb_func": check_pattern_verb_func,
             "pat_wib": check_pattern_wib,
             "pat_wout": check_pattern_wout,
-            "pat_clue": check_pattern_clue_verb,   # [MOD-2.1] mod2 (mod_best)
+            "pat_clue": check_pattern_clue_verb,    # [MOD-2.1] mod2 (mod_best2)
+            # "pat_wib_bg": check_pattern_wib_bigram, # [MOD-2.1] mod6 — disabled
            }

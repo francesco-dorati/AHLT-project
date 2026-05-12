@@ -99,8 +99,20 @@ def extract_pair_features(tree, entities, e1, e2) :
           # lcs children
           for w in lcs.children : feats.add("lcsCH="+w.lemma_)
 
-          # [MOD-2.1] mod3 — third-entity context on the E1→E2 dep path
-          # ENABLED for mod_best combo trial (alone: micro +0.8 / macro -0.3)
+          # [MOD-2.1] mod7 — LCS subtree shape (DISABLED, -0.3 pp M-F1 vs mod_best2)
+          # kid_deps_ = sorted([w.dep_ for w in lcs.children])
+          # feats.add("lcs_kids_deps=" + "_".join(kid_deps_) if kid_deps_ else "lcs_kids_deps=∅")
+          # nk_ = len(kid_deps_)
+          # if nk_ == 0:   feats.add("lcs_nk=0")
+          # elif nk_ <= 2: feats.add("lcs_nk=1-2")
+          # elif nk_ <= 4: feats.add("lcs_nk=3-4")
+          # else:          feats.add("lcs_nk=5+")
+          # if lcs.head == lcs:
+          #    feats.add("lcs_parent_dep=ROOT")
+          # else:
+          #    feats.add("lcs_parent_dep=" + lcs.head.dep_)
+
+          # [MOD-2.1] mod3 — third-entity context on the E1→E2 dep path (mod_best)
           path_tokens_ = list(path1) + [lcs] + list(path2)
           for tk_ in path_tokens_:
              eid_ = is_entity(tk_, entities)
@@ -108,7 +120,7 @@ def extract_pair_features(tree, entities, e1, e2) :
                 feats.add("path_has_other_entity")
                 feats.add("path_other_type=" + entities[eid_]['type'])
 
-   # [MOD-2.1] mod3 — third-entity context: count + types in sentence (mod_best combo)
+   # [MOD-2.1] mod3 — third-entity context (mod_best)
    others_ = [eid for eid in entities if eid not in (e1, e2)]
    n_other_ = len(others_)
    if n_other_ == 0:    feats.add("n_other=0")
@@ -118,10 +130,18 @@ def extract_pair_features(tree, entities, e1, e2) :
    for t_ in sorted({entities[eid_]['type'] for eid_ in others_}):
       feats.add("other_type=" + t_)
 
-   # [MOD-2.1] mod4 — entity-type pair combined feature (mod_best combo)
-   feats.add("typePair=" + entities[e1]['type'] + "_" + entities[e2]['type'])
-   feats.add("typePairSorted=" + "_".join(sorted([entities[e1]['type'],
-                                                   entities[e2]['type']])))
+   # [MOD-2.1] mod4 — entity-type pair (DISABLED — final config = mod_best2)
+   # Tested both single-stage and two-stage:
+   #  - single-stage mod4 alone: -0.2 pp M vs ref
+   #  - single-stage mod_best (mod2+mod3+mod4): devel 65.2, test 66.8
+   #  - single-stage mod_best2 (mod2+mod3, no mod4): devel 65.4, test 65.7
+   #  - two-stage on mod_best:  devel 65.3, test 66.1
+   #  - two-stage on mod_best2: devel 66.0, test 66.6  ← FINAL CHAMPION
+   # mod4 helps single-stage on test but hurts two-stage on test; devel
+   # selection plus two-stage choice → drop mod4.
+   # feats.add("typePair=" + entities[e1]['type'] + "_" + entities[e2]['type'])
+   # feats.add("typePairSorted=" + "_".join(sorted([entities[e1]['type'],
+   #                                                entities[e2]['type']])))
 
    # [MOD-2.1] mod5 — negation cues (DISABLED)
    # Standalone test: M-F1 63.0 vs ref 64.3 (-1.3 pp). Hurt advise (-2.1)
