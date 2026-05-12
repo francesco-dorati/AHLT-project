@@ -1,0 +1,137 @@
+Classes: [np.str_('advise'), np.str_('effect'), np.str_('int'), np.str_('mechanism'), np.str_('null')]
+Feature count: 95367
+
+=== class=advise top +12 features (most positive weights) ===
+   +1.591  lcsCH=should
+   +1.183  pat_wout=lb1:caution
+   +1.085  lcsCH=not
+   +0.898  pat_clue=monitor
+   +0.823  pat_clue=recommend
+   +0.741  pat_wout=lb1:therapy
+   +0.693  pat_verb_func=recommend_VERB:nsubjpass_nsubjpass
+   +0.691  typeE2=brand
+   +0.660  pat_verb_lcs=avoid
+   +0.606  pat_verb_lcs=recommend
+   +0.569  pat_wout=lb1:therefore
+   +0.553  pat_verb_func=contraindicate_VERB:nsubjpass_nsubjpass
+--- bottom 12 (most negative weights) ---
+   -0.963  pat_wout=lb1:report
+   -0.766  samedrug
+   -0.736  wip1=with
+   -0.669  typeE2=drug_n
+   -0.668  lcsCH=have
+   -0.611  other_type=drug
+   -0.599  pat_wout=lb1:study
+   -0.599  lcsCH=administer
+   -0.552  pat_verb_lcs=result
+   -0.552  other_type=drug_n
+   -0.524  path1c=nsubj
+   -0.515  pat_wout=la2:result
+
+=== class=effect top +12 features (most positive weights) ===
+   +1.260  pat_wout=lb1:report
+   +1.130  wip=effect
+   +0.712  pat_wout=lb1:additive
+   +0.678  pat_wout=la2:include
+   +0.656  lcsCH=can
+   +0.637  pat_wout=lb1:patient
+   +0.629  pat_verb_lcs=result
+   +0.619  typeE1=group
+   +0.607  wip=action
+   +0.600  pat_verb_lcs=associate
+   +0.575  lcsCH=may
+   +0.572  wip2=effect
+--- bottom 12 (most negative weights) ---
+   -0.904  samedrug
+   -0.850  lcsCH=should
+   -0.803  lcsCH=not
+   -0.756  pat_wout=lb1:interaction
+   -0.673  pat_wout=lb1:caution
+   -0.662  pat_wout=lb1:plasma
+   -0.635  path2c=appos
+   -0.629  pat_wout=lb1:level
+   -0.621  wip2=on
+   -0.608  pat_wout=la2:concentration
+   -0.592  typeE1=drug
+   -0.579  lcsCH=for
+
+=== class=int top +12 features (most positive weights) ===
+   +1.460  pat_wout=lb1:interaction
+   +0.818  typeE1=drug
+   +0.690  other_type=brand
+   +0.582  wip=interaction
+   +0.505  path1b=MIVACRON<as<agent<of<action<enhance<drug
+   +0.505  path1=MIVACRON_pobj<as_prep<agent_pobj<of_prep<action_dobj<enhance_relcl<drug_nsubj
+   +0.496  wip1=MIVACRON
+   +0.484  pat_wout=lb1:vitro
+   +0.466  pat_verb_func=interact_VERB:nsubj_prep
+   +0.466  pathA=nsubj<interact>prep
+   +0.440  wip=MIVACRON
+   +0.437  pat_wout=la2:colistimethate
+--- bottom 12 (most negative weights) ---
+   -1.056  typeE1=brand
+   -0.993  typeE2=drug
+   -0.868  n_other=2
+   -0.698  typeE1=group
+   -0.623  pat_clue=any_after
+   -0.562  lcsCH=,
+   -0.413  n_other=1
+   -0.404  wip=g.
+   -0.402  wip2=g.
+   -0.382  wip2=of
+   -0.365  lcsCH=be
+   -0.347  pat_wout=lb1:study
+
+=== class=mechanism top +12 features (most positive weights) ===
+   +1.170  pathAb=nsubj<VERB>dobj
+   +0.922  pat_wout=la2:%
+   +0.919  pat_wout=lb1:level
+   +0.812  pathAb=nsubjpass<VERB>xcomp
+   +0.794  pat_wout=la2:metabolism
+   +0.783  pat_wout=la2:absorption
+   +0.727  pat_wout=la2:increase
+   +0.721  pat_wout=lb1:study
+   +0.710  wip=absorption
+   +0.694  pat_wout=lb1:plasma
+   +0.666  pat_wib=l=modest
+   +0.666  pat_wib=lp=modest_ADJ
+--- bottom 12 (most negative weights) ---
+   -1.000  lcsCH=not
+   -0.933  samedrug
+   -0.865  lcsCH=do
+   -0.795  other_type=brand
+   -0.717  pat_wib=eib
+   -0.657  path1c=dep
+   -0.646  pat_wout=lb1:interaction
+   -0.638  other_type=drug_n
+   -0.617  pat_wout=la2:felodipine
+   -0.587  typeE1=drug_n
+   -0.582  pat_wout=la2:contain
+   -0.556  wip=effect
+
+=== class=null top +12 features (most positive weights) ===
+   +2.764  samedrug
+   +1.460  lcsCH=do
+   +1.372  path1c=dep
+   +1.305  path1c=conj
+   +1.304  lcsCH=or
+   +1.171  path2c=appos
+   +1.115  other_type=drug_n
+   +1.055  pat_wout=lb1:such
+   +1.045  path1c=ROOT
+   +1.008  wip1=with
+   +0.873  lcsCH=not
+   +0.806  pat_wib=eib
+--- bottom 12 (most negative weights) ---
+   -1.337  pathAb=nsubj<VERB>dobj
+   -0.983  wip2=with
+   -0.764  wip2=patient
+   -0.751  lcsCH=when
+   -0.732  pathAb=nsubj<VERB>conj
+   -0.663  pathAb=nsubjpass<VERB>xcomp
+   -0.655  wip=patient
+   -0.650  pat_wib=l=modest
+   -0.650  pat_wib=lp=modest_ADJ
+   -0.641  lcsCH=and
+   -0.614  wip1=as
+   -0.592  path_other_type=group

@@ -1,0 +1,18 @@
+
+=== Stratified by document source ===
+bucket                #pairs   advise-F1   effect-F1      int-F1  mechanism-F1     M-F1     m-F1
+DrugBank                5312       0.643       0.650       0.848       0.605    0.686    0.637
+  gold dist:           advise=204  effect=264  int=37  mechanism=317  null=4490
+MedLine                  526       0.571       0.373       0.000       0.511    0.364    0.427
+  gold dist:           advise=5  effect=29  int=3  mechanism=27  null=462
+
+=== Stratified by sentence length ===
+bucket                #pairs   advise-F1   effect-F1      int-F1  mechanism-F1     M-F1     m-F1
+01-short(<=10)           238       0.923       0.642       0.000       0.718    0.571    0.694
+  gold dist:           advise=12  effect=22  int=5  mechanism=19  null=180
+02-medium(11-25)        2174       0.614       0.700       0.833       0.632    0.695    0.665
+  gold dist:           advise=69  effect=189  int=27  mechanism=198  null=1691
+03-long(26-50)          2569       0.627       0.494       1.000       0.467    0.647    0.548
+  gold dist:           advise=128  effect=77  int=8  mechanism=99  null=2257
+04-vlong(>50)            857       0.000       0.000       0.000       0.730    0.183    0.582
+  gold dist:           advise=0  effect=5  int=0  mechanism=28  null=824

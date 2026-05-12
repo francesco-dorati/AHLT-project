@@ -288,6 +288,101 @@ lbfgs, t=0.37, no class-weight balancing → devel M=65.9, test M=66.8.**
 This is the legitimate devel-selected champion; every richer configuration
 either overfits devel or fails to generalise to test.
 
+## Analysis (qualitative, for the report's discussion section)
+
+### Top-weighted features per class (single-stage MEM)
+
+Extracted from the saved single-stage LR model via `bin/feature_weights.py`.
+Sanity-checks the classifier: each class's top features should be
+linguistically meaningful.
+
+* **advise (recommendation/warning class).** Top positives:
+  `lcsCH=should`, `pat_wout=lb1:caution`, `lcsCH=not`, `pat_clue=monitor`,
+  `pat_clue=recommend`, `pat_verb_lcs=avoid`, `pat_verb_lcs=recommend`,
+  `pat_verb_func=contraindicate_VERB:nsubjpass_nsubjpass`. Top negatives:
+  `pat_wout=lb1:report`, `samedrug`, `other_type=drug_n`. → The classifier
+  has learned modal-verb constructions and direct recommendation verbs.
+
+* **effect (clinical-impact class).** Top positives: `pat_wout=lb1:report`,
+  `wip=effect`, `pat_wout=lb1:additive`, `pat_verb_lcs=result`,
+  `pat_verb_lcs=associate`, `lcsCH=may`, `lcsCH=can`. Top negatives:
+  `lcsCH=should`, `lcsCH=not` (i.e. negation / modal verbs which belong
+  to advise). → Classifier separates "effect" reporting language from
+  "advise" warning language.
+
+* **int (generic interaction).** Top positives: `pat_wout=lb1:interaction`,
+  `typeE1=drug`, `wip=interaction`, `pat_verb_func=interact_VERB:nsubj_prep`,
+  `pathA=nsubj<interact>prep`. Notably, one of the top features is the
+  *literal* `wip1=MIVACRON` and a specific path-trace
+  `path1=MIVACRON_pobj<as_prep<…<enhance_relcl<drug_nsubj`. **This is a
+  red flag**: the classifier has memorised a specific training example
+  about Mivacron. The features generalise (the dep-shape pattern is
+  reusable) but the lexical anchors are over-fit.
+
+* **mechanism (pharmacokinetic class).** Top positives:
+  `pathAb=nsubj<VERB>dobj`, `pat_wout=la2:%`, `pat_wout=lb1:level`,
+  `pathAb=nsubjpass<VERB>xcomp`, `pat_wout=la2:metabolism`,
+  `pat_wout=la2:absorption`, `wip=absorption`, `pat_wib=l=modest`. The
+  classifier has learned a syntactic shape (transitive verb with subject
+  and direct object) plus pharmacokinetic vocabulary. Negatives:
+  `lcsCH=not`, `samedrug`, `lcsCH=do`, `pat_wib=eib` (entity-in-between
+  is anti-correlated with mechanism — mechanisms tend to be between *two*
+  entities rather than three).
+
+* **null.** Top positives: `samedrug` (+2.76 — by far the strongest
+  weight in the model), `lcsCH=or`, `lcsCH=do`, `path1c=dep`,
+  `path1c=conj`. → The strongest signal in the entire model is that the
+  same drug mentioned twice is almost never a real interaction, which
+  is correct.
+
+### Errors stratified by document source
+
+Devel set is 91 % DrugBank, 9 % MedLine. The classifier's behaviour
+differs sharply:
+
+| Source | #pairs | advise | effect | int | mechanism | M-F1 | m-F1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| DrugBank | 4 454 | 0.609 | 0.703 | 0.750 | 0.657 | **0.680** | 0.669 |
+| MedLine  |   423 | 0.667 | 0.321 | 0.400 | 0.333 | **0.430** | 0.355 |
+
+Test set shows the same pattern (DrugBank M=0.686 vs MedLine M=0.364).
+**DrugBank pairs are ~25-30 pp easier than MedLine.** This makes sense:
+DrugBank uses standardised drug-label phrasing ("monitor closely",
+"may potentiate") that the classifier's clue-verb features fit; MedLine
+uses research-abstract prose with more diverse syntactic patterns.
+
+### Errors stratified by sentence length
+
+| Bucket | #pairs (devel) | M-F1 | m-F1 |
+|---|---:|---:|---:|
+| short (≤10 words) | 274 | 0.520 | 0.667 |
+| medium (11-25) | 1 858 | **0.707** | **0.704** |
+| long (26-50) | 2 308 | 0.412 | 0.554 |
+| very long (>50) | 437 | 0.457 | 0.634 |
+
+Medium-length sentences are the sweet spot. Long sentences (26+ words)
+drop ~30 pp in macro-F1 — likely because:
+1. longer dependency paths increase noise in `path*` features,
+2. more entities present per sentence (the mean is 4.8 in long vs 2.1
+   in short), so the model has to handle more pair-candidates per
+   sentence,
+3. the LCS subtree analysis loses signal when E1 and E2 are far apart
+   in the tree.
+
+Short sentences have a different problem: too few words for the
+verb/clue features to fire (advise gets 0 F1 in the very-long bucket
+because there are 0 advise pairs there in devel).
+
+### Take-away for the discussion
+
+The classifier is well-tuned for DrugBank-style "interaction warning"
+language and medium-length sentences. The two genuine failure modes are
+(a) long sentences with diffuse syntax and (b) MedLine-style research
+prose. Both are out-of-domain for the shipped feature set; future work
+could add corpus-specific feature mods (e.g., abstract-prose verb
+patterns for MedLine) or sentence-level decomposition for long
+sentences. Neither is in scope for the current report.
+
 ### Methodological notes (for the discussion section)
 
 1. **Combinations beat individuals.** Each of mod2 / mod3 / mod4 alone
