@@ -15,14 +15,38 @@ def extract_pair_features(tree, entities, e1, e2) :
    # Features about entity types
    feats.add("typeE1="+ entities[e1]['type'])
    feats.add("typeE2="+ entities[e2]['type'])
-   if entities[e1]['text'].lower() == entities[e2]['text'].lower() : 
+   if entities[e1]['text'].lower() == entities[e2]['text'].lower() :
       feats.add("samedrug")
 
    # features about paths in the tree.
    # get head token for each gold entity
    tkE1 = get_fragment_head(tree,entities[e1]['start'],entities[e1]['end'])
    tkE2 = get_fragment_head(tree,entities[e2]['start'],entities[e2]['end'])
-   if tkE1 is not None and tkE2 is not None:      
+
+   # [MOD-2.1] mod1 — distance & sentence-position features (DISABLED)
+   # Rationale: DDI is sentence-level classification; we hypothesised the
+   # relative position of E1 vs E2 and the overall sentence length would
+   # give cheap, strong cues. Tested standalone: -1.9 pp M-F1 vs ref-MEM
+   # (62.4 vs 64.3). Tested in combination with mod2: -1.3 pp M-F1 vs ref
+   # (63.0 vs 64.3). Conclusion: distance/length buckets dilute the
+   # informative path features. Block left as a negative-result record.
+   # if tkE1 is not None and tkE2 is not None:
+   #    e1pos_ = get_position(tree, tkE1)
+   #    e2pos_ = get_position(tree, tkE2)
+   #    dist_ = abs(e2pos_ - e1pos_)
+   #    senlen_ = len(tree)
+   #    if dist_ <= 2:     feats.add("dist=0-2")
+   #    elif dist_ <= 5:   feats.add("dist=3-5")
+   #    elif dist_ <= 10:  feats.add("dist=6-10")
+   #    elif dist_ <= 20:  feats.add("dist=11-20")
+   #    else:              feats.add("dist=21+")
+   #    if senlen_ <= 15:  feats.add("senlen=0-15")
+   #    elif senlen_ <= 30:feats.add("senlen=16-30")
+   #    elif senlen_ <= 50:feats.add("senlen=31-50")
+   #    else:              feats.add("senlen=51+")
+   #    feats.add("e1_before_e2" if e1pos_ < e2pos_ else "e2_before_e1")
+
+   if tkE1 is not None and tkE2 is not None:
       # get LCS      
       lcs = get_LCS(tree,tkE1,tkE2)
 
@@ -74,7 +98,51 @@ def extract_pair_features(tree, entities, e1, e2) :
 
           # lcs children
           for w in lcs.children : feats.add("lcsCH="+w.lemma_)
-      
+
+          # [MOD-2.1] mod3 — third-entity context on the E1→E2 dep path
+          # ENABLED for mod_best combo trial (alone: micro +0.8 / macro -0.3)
+          path_tokens_ = list(path1) + [lcs] + list(path2)
+          for tk_ in path_tokens_:
+             eid_ = is_entity(tk_, entities)
+             if eid_ is not None and eid_ not in (e1, e2):
+                feats.add("path_has_other_entity")
+                feats.add("path_other_type=" + entities[eid_]['type'])
+
+   # [MOD-2.1] mod3 — third-entity context: count + types in sentence (mod_best combo)
+   others_ = [eid for eid in entities if eid not in (e1, e2)]
+   n_other_ = len(others_)
+   if n_other_ == 0:    feats.add("n_other=0")
+   elif n_other_ == 1:  feats.add("n_other=1")
+   elif n_other_ == 2:  feats.add("n_other=2")
+   else:                feats.add("n_other=3+")
+   for t_ in sorted({entities[eid_]['type'] for eid_ in others_}):
+      feats.add("other_type=" + t_)
+
+   # [MOD-2.1] mod4 — entity-type pair combined feature (mod_best combo)
+   feats.add("typePair=" + entities[e1]['type'] + "_" + entities[e2]['type'])
+   feats.add("typePairSorted=" + "_".join(sorted([entities[e1]['type'],
+                                                   entities[e2]['type']])))
+
+   # [MOD-2.1] mod5 — negation cues (DISABLED)
+   # Standalone test: M-F1 63.0 vs ref 64.3 (-1.3 pp). Hurt advise (-2.1)
+   # and int (-3.4); the model doesn't learn negation polarity well from
+   # bag-of-cue features alone.
+   # NEG_LEMMAS_ = {"not", "no", "without", "fail", "neither", "nor", "never", "none"}
+   # has_neg_sent_ = False
+   # has_neg_between_ = False
+   # if tkE1 is not None and tkE2 is not None:
+   #    lo_ = min(get_position(tree, tkE1), get_position(tree, tkE2))
+   #    hi_ = max(get_position(tree, tkE1), get_position(tree, tkE2))
+   #    for i_, tk_ in enumerate(tree):
+   #       lem_ = tk_.lemma_.lower()
+   #       if lem_ in NEG_LEMMAS_:
+   #          has_neg_sent_ = True
+   #          feats.add("neg_lemma=" + lem_)
+   #          if lo_ < i_ < hi_:
+   #             has_neg_between_ = True
+   # if has_neg_sent_:    feats.add("neg_in_sent")
+   # if has_neg_between_: feats.add("neg_between")
+
    # features using rule-based patterns
    for pat in patterns :
       match = patterns[pat](tree, entities, e1, e2)

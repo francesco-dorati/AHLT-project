@@ -30,16 +30,29 @@ class MEM:
             # params given, create new empty model
 
             # extract parameters if provided. Use default if not
-            if params is None : params={}            
+            if params is None : params={}
             C = float(params['C']) if 'C' in params else 1.0
             solver = params['solver'] if 'solver' in params else 'lbfgs'
             maxit = params['max_iter'] if 'max_iter' in params else 1500
+            # [MOD-2.1] new hyperparameters surfaced for Phase A sweep:
+            # class_weight={None|'balanced'} -- corrects ~85% null imbalance;
+            # penalty={l2|l1|elasticnet|none}; l1_ratio for elasticnet.
+            class_weight = params.get('class_weight')
+            if class_weight == "None":
+                class_weight = None
+            penalty = params.get('penalty', 'l2')
+            kw = {}
+            if penalty == 'elasticnet':
+                kw['l1_ratio'] = float(params.get('l1_ratio', 0.5))
 
             # create and train empty classifier with given parameters
             self.tagger = LogisticRegression(verbose=1,
                                              C=C,
                                              solver=solver,
-                                             max_iter=maxit)
+                                             max_iter=maxit,
+                                             class_weight=class_weight,
+                                             penalty=penalty,
+                                             **kw)
 
                 
     ## --------------------------------------------------

@@ -222,10 +222,65 @@ def check_pattern_wout(tree,entities,e1,e2):
 
 
 
+# -----------------
+# [MOD-2.1] mod2 — pharmacology clue-verb features
+# Curated list of verbs that frequently trigger DDI mentions. For each
+# clue-verb found in the sentence, emit three binary features:
+#   1. <lemma>_<position>   (e.g. interact_between)
+#   2. any_<position>       (class-agnostic presence)
+#   3. <lemma>              (global presence, no position)
+# Position is relative to the (E1,E2) pair: before / between / after.
+CLUE_VERBS = {
+    # effect / response triggers
+    "enhance", "augment", "potentiate", "antagonize", "block", "prolong",
+    "increase", "decrease", "reduce", "alter", "diminish", "raise", "lower",
+    "produce", "cause", "elevate", "attenuate",
+    # mechanism triggers
+    "induce", "inhibit", "metabolize", "displace", "bind", "compete",
+    "affect", "exhibit", "interfere",
+    # advise triggers
+    "avoid", "recommend", "monitor", "adjust", "caution", "contraindicate",
+    "consider", "advise", "suggest", "warn", "tell", "use",
+    # int (generic interaction) triggers
+    "interact", "coadminister", "combine",
+}
+
+def check_pattern_clue_verb(tree, entities, e1, e2):
+   tkE1 = get_fragment_head(tree, entities[e1]['start'], entities[e1]['end'])
+   tkE2 = get_fragment_head(tree, entities[e2]['start'], entities[e2]['end'])
+   if tkE1 is None or tkE2 is None:
+      return None
+
+   e1pos = get_position(tree, tkE1)
+   e2pos = get_position(tree, tkE2)
+   lo, hi = min(e1pos, e2pos), max(e1pos, e2pos)
+
+   feats = []
+   for i, tk in enumerate(tree):
+      if tk.pos_ != "VERB":
+         continue
+      lemma = tk.lemma_.lower()
+      if lemma not in CLUE_VERBS:
+         continue
+      if i < lo:
+         pos = "before"
+      elif i > hi:
+         pos = "after"
+      else:
+         pos = "between"
+      feats.append(f"{lemma}_{pos}")
+      feats.append(f"any_{pos}")
+      feats.append(lemma)
+
+   return feats if feats else None
+
 # -----------------------------
 # patterns to be used, and function computing them
+# [MOD-2.1] mod2 (pat_clue) — enabled for mod_best combo trial
+# (standalone: neutral, -0.1pp M-F1 vs ref).
 patterns = {"pat_verb_lcs": check_pattern_verb_lcs,
             "pat_verb_func": check_pattern_verb_func,
             "pat_wib": check_pattern_wib,
-            "pat_wout": check_pattern_wout
+            "pat_wout": check_pattern_wout,
+            "pat_clue": check_pattern_clue_verb,   # [MOD-2.1] mod2 (mod_best)
            }

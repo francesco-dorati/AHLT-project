@@ -52,6 +52,80 @@ are excluded from F1 by construction.
 | baseline-2.0 | rule | cue words | n/a | 13.1 | 22.2 | 20.8 | 26.9 | re-run 2026-05-02 |
 | ref-MEM | MEM | shipped | C=1 lbfgs maxit=1500 | **63.2** | **64.3** | — | — | new ML baseline; ~+42pp M over 2.0 |
 | ref-SVM | SVM | shipped | C=1 rbf gamma=scale | 54.3 | 55.0 | — | — | -9pp M vs MEM; precision-biased (R~43%) |
+| mod1-MEM | MEM | shipped + mod1 | C=1 lbfgs maxit=1500 | 61.8 | 62.4 | — | — | **−1.9 pp M vs ref-MEM — distance/senlen/order HURT, disabled in src** |
+| mod1+2-MEM | MEM | shipped + mod1 + mod2 | C=1 lbfgs maxit=1500 | 62.1 | 63.0 | — | — | −1.3 pp M vs ref; combo doesn't rescue mod1 |
+| mod2-MEM | MEM | shipped + mod2 | C=1 lbfgs maxit=1500 | 63.0 | 64.2 | — | — | −0.1 pp M — neutral; small gain on `int`, small loss on `advise`/`mechanism` |
+| mod3-MEM | MEM | shipped + mod3 | C=1 lbfgs maxit=1500 | 64.0 | 64.0 | — | — | micro +0.8 / macro −0.3; helps 3/4 classes, hurts `int` (−4.3) |
+| mod4-MEM | MEM | shipped + mod4 | C=1 lbfgs maxit=1500 | 63.1 | 64.1 | — | — | −0.2 pp M — neutral; type-pair combined feature doesn't move the needle alone |
+| mod5-MEM | MEM | shipped + mod5 | C=1 lbfgs maxit=1500 | 62.8 | 63.0 | — | — | **−1.3 pp M — hurt; bag-of-negation cues without scoping** |
+| **mod_best-MEM** | MEM | shipped + mod2+mod3+mod4 | C=1 lbfgs maxit=1500 | **65.1** | **65.2** | **63.0** | **66.8** | **+0.9 pp M / +1.9 pp m on devel vs ref; tested on test → M=66.8 (the System 2.1 final number)** |
+
+### Phase R/F/A summary (devel, no test except mod_best)
+
+```
+                  M-F1   m-F1   ΔM     Δm    notes
+ref-MEM           64.3   63.2     —      —   baseline
+ref-MEM C=0.1     61.1   60.5  -3.2   -2.7   over-regularised
+ref-MEM C=0.5     63.7   62.8  -0.6   -0.4
+ref-MEM C=2       63.6   62.6  -0.7   -0.6
+ref-MEM C=5       63.2   62.0  -1.1   -1.2
+ref-MEM cw=bal    53.2   56.7 -11.1   -6.5   class_weight=balanced over-corrects
+ref-SVM           55.0   54.3  -9.3   -8.9   rbf default, precision-biased
+SVM linear C=0.5  60.5   60.0  -3.8   -3.2   linear improves but still trails MEM
+mod1-MEM          62.4   61.8  -1.9   -1.4   distance/length buckets HURT
+mod2-MEM          64.2   63.0  -0.1   -0.2   clue verbs ≈ neutral
+mod3-MEM          64.0   64.0  -0.3   +0.8   path entities micro+, macro-
+mod4-MEM          64.1   63.1  -0.2   -0.1   type-pair combined ≈ neutral
+mod5-MEM          63.0   62.8  -1.3   -0.4   negation cues HURT
+mod_best-MEM      65.2   65.1  +0.9   +1.9   ← combo of mod2+mod3+mod4 wins
+```
+
+### mod_best per-class breakdown (devel + test):
+
+```
+DEVEL:                P     R    F1
+advise              64.1  63.6  63.9   (+1.3 vs ref)
+effect              82.4  57.9  68.0   (+2.6 vs ref)
+int                 78.1  58.1  66.7   (-2.5 vs ref)
+mechanism           73.7  53.6  62.1   (+2.1 vs ref)
+M.avg               74.6  58.3  65.2
+m.avg               74.9  57.5  65.1
+
+TEST:                 P     R    F1
+advise              76.0  56.0  64.5
+effect              73.3  56.3  63.7
+int                100.0  65.0  78.8   (!)
+mechanism           64.2  56.4  60.1
+M.avg               78.4  58.4  66.8
+m.avg               71.0  56.7  63.0
+```
+
+Notable: on test, `int` reaches 78.8 F1 (zero false positives, 26/40 recall).
+This is a small class (40 test pairs), so the macro gain is partly variance-
+driven. The macro-F1 on test (66.8) is +1.6 pp above devel (65.2), which is
+unusual but plausible given the small devel size for `int`. Spans the
+spec's "~65% target" comfortably.
+
+### Lessons learned (for the report)
+
+1. **The shipped feature set is well-tuned**: 4/5 single-mod additions
+   were neutral-to-negative. A logistic regression on sparse binary
+   features is sensitive to dilution.
+2. **Combinations can synergise**: each of mod2/mod3/mod4 alone was
+   neutral or marginal, but together they gain +0.9 pp macro. The
+   informative third-entity / type-pair / clue-verb features cooperate
+   in ways the model can't reconstruct from any single one alone.
+3. **Hyperparameter tuning didn't help**: default C=1 with lbfgs solver
+   is already optimal for both ref features and mod_best features.
+   `class_weight='balanced'` overcorrects (the predict path drops `null`
+   pairs anyway, so balancing across 5-way training is misguided).
+4. **MEM (LogisticRegression) >> SVM** on this task with these features
+   (best MEM 65.2 vs best SVM 60.5). The shipped feature space is sparse
+   and high-dim — exactly LR's regime.
+5. **`int` is the easiest positive class** despite being the rarest in
+   the corpus, because its trigger lexicon is concentrated ("interact",
+   "coadminister"). `mechanism` and `advise` are hardest — more diffuse
+   linguistic patterns.
 
 ### ref-MEM per-class devel breakdown:
 
