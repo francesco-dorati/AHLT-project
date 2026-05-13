@@ -14,6 +14,10 @@ class Codemaps :
         maxlen = params['max_len'] if 'max_len' in params else None
         suflen = int(params['suf_len']) if 'suf_len' in params else 0
         preflen = int(params['pref_len']) if 'pref_len' in params else 0
+        # [MOD-2.2] etype / form must be explicitly enabled (default off) so
+        # mod1/mod2/... isolate cleanly during ablation.
+        self.use_etype_flag = bool(int(params.get('use_etype', 0)))
+        self.params['use_form'] = bool(int(params.get('use_form', 0)))
 
         if isinstance(data,Dataset) and maxlen is not None:
             self.__create_indexs(data, maxlen, suflen, preflen)
@@ -196,7 +200,7 @@ class Codemaps :
             pl = self.preflen
             pfun = lambda w: w['form'].lower()[:pl] if len(w['form']) >= pl else w['form'].lower()
             inputs.append(self.__encode_and_pad_derived(data, self.pref_index, pfun))
-        if len(self.etype_index) > 1:
+        if self.use_etype():
             inputs.append(self.__encode_and_pad_derived(data, self.etype_index,
                                                        lambda w: w.get('etype', 'O')))
         if self.params.get('use_form', False):
@@ -235,7 +239,7 @@ class Codemaps :
     def use_prefix(self) :
         return self.preflen > 0
     def use_etype(self) :
-        return len(self.etype_index) > 1
+        return bool(self.params.get('use_etype', 0)) and len(self.etype_index) > 1
     def use_form(self) :
         return bool(self.params.get('use_form', False))
     ## -------- get label index size ---------
