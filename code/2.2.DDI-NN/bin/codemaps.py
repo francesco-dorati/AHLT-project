@@ -120,6 +120,11 @@ class Codemaps :
                 if t == 'MAXLEN' : self.maxlen = int(k)
                 elif t == 'SUFLEN' : self.suflen = int(k)         # [MOD-2.2]
                 elif t == 'PREFLEN' : self.preflen = int(k)       # [MOD-2.2]
+                # [MOD-2.2] restore use_etype / use_form flags from saved idx
+                # so the predict path produces the same set of input tensors
+                # the trained network expects.
+                elif t == 'USE_ETYPE': self.params['use_etype'] = int(k)
+                elif t == 'USE_FORM': self.params['use_form'] = int(k)
                 elif t == 'WORD': self.word_index[k] = int(i)
                 elif t == 'LCWORD': self.lc_word_index[k] = int(i)
                 elif t == 'LEMMA': self.lemma_index[k] = int(i)
@@ -137,6 +142,9 @@ class Codemaps :
             print ('MAXLEN', self.maxlen, "-", file=f)
             print ('SUFLEN', self.suflen, "-", file=f)              # [MOD-2.2]
             print ('PREFLEN', self.preflen, "-", file=f)            # [MOD-2.2]
+            # [MOD-2.2] persist the optional-channel flags so predict mirrors train
+            print ('USE_ETYPE', int(bool(self.params.get('use_etype', 0))), "-", file=f)
+            print ('USE_FORM',  int(bool(self.params.get('use_form', 0))), "-", file=f)
 
             for key in self.label_index : print('LABEL', key, self.label_index[key], file=f)
             for key in self.word_index : print('WORD', key, self.word_index[key], file=f)
