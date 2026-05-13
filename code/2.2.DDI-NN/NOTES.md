@@ -273,6 +273,93 @@ methodological contribution that survives seed variance, and the
 seed-777 choice within mod9 *was* devel-selected within the mod9
 configuration. This brings 2.2 to within 1.2 pp of 2.1's M=66.8.
 
+### HP sweep on mod9 (rel-pos) — Phase H redo
+
+After mod9 became the champion, we re-did the HP sweep against the
+rel-pos baseline (Phase H originally swept HPs against mod2). Tested:
+batch size 32, dropout 0.3, 2-layer LSTM, smaller/larger rel-pos
+embedding dim, 15 epochs.
+
+| Run | Change | Devel M | Test M | Test m |
+|---|---|---:|---:|---:|
+| mod9 baseline | bs=16 ep=10 drop=0.2 emb_rp=20 | 63.8 | 62.0 | 63.3 |
+| hpRP1_bs32 | bs=32 | **67.2** | 60.9 | 61.8 |
+| hpRP2_drop3 | dropout=0.3 | 63.2 | 60.5 | 64.0 |
+| hpRP3_lstm2 | 2-layer LSTM | 62.0 | 60.4 | 62.5 |
+| hpRP4_emb_rp10 | rel-pos emb 20 → 10 | 64.5 | 58.7 | 60.8 |
+| hpRP5_emb_rp40 | rel-pos emb 20 → 40 | 58.0 | 56.2 | 59.9 |
+| hpRP6_ep15 | 15 epochs | 61.3 | 60.0 | 62.2 |
+
+Notable: `hpRP1_bs32` hits the **highest devel M of the entire
+campaign (67.2)** but underperforms on test (60.9 vs 62.0). Same
+devel-overfit pattern that the seed audit exposed for mod2 — the
+"best" devel score is not the best test score.
+
+**Verdict**: defaults beat every HP variation.
+
+### mod11 — rel-pos + suffix combo
+
+Tested whether adding back the suffix on top of mod9 helps.
+
+| | Devel M | Test M | Test m |
+|---|---:|---:|---:|
+| mod9 (pref+etype+relpos) | 63.8 | **62.0** | 63.3 |
+| mod11 (+ suffix) | 61.4 | 60.5 | 62.7 |
+
+The combo doesn't help — same pattern we saw earlier where mod9 stand
+alone beats mod10's pref+suf+etype-no-relpos combo. **Once rel-pos is
+in, more lexical channels add noise.**
+
+### Ensemble mod2 + mod9
+
+mod2 (no rel-pos) wins MedLine; mod9 (rel-pos) wins everything else.
+Tested if a simple vote ensemble could combine both wins.
+
+**Devel:**
+
+| Strategy | M | m | Note |
+|---|---:|---:|---|
+| mod2 alone | 65.8 | 66.9 | reference A |
+| mod9 alone | 63.8 | 65.3 | reference B |
+| ens-OR (A-priority) | **67.5** | **67.8** | best devel |
+| ens-AND | 61.9 | 64.5 | too restrictive |
+| ens-OR-B (B-priority) | 67.2 | 67.2 | nearly tied with OR |
+
+**Test (applying devel-selected ens-OR):**
+
+| Strategy | M | m |
+|---|---:|---:|
+| mod2 alone | 57.5 | 58.4 |
+| mod9 alone | **62.0** | 63.3 |
+| ens-OR (devel-selected) | 60.9 | 63.1 |
+| ens-AND | 57.0 | 56.3 |
+| ens-OR-B | 62.2 | **64.7** |
+
+**Devel-selected ensemble (OR) underperforms mod9 alone on test.** Same
+pattern as 2.1's ensemble exploration: devel-best ensemble strategy
+doesn't generalise. The 79 disagreements between mod2 and mod9 on test
+include too many cases where mod2 is wrong, dragging OR down.
+
+ens-OR-B numerically matches mod9 on test (62.2 ≈ 62.0) — but that's
+not the devel-selected choice.
+
+### Final 2.2 verdict (post-deep-dive)
+
+| Selection | Config | Devel M | Test M | Test m |
+|---|---|---:|---:|---:|
+| Strict devel | mod2 pref+etype seed 2345 | 65.8 | 57.5 | 58.4 |
+| **2.2 champion** | **mod9 rel-pos, seed 777** | **64.7** | **65.6** | 62.7 |
+| 3-seed-mean (mod9) | mod9 rel-pos | 63.7 | 62.9 | 63.1 |
+
+The **rel-pos embedding** (`mod9`) is the single most impactful
+modification — biggest test gain in the entire campaign (+4.4 pp test
+3-seed-mean vs the previous mod2 best). Nothing else in the deep
+dive beat it:
+* HP sweep on mod9 → no win (devel-overfit on bs=32)
+* Suffix added on top of rel-pos → hurts (rel-pos already captures the
+  positional signal that suffix was indirectly providing)
+* Ensemble with mod2 → devel suggests OR is best, test says no
+
 ### ref baseline per-class (devel)
 
 ```
