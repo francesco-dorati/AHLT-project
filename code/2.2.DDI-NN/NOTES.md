@@ -360,6 +360,31 @@ dive beat it:
   positional signal that suffix was indirectly providing)
 * Ensemble with mod2 → devel suggests OR is best, test says no
 
+### Final check — mod9b: pure CNN + rel-pos (no LSTM)
+
+Hypothesis: maybe the BiLSTM was only there for positional information,
+and rel-pos makes it redundant.
+
+| | Devel M | Test M |
+|---|---:|---:|
+| mod9 (CNN + LSTM + rel-pos) | 63.8 | 62.0 |
+| mod9b (CNN only + rel-pos)  | **0.0** | **0.0** |
+
+**Result: catastrophic collapse — the model predicts `null` for every
+single pair.** Even with explicit positional embeddings, removing the
+BiLSTM kills the model entirely.
+
+**Interpretation**: the shipped CNN block (kernel=2, padding=same,
+max-pool over the whole sequence) is far too narrow to model the
+inter-DRUG context on its own. Its receptive field is 2 tokens; the
+final max-pool then collapses 150 timesteps into one vector. Rel-pos
+labels each token's position but the CNN cannot integrate that signal
+across the long-range dependencies that DDIs require. The BiLSTM's
+sequence-aggregation is irreplaceable in this architecture.
+
+A clean architectural conclusion for the report: **rel-pos and BiLSTM
+are complementary, not interchangeable**.
+
 ### ref baseline per-class (devel)
 
 ```
