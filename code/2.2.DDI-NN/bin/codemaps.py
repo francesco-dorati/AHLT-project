@@ -9,11 +9,14 @@ class Codemaps :
     # --- constructor, create mapper either from training data, or
     # --- loading codemaps from given file
     def __init__(self, data, params) :
+        # [MOD-2.2] keep params so __create_indexs can read suf_len / pref_len etc.
+        self.params = params if params is not None else {}
         maxlen = params['max_len'] if 'max_len' in params else None
-        
-                
+        suflen = int(params['suf_len']) if 'suf_len' in params else 0
+        preflen = int(params['pref_len']) if 'pref_len' in params else 0
+
         if isinstance(data,Dataset) and maxlen is not None:
-            self.__create_indexs(data, maxlen)
+            self.__create_indexs(data, maxlen, suflen, preflen)
 
         elif type(data) == str :
             print('Codemaps: ', end='')
@@ -26,25 +29,37 @@ class Codemaps :
             print(f'codemaps: Missing max_len and/or suf_len parameters in constructor. params={params}')
             exit()
 
-            
+
     # --------- Create indexs from training data
-    # Extract all words and labels in given sentences and 
+    # Extract all words and labels in given sentences and
     # create indexes to encode them as numbers when needed
-    def __create_indexs(self, data, maxlen) :
+    def __create_indexs(self, data, maxlen, suflen=0, preflen=0) :
 
         self.maxlen = maxlen
+        # [MOD-2.2] suffix / prefix lengths (0 disables that input channel)
+        self.suflen = suflen
+        self.preflen = preflen
         words = set([])
         lc_words = set([])
         lems = set([])
         pos = set([])
+        sufs = set([])    # [MOD-2.2] mod1 — suffix index
+        prefs = set([])   # [MOD-2.2] mod2 — prefix index
+        etypes = set([])  # [MOD-2.2] mod3 — entity-type indicator (drug/group/brand/drug_n/none)
         labels = set([])
-        
+
         for s in data.sentences() :
             for t in s['sent'] :
                 words.add(t['form'])
                 lc_words.add(t['lc_form'])
                 lems.add(t['lemma'])
                 pos.add(t['pos'])
+                if suflen > 0:
+                    sufs.add(t['form'].lower()[-suflen:] if len(t['form']) >= suflen else t['form'].lower())
+                if preflen > 0:
+                    prefs.add(t['form'].lower()[:preflen] if len(t['form']) >= preflen else t['form'].lower())
+                # entity-type marker: tokens that are <DRUG1>/<DRUG2>/<DRUG_OTHER> carry an 'etype' field
+                etypes.add(t.get('etype', 'O'))
             labels.add(s['type'])
 
         self.word_index = {w: i+2 for i,w in enumerate(list(words))}
@@ -54,7 +69,7 @@ class Codemaps :
         self.lc_word_index = {w: i+2 for i,w in enumerate(list(lc_words))}
         self.lc_word_index['PAD'] = 0 # Padding
         self.lc_word_index['UNK'] = 1 # Unknown words
-        
+
         self.lemma_index = {s: i+2 for i,s in enumerate(list(lems))}
         self.lemma_index['PAD'] = 0  # Padding
         self.lemma_index['UNK'] = 1  # Unseen lemmas
@@ -63,74 +78,130 @@ class Codemaps :
         self.pos_index['PAD'] = 0  # Padding
         self.pos_index['UNK'] = 1  # Unseen PoS tags
 
+        # [MOD-2.2] mod1 — suffix index
+        self.suf_index = {s: i+2 for i,s in enumerate(list(sufs))}
+        self.suf_index['PAD'] = 0
+        self.suf_index['UNK'] = 1
+
+        # [MOD-2.2] mod2 — prefix index
+        self.pref_index = {s: i+2 for i,s in enumerate(list(prefs))}
+        self.pref_index['PAD'] = 0
+        self.pref_index['UNK'] = 1
+
+        # [MOD-2.2] mod3 — etype index
+        self.etype_index = {s: i+1 for i,s in enumerate(list(etypes))}
+        self.etype_index['PAD'] = 0
+
         self.label_index = {t: i for i,t in enumerate(list(labels))}
 
         
-    ## --------- load indexs ----------- 
-    def __load(self, name) : 
+    ## --------- load indexs -----------
+    def __load(self, name) :
         self.maxlen = 0
         self.suflen = 0
+        self.preflen = 0
         self.word_index = {}
         self.lc_word_index = {}
         self.lemma_index = {}
         self.pos_index = {}
+        # [MOD-2.2] new index slots
+        self.suf_index = {}
+        self.pref_index = {}
+        self.etype_index = {}
         self.label_index = {}
 
         with open(name+".idx") as f :
-            for line in f.readlines(): 
+            for line in f.readlines():
                 (t,k,i) = line.split()
-                if t == 'MAXLEN' : self.maxlen = int(k)           
+                if t == 'MAXLEN' : self.maxlen = int(k)
+                elif t == 'SUFLEN' : self.suflen = int(k)         # [MOD-2.2]
+                elif t == 'PREFLEN' : self.preflen = int(k)       # [MOD-2.2]
                 elif t == 'WORD': self.word_index[k] = int(i)
                 elif t == 'LCWORD': self.lc_word_index[k] = int(i)
                 elif t == 'LEMMA': self.lemma_index[k] = int(i)
                 elif t == 'POS': self.pos_index[k] = int(i)
+                elif t == 'SUF': self.suf_index[k] = int(i)        # [MOD-2.2]
+                elif t == 'PREF': self.pref_index[k] = int(i)      # [MOD-2.2]
+                elif t == 'ETYPE': self.etype_index[k] = int(i)    # [MOD-2.2]
                 elif t == 'LABEL': self.label_index[k] = int(i)
-                            
-    
+
+
     ## ---------- Save model and indexs ---------------
     def save(self, name) :
         # save indexes
         with open(name+".idx","w") as f :
             print ('MAXLEN', self.maxlen, "-", file=f)
+            print ('SUFLEN', self.suflen, "-", file=f)              # [MOD-2.2]
+            print ('PREFLEN', self.preflen, "-", file=f)            # [MOD-2.2]
 
             for key in self.label_index : print('LABEL', key, self.label_index[key], file=f)
             for key in self.word_index : print('WORD', key, self.word_index[key], file=f)
             for key in self.lc_word_index : print('LCWORD', key, self.lc_word_index[key], file=f)
             for key in self.lemma_index : print('LEMMA', key, self.lemma_index[key], file=f)
             for key in self.pos_index : print('POS', key, self.pos_index[key], file=f)
+            for key in self.suf_index : print('SUF', key, self.suf_index[key], file=f)        # [MOD-2.2]
+            for key in self.pref_index : print('PREF', key, self.pref_index[key], file=f)    # [MOD-2.2]
+            for key in self.etype_index : print('ETYPE', key, self.etype_index[key], file=f) # [MOD-2.2]
             
             
      ## --------- get code for key k in given index, or code for unknown if not found
     def __code(self, index, k) :
         return index[k] if k in index else index['UNK']
 
-    ## --------- encode and pad all sequences of given key (form, lemma, etc) ----------- 
+    ## --------- encode and pad all sequences of given key (form, lemma, etc) -----------
     def __encode_and_pad(self, data, index, key) :
         enc = [torch.Tensor([self.__code(index,w[key]) for w in s['sent']]) for s in data.sentences()]
         # cut sentences longer than maxlen
-        enc = [s[0:self.maxlen] for s in enc]        
+        enc = [s[0:self.maxlen] for s in enc]
         # create a tensor full of padding
         X = torch.Tensor([]).new_full((len(enc), self.maxlen), index['PAD'], dtype=torch.int64)
         # fill padding tensor with sentence data
         for i, s in enumerate(enc): X[i, 0:s.size()[0]] = s
         return X
-    
 
-    ## --------- encode X from given data ----------- 
+    # [MOD-2.2] generic encode-and-pad for token-derived keys (suffix/prefix
+    # of form, etype-of-token) so we can build per-token derived features
+    # without changing the dataset pickle format.
+    def __encode_and_pad_derived(self, data, index, deriver, padval=None) :
+        if padval is None: padval = index.get('PAD', 0)
+        enc = [torch.Tensor([self.__code(index, deriver(w)) for w in s['sent']]) for s in data.sentences()]
+        enc = [s[0:self.maxlen] for s in enc]
+        X = torch.Tensor([]).new_full((len(enc), self.maxlen), padval, dtype=torch.int64)
+        for i, s in enumerate(enc): X[i, 0:s.size()[0]] = s
+        return X
+
+
+    ## --------- encode X from given data -----------
     def encode_words(self, data) :
 
         # encode and pad sentence words
         Xw = self.__encode_and_pad(data, self.word_index, 'form')
         # encode and pad sentence lc_words
-        Xlw = self.__encode_and_pad(data, self.lc_word_index, 'lc_form')        
+        Xlw = self.__encode_and_pad(data, self.lc_word_index, 'lc_form')
         # encode and pad lemmas
-        Xl = self.__encode_and_pad(data, self.lemma_index, 'lemma')        
+        Xl = self.__encode_and_pad(data, self.lemma_index, 'lemma')
         # encode and pad PoS
-        Xp = self.__encode_and_pad(data, self.pos_index, 'pos')        
+        Xp = self.__encode_and_pad(data, self.pos_index, 'pos')
 
-        # return encoded sequences
-        # return [Xw,Xlw,Xl,Xp] (or just the subset expected by the NN inputs) 
-        return [Xlw,Xl,Xp] 
+        # [MOD-2.2] build the input list according to which extra channels are
+        # enabled. We always include [Xlw, Xl, Xp] (the shipped baseline),
+        # then optionally Xs (suffix), Xpr (prefix), Xe (etype indicator),
+        # and Xform (case-sensitive form).
+        inputs = [Xlw, Xl, Xp]
+        if self.suflen > 0:
+            sl = self.suflen
+            sfun = lambda w: w['form'].lower()[-sl:] if len(w['form']) >= sl else w['form'].lower()
+            inputs.append(self.__encode_and_pad_derived(data, self.suf_index, sfun))
+        if self.preflen > 0:
+            pl = self.preflen
+            pfun = lambda w: w['form'].lower()[:pl] if len(w['form']) >= pl else w['form'].lower()
+            inputs.append(self.__encode_and_pad_derived(data, self.pref_index, pfun))
+        if len(self.etype_index) > 1:
+            inputs.append(self.__encode_and_pad_derived(data, self.etype_index,
+                                                       lambda w: w.get('etype', 'O')))
+        if self.params.get('use_form', False):
+            inputs.append(Xw)
+        return inputs
 
     
     ## --------- encode Y from given data ----------- 
@@ -152,6 +223,21 @@ class Codemaps :
     ## -------- get label index size ---------
     def get_n_pos(self) :
         return len(self.pos_index)
+    # [MOD-2.2] sizes for new index slots
+    def get_n_suffixes(self) :
+        return len(self.suf_index)
+    def get_n_prefixes(self) :
+        return len(self.pref_index)
+    def get_n_etypes(self) :
+        return len(self.etype_index)
+    def use_suffix(self) :
+        return self.suflen > 0
+    def use_prefix(self) :
+        return self.preflen > 0
+    def use_etype(self) :
+        return len(self.etype_index) > 1
+    def use_form(self) :
+        return bool(self.params.get('use_form', False))
     ## -------- get label index size ---------
     def get_n_labels(self) :
         return len(self.label_index)

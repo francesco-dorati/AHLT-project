@@ -39,11 +39,22 @@ from evaluator import evaluate
 # extract training hyperparameters from command line
 print("read params")
 params = {}
+# [MOD-2.2] keys whose value should stay as string (model name only)
+_STR_KEYS = {"name"}
 for p in sys.argv[1:]:
     if "=" in p:
-        par,val = p.split("=")
-        params[par] = val
-        
+        par,val = p.split("=", 1)
+        if par in _STR_KEYS:
+            params[par] = val
+            continue
+        try:
+            params[par] = int(val)
+        except ValueError:
+            try:
+                params[par] = float(val)
+            except ValueError:
+                params[par] = val
+
 if "name" not in params: params["name"]="mymodel_000"
 
 # if feature extraction is required, do it
