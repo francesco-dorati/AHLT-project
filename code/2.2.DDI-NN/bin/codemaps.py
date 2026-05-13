@@ -18,6 +18,11 @@ class Codemaps :
         # mod1/mod2/... isolate cleanly during ablation.
         self.use_etype_flag = bool(int(params.get('use_etype', 0)))
         self.params['use_form'] = bool(int(params.get('use_form', 0)))
+        # [MOD-2.2] relative-position embedding: distance from each token
+        # to <DRUG1> / <DRUG2> markers, bucketed. Classic relation-extraction
+        # trick — the model otherwise has no explicit notion of "near the
+        # target pair vs. far away in the sentence".
+        self.params['use_relpos'] = bool(int(params.get('use_relpos', 0)))
 
         if isinstance(data,Dataset) and maxlen is not None:
             self.__create_indexs(data, maxlen, suflen, preflen)
@@ -96,6 +101,13 @@ class Codemaps :
         self.etype_index = {s: i+1 for i,s in enumerate(list(etypes))}
         self.etype_index['PAD'] = 0
 
+        # [MOD-2.2] relative-position bucket index (11 buckets + PAD)
+        # Buckets used for both DRUG1 and DRUG2 distances.
+        self.relpos_buckets = ["<=-10","-9..-5","-4..-2","-1","0","+1",
+                                "+2..+4","+5..+9",">=+10","UNK"]
+        self.relpos_index = {b: i+1 for i,b in enumerate(self.relpos_buckets)}
+        self.relpos_index['PAD'] = 0
+
         self.label_index = {t: i for i,t in enumerate(list(labels))}
 
         
@@ -112,6 +124,12 @@ class Codemaps :
         self.suf_index = {}
         self.pref_index = {}
         self.etype_index = {}
+        # [MOD-2.2] relative-position bucket index must be present even on
+        # __load() path so encode_words can build the rel-pos tensors.
+        self.relpos_buckets = ["<=-10","-9..-5","-4..-2","-1","0","+1",
+                                "+2..+4","+5..+9",">=+10","UNK"]
+        self.relpos_index = {b: i+1 for i,b in enumerate(self.relpos_buckets)}
+        self.relpos_index['PAD'] = 0
         self.label_index = {}
 
         with open(name+".idx") as f :
@@ -125,6 +143,7 @@ class Codemaps :
                 # the trained network expects.
                 elif t == 'USE_ETYPE': self.params['use_etype'] = int(k)
                 elif t == 'USE_FORM': self.params['use_form'] = int(k)
+                elif t == 'USE_RELPOS': self.params['use_relpos'] = int(k)
                 elif t == 'WORD': self.word_index[k] = int(i)
                 elif t == 'LCWORD': self.lc_word_index[k] = int(i)
                 elif t == 'LEMMA': self.lemma_index[k] = int(i)
@@ -145,6 +164,7 @@ class Codemaps :
             # [MOD-2.2] persist the optional-channel flags so predict mirrors train
             print ('USE_ETYPE', int(bool(self.params.get('use_etype', 0))), "-", file=f)
             print ('USE_FORM',  int(bool(self.params.get('use_form', 0))), "-", file=f)
+            print ('USE_RELPOS', int(bool(self.params.get('use_relpos', 0))), "-", file=f)
 
             for key in self.label_index : print('LABEL', key, self.label_index[key], file=f)
             for key in self.word_index : print('WORD', key, self.word_index[key], file=f)
@@ -213,7 +233,43 @@ class Codemaps :
                                                        lambda w: w.get('etype', 'O')))
         if self.params.get('use_form', False):
             inputs.append(Xw)
+        # [MOD-2.2] relative position embeddings (distance to DRUG1/DRUG2)
+        if self.use_relpos():
+            Xd1, Xd2 = self.__encode_relpos(data)
+            inputs.append(Xd1)
+            inputs.append(Xd2)
         return inputs
+
+    # [MOD-2.2] relative-position helpers
+    def __relpos_bucket(self, d) :
+        if d <= -10: return "<=-10"
+        if d <= -5:  return "-9..-5"
+        if d <= -2:  return "-4..-2"
+        if d == -1:  return "-1"
+        if d == 0:   return "0"
+        if d == 1:   return "+1"
+        if d <= 4:   return "+2..+4"
+        if d <= 9:   return "+5..+9"
+        return ">=+10"
+
+    def __encode_relpos(self, data) :
+        idx = self.relpos_index
+        pad = idx['PAD']
+        Xd1 = torch.Tensor([]).new_full((len(data.data), self.maxlen), pad, dtype=torch.int64)
+        Xd2 = torch.Tensor([]).new_full((len(data.data), self.maxlen), pad, dtype=torch.int64)
+        for si, s in enumerate(data.sentences()):
+            toks = s['sent']
+            # find DRUG1 / DRUG2 positions
+            p1 = next((i for i,t in enumerate(toks) if t['form'] == '<DRUG1>'), None)
+            p2 = next((i for i,t in enumerate(toks) if t['form'] == '<DRUG2>'), None)
+            for i, t in enumerate(toks):
+                if i >= self.maxlen:
+                    break
+                d1 = (i - p1) if p1 is not None else 0
+                d2 = (i - p2) if p2 is not None else 0
+                Xd1[si, i] = idx[self.__relpos_bucket(d1)]
+                Xd2[si, i] = idx[self.__relpos_bucket(d2)]
+        return Xd1, Xd2
 
     
     ## --------- encode Y from given data ----------- 
@@ -250,6 +306,11 @@ class Codemaps :
         return bool(self.params.get('use_etype', 0)) and len(self.etype_index) > 1
     def use_form(self) :
         return bool(self.params.get('use_form', False))
+    # [MOD-2.2]
+    def use_relpos(self) :
+        return bool(self.params.get('use_relpos', False))
+    def get_n_relpos(self) :
+        return len(self.relpos_index)
     ## -------- get label index size ---------
     def get_n_labels(self) :
         return len(self.label_index)

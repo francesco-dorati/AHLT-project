@@ -18,6 +18,7 @@ class ddiCNN(nn.Module):
       embPR_sz = int(ap.get('emb_pr', 30))   # prefix
       embE_sz  = int(ap.get('emb_e',  20))   # etype indicator
       embW_sz  = int(ap.get('emb_w',  100))  # case-sensitive form
+      embRP_sz = int(ap.get('emb_rp', 20))   # relative-position bucket
       lstm_out_sz = int(ap.get('lstm_h', 100))
       lstm_layers = int(ap.get('lstm_layers', 1))
       cnn_out_sz = int(ap.get('cnn_out', 64))
@@ -45,6 +46,7 @@ class ddiCNN(nn.Module):
       self.has_pref = codes.use_prefix()
       self.has_et   = codes.use_etype()
       self.has_form = codes.use_form()
+      self.has_relpos = codes.use_relpos()  # [MOD-2.2]
       if self.has_suf:
          self.embS = nn.Embedding(codes.get_n_suffixes(), embS_sz, padding_idx=0)
          in_size += embS_sz
@@ -57,6 +59,14 @@ class ddiCNN(nn.Module):
       if self.has_form:
          self.embW = nn.Embedding(codes.get_n_words(), embW_sz, padding_idx=0)
          in_size += embW_sz
+      if self.has_relpos:
+         # two separate embeddings (one for distance to DRUG1, one to DRUG2)
+         # sharing weights across DRUG1 and DRUG2 is also valid — we use two
+         # to allow the model to learn separate priors for "left of the pair"
+         # vs "right of the pair".
+         self.embRP1 = nn.Embedding(codes.get_n_relpos(), embRP_sz, padding_idx=0)
+         self.embRP2 = nn.Embedding(codes.get_n_relpos(), embRP_sz, padding_idx=0)
+         in_size += 2 * embRP_sz
 
       if self.use_lstm:
          self.lstm = nn.LSTM(in_size, lstm_out_sz, num_layers=lstm_layers,
@@ -95,6 +105,9 @@ class ddiCNN(nn.Module):
          parts.append(self.embE(inputs[idx])); idx += 1
       if self.has_form:
          parts.append(self.embW(inputs[idx])); idx += 1
+      if self.has_relpos:
+         parts.append(self.embRP1(inputs[idx])); idx += 1
+         parts.append(self.embRP2(inputs[idx])); idx += 1
       x = torch.cat(parts, dim=2)
 
       if self.use_lstm:
