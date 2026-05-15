@@ -22,7 +22,17 @@ QUANT=$6
 python3 fewshot.py $MODEL $PROMPTS $SHOTS $TRAIN $TEST $QUANT
 if (test $? != 0); then exit; fi
 
-python3 ../../../util/evaluator.py DDI ../../../data/$TEST.xml  ../results/FS-$MODEL-$SHOTS-${TEST}${QUANT}.out ../results/FS-$MODEL-$SHOTS-${TEST}${QUANT}.stats
+# [MOD-2.3] Stamp the prompt-variant tag into the output filename so
+# multiple prompts (prompts01/02/03) at the same shots don't clobber
+# each other (the same fix we applied in 1.3 after the same collision).
+TAG=$(basename "$PROMPTS" .json)
+BASE=../results/FS-$MODEL-$SHOTS-${TEST}${QUANT}
+TAGGED=../results/FS-$MODEL-$TAG-$SHOTS-${TEST}${QUANT}
+for ext in out json; do
+  if [ -f $BASE.$ext ]; then mv $BASE.$ext $TAGGED.$ext; fi
+done
+
+python3 ../../../util/evaluator.py DDI ../../../data/$TEST.xml $TAGGED.out $TAGGED.stats
 
 
 deactivate

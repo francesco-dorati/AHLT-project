@@ -104,6 +104,56 @@ toward `advice`. **Worth testing: fix the typo and see if it helps.**
 
 ## Experiment table
 
-| Run | Type | Model | Prompts | Shots | Balanced | Quant | devel m | devel M | test m | test M | Notes |
-|---|---|---|---|---|---|---|---:|---:|---:|---:|---|
-| _baseline_ | FS | llama32B3 | prompts01 | 0 | — | yes | — | — | — | — | TBD |
+### Phase C — Few-shot sweep (devel)
+
+| Run | Model | Prompts | Shots | Balanced | devel M | devel m | Notes |
+|---|---|---|---|---|---:|---:|---|
+| C1.0 | llama32B3 | prompts01 | 0 | — | 9.5 | 8.2 | 0-shot collapses |
+| C1.3 | llama32B3 | prompts01 | 3 | yes | 21.4 | 18.7 | huge FP load on `int` (1866 FPs) |
+| C1.5 | llama32B3 | prompts01 | 5 | yes | 21.0 | 18.7 | |
+| **C1.10** | **llama32B3** | **prompts01** | **10** | **yes** | **23.2** | 17.4 | **best macro of FS sweep** |
+| C1.15 | llama32B3 | prompts01 | 15 | yes | 21.8 | 22.0 | best m |
+| C2.5 | llama32B3 | prompts02 | 5 | yes | 20.7 | 23.3 | best micro overall |
+| C2.10 | llama32B3 | prompts02 | 10 | yes | 21.8 | 23.0 | |
+| C2.15 | llama32B3 | prompts02 | 15 | yes | 18.7 | 20.7 | |
+| C4.10 | qwen25B3 | prompts01 | 10 | yes | 19.8 | 16.4 | qwen worse than llama |
+
+### Phase C findings
+
+- **Few-shot is fundamentally weak on DDI** at M=18-23. Compare to 2.1 ML
+  (M=66.8 test) and 2.2 NN (M=65.6 test) — LLMs in FS mode trail by ~45 pp.
+- **prompts02 (fixed "advise" + stronger null emphasis)** improved micro
+  (~m+5 pp) but barely moved macro. The model is so confused on the
+  positive/null boundary that prompt-level tweaks don't help much.
+- **Adding shots beyond 5 helps only marginally** (3→10 shots: +1.8 pp;
+  10→15 shots: -1.4 pp). The signal saturates because the model can't
+  generalize the structural distinction "is there an interaction stated"
+  from a handful of examples.
+- **Qwen-2.5-3B is worse than Llama-3.2-3B** at 10-shot (19.8 vs 23.2).
+  Same direction as 1.3 where qwen also trailed at few-shot.
+- **Massive false-positive load**: model emits a positive class for ~85%
+  of test pairs even though only ~15% are positive. Especially `int`
+  (1-2% precision: ~1900 FPs for ~20 TPs). The instruction "if unsure,
+  choose null" is being ignored.
+
+**Implication**: fine-tuning is the only path to closing the gap to ML/NN.
+Phase D is running now (job 425328, llama32B3 + prompts01 + 4-bit, LoRA r=8).
+
+### File-naming fix (mid-campaign)
+
+The shipped `fewshot.sh` named outputs as `FS-<model>-<shots>-<test><quant>.out`
+without the prompt-variant tag — same bug as 1.3. So when we ran prompts02
+at 5/10/15 shots, the .out/.stats files overwrote the matching prompts01
+runs. Local copies of the prompts01 results were already saved.
+
+Fix applied (mirroring 1.3):
+
+```bash
+TAG=$(basename "$PROMPTS" .json)
+BASE=../results/FS-$MODEL-$SHOTS-${TEST}${QUANT}
+TAGGED=../results/FS-$MODEL-$TAG-$SHOTS-${TEST}${QUANT}
+mv $BASE.{out,json} $TAGGED.{out,json}
+python3 evaluator.py DDI ... $TAGGED.out $TAGGED.stats
+```
+
+Overwritten files on Boada renamed to `FS-llama32B3-prompts02-{5,10,15}-…`.
