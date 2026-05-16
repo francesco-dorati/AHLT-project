@@ -54,7 +54,13 @@ print(f"Dataset loading took {time.time()-t0:.1f} seconds", file=sys.stderr)
 t0 = time.time()
 os.makedirs(paths.MODELS, exist_ok=True)
 quant="-quant" if quantized else ""
-outputdir = os.path.join(paths.MODELS, f"FT-{model}{quant}.weights")
+# [MOD-2.3] embed LoRA r and prompt tag in output path so multiple FT
+# configurations don't clobber each other.
+lora_r = int(os.environ.get("LORA_R", "8"))
+prompt_tag = os.path.splitext(os.path.basename(promptfile))[0]
+suffix = f"-r{lora_r}" if lora_r != 8 else ""
+outputdir = os.path.join(paths.MODELS, f"FT-{model}{quant}-{prompt_tag}{suffix}.weights")
+print(f"[MOD-2.3] FT output: {outputdir}", file=sys.stderr)
 engine.train(train_dataset,
              val_dataset, 
              outputdir) 

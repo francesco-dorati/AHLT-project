@@ -21,6 +21,11 @@ QUANT=$5
 python3 finetune-inference.py $MODEL $PROMPTS $TEST $WEIGHTS $QUANT
 if (test $? != 0); then exit; fi
 
-python3 ../../../util/evaluator.py DDI ../../../data/$TEST.xml  ../results/FT-${MODEL}${QUANT}-${TEST}.out ../results/FT-${MODEL}${QUANT}-${TEST}.stats
+# [MOD-2.3] Mirror the FT-train output naming so multiple FT configs
+# (r=8 / r=32, different prompts) don't clobber inference results.
+WTAG=$(basename "$WEIGHTS" .weights | sed 's/^FT-//')
+python3 ../../../util/evaluator.py DDI ../../../data/$TEST.xml \
+   ../results/FT-${WTAG}-${TEST}.out \
+   ../results/FT-${WTAG}-${TEST}.stats
 
 deactivate

@@ -127,15 +127,20 @@ class FineTuning() :
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
         self.tokenizer.truncation_side = "left"
 
+        # [MOD-2.3] LoRA rank read from env LORA_R (default 8 = shipped baseline)
+        import os
+        lora_r = int(os.environ.get("LORA_R", "8"))
+        lora_alpha = int(os.environ.get("LORA_ALPHA", str(2 * lora_r)))
         # Add LoRa fine-tunable layers
         lora_config = LoraConfig(
-            r=8,
-            lora_alpha=16,
+            r=lora_r,
+            lora_alpha=lora_alpha,
             target_modules=["q_proj", "v_proj", "k_proj", "o_proj"],
             lora_dropout=0.05,
             bias="none",
             task_type="CAUSAL_LM",
         )
+        print(f"[MOD-2.3] LoRA r={lora_r} alpha={lora_alpha}", file=sys.stderr)
         self.model = get_peft_model(self.model, lora_config)
 
         # Now, after adding PEFT layers, we can load to GPU.

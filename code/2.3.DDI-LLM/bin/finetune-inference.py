@@ -68,9 +68,9 @@ print(f"Processed {len(annotated)} examples in {time.time()-t0:.1f} seconds. ({(
 
 # save output
 os.makedirs(paths.RESULTS, exist_ok=True)
-quant = "-quant" if quantized else ""
-outfname = os.path.join(paths.RESULTS,
-                        f"FT-{model}{quant}-{testdata}")
+# [MOD-2.3] embed weight-dir tag so multiple FT configs don't clobber
+wtag = os.path.basename(weightdir).replace(".weights", "").replace("FT-", "")
+outfname = os.path.join(paths.RESULTS, f"FT-{wtag}-{testdata}")
 with open(outfname+".json", "w") as of:
    json.dump(annotated, of, indent=1, ensure_ascii=False)
 with open(outfname+".out", "w") as of:  
