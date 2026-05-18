@@ -157,3 +157,81 @@ python3 evaluator.py DDI ... $TAGGED.out $TAGGED.stats
 ```
 
 Overwritten files on Boada renamed to `FS-llama32B3-prompts02-{5,10,15}-…`.
+
+## Phase D + F — Fine-tuning (final results)
+
+Trained four LoRA fine-tune configurations on the train split (5000
+balanced examples) with 10 epochs, lr=2e-5, batch=1, gradient_accum=8,
+prompts01.json. All 4-bit quantised.
+
+| Config | Devel M | Devel m | Test M | Test m |
+|---|---:|---:|---:|---:|
+| FT Llama r=8  | 28.9 | 36.0 | 30.5 | 35.3 |
+| FT Qwen  r=8  | 33.7 | 33.7 | 27.6 | 29.4 |
+| **FT Llama r=32** | **33.8** | **37.6** | **35.2** | **37.8** |
+| FT Qwen  r=32 | 32.5 | 34.5 | 29.1 | 32.0 |
+
+**Champion: FT Llama r=32 — devel M=33.8, test M=35.2.** Per-class on test:
+
+```
+                P     R    F1
+advise        27.7  78.5  40.9
+effect        27.3  67.9  38.9
+int           17.6  40.0  24.4
+mechanism     23.8  78.5  36.5
+M.avg         24.1  66.2  35.2
+m.avg         25.5  73.3  37.8
+```
+
+Pattern: **all classes have high recall (40-79%) but low precision (17-28%)**.
+The fine-tuned LLM still over-predicts positives (the prompt's "null"
+instruction is hard to obey under heavy class imbalance).
+
+### Phase D/F findings
+
+1. **Rank r=32 helps a lot.** Llama r=32 beats Llama r=8 by +4.7 pp test
+   macro. Same direction as 1.3 NER campaign. The bigger adapter has
+   more capacity for the multi-class boundaries.
+
+2. **Llama > Qwen for DDI at this scale.** Llama r=32 wins both devel
+   (33.8 vs 32.5) and test (35.2 vs 29.1). Same as in 1.3 (Llama r=32
+   won test) but at a much lower absolute level.
+
+3. **FT is much better than FS but still far below ML/NN.** FT Llama
+   r=32 test M=35.2 vs FS best 23.2 → +12 pp. But ML champion is 66.8
+   and NN champion is 65.6 — the LLM trails by ~30 pp.
+
+4. **Why? DDI ≠ NER.** Unlike 1.3 where FT-LLM matched/beat dedicated
+   NERC, here the LLM struggles because:
+   - The class imbalance is extreme (85% null); the model can't reliably
+     refuse to predict a class.
+   - DDI requires *relational* reasoning between the two DRUG markers,
+     not just lexical matching. A 3B-quantised LLM lacks the deep
+     reasoning that the ML's syntax features and the NN's positional
+     embeddings encode explicitly.
+   - Output is a single token (the class name) — there's no
+     "structured generation" gain, unlike NER where the LLM can stream
+     XML tags.
+
+5. **Disk quota mid-campaign caused silent failures.** Several
+   FT-inference jobs ran for 13-21s producing empty .out files because
+   the Boada 2GB user quota was exhausted by retained training
+   checkpoints. Lesson: clean `checkpoint-*` subdirs aggressively after
+   each FT-train completes.
+
+## Cross-system comparison
+
+| System | Devel M | Devel m | Test M | Test m |
+|---|---:|---:|---:|---:|
+| 2.0 rule baseline | 22.2 | 13.1 | 26.9 | 20.8 |
+| 2.1 ML two-stage (mod_best2) | 65.9 | 65.3 | **66.8** | 62.5 |
+| 2.2 NN mod9 rel-pos (seed 777) | 64.7 | 62.7 | **65.6** | 62.7 |
+| 2.3 LLM FT-Llama r=32 (champion) | 33.8 | 37.6 | **35.2** | 37.8 |
+
+For DDI:
+- **ML > NN by ~1 pp** (66.8 vs 65.6 test macro)
+- **LLM trails both by ~30 pp** at the 3B-quantised scale
+
+This is the *opposite* of 1.3 NER where the LLM matched/beat the
+dedicated systems. The key task differences explain it (see point 4
+above).
