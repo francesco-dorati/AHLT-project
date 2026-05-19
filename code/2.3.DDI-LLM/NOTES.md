@@ -235,3 +235,90 @@ For DDI:
 This is the *opposite* of 1.3 NER where the LLM matched/beat the
 dedicated systems. The key task differences explain it (see point 4
 above).
+
+## Qualitative analysis on the FT Llama r=32 champion
+
+### Confusion matrix (test)
+
+```
+GOLD\PRED  advise  effect  int  mechanism  null    Σ
+advise       164       5     1        10     29    209
+effect        14     199     0        37     43    293
+int            0       3    16         2     19     40
+mechanism      1      16     0       270     57    344
+null         413     507    74       817   3141   4952
+```
+
+Two dominant error patterns:
+
+1. **null → positive over-prediction.** Out of 4952 truly-null pairs in
+   test, **1811 (36.6 %)** are misclassified as positive. The model
+   fails to "default to null" despite the explicit instruction.
+   `mechanism` is the worst sink — 817 null pairs are labelled
+   `mechanism`, meaning when the model predicts `mechanism`, it is
+   wrong 75 % of the time (270 TP vs 866 FP).
+
+2. **Inter-positive confusion is small.** Largest off-diagonal in the
+   positive 4×4 block is `effect → mechanism` (37 cases). The model
+   *can* distinguish the four positive types when it commits to a
+   positive class — it just commits too often.
+
+This explains why the metrics are high-recall / low-precision:
+
+```
+              P    R     F1
+advise       27.7 78.5  40.9
+effect       27.3 67.9  38.9
+int          17.6 40.0  24.4
+mechanism    23.8 78.5  36.5
+```
+
+The shape (R >> P for every class) is identical across all 4 FT
+configurations — it is a property of the LoRA-fine-tuned 3B LLM under
+85 %-null imbalance, not of any specific rank or model. Same shape we
+saw in the FS sweep too. **The model has not learned to refuse to
+predict.**
+
+### Error stratification (test)
+
+| Source | M-F1 |
+|---|---:|
+| DrugBank (5312 pairs) | 35.7 |
+| MedLine (526 pairs) | 39.8 |
+
+Counter-intuitively, MedLine is *slightly easier* for the FT-LLM than
+for ML/NN — but the MedLine subset has so few positives (5 advise,
+40 effect, etc.) that the comparison is noisy. The DrugBank result is
+the methodologically meaningful one.
+
+| Sentence length | M-F1 |
+|---|---:|
+| short (≤10 words) | 49.3 |
+| medium (11-25) | 39.7 |
+| long (26-50) | 27.2 |
+| **very long (>50)** | **11.0** |
+
+**Same pattern as 2.2 NN: very-long sentences collapse (M=11.0).** The
+LLM has 512 tokens of context, which the dataset's longest sentences
+fill before the `[DRUG1]`/`[DRUG2]` markers can anchor attention. Even
+with explicit positional markers, the LLM doesn't seem to focus on
+them in long contexts — same architectural limitation the BiLSTM hit.
+
+### Take-away for the discussion
+
+The story for the cross-system section:
+
+- **All three systems get worse on long sentences.** ML loses ~10 pp
+  going short → long, NN loses ~50 pp, LLM loses ~38 pp. The dependency
+  features that ML has (path through the parse tree) provide some
+  protection at long distances; the NN and LLM degrade more.
+- **All three systems make their dominant errors at the positive/null
+  boundary.** For ML the failure is *missing* positives (FN dominates);
+  for the LLM the failure is *over-predicting* positives (FP dominates).
+  NN sits in between. The fix would be the same in all three:
+  better calibration of the null-vs-positive boundary.
+- **The 3B LLM is not the right tool for this DDI task at this scale.**
+  ML's explicit syntactic features and NN's positional embedding both
+  outperform the LLM's free-form classification head. A bigger LLM
+  (7B+) at full precision might close the gap; a small LLM at 4-bit
+  quant trained on 5000 examples cannot.
