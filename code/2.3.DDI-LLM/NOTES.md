@@ -428,3 +428,52 @@ Both gain ~+4. Uniform improvement across sources.
 - The LLM still trails ML (test 66.8) and NN (test 65.6) by 25-27 pp,
   so the "3B LLM not the right tool at this scale" conclusion stands;
   it just lands ~5 pp gentler than before.
+
+## Phase H: length-filter post-processing (negative result)
+
+### Motivation
+
+The error stratification showed M-F1 collapsing to 12.3 in the >50-word
+sentence bucket. Hypothesis: predictions in that bucket are mostly
+noise; replacing them with `null` should be a free precision boost.
+
+### Implementation
+
+`bin/length_filter.py` removes any line in the `.out` whose sentence
+has more than N words. Re-run evaluator on the filtered file.
+
+### Results (test, M-F1)
+
+| Filter | Llama r=32 **prompts02** | Llama r=32 prompts01 (prior champ) |
+|---|---:|---:|
+| no filter | **39.8** | **35.2** |
+| L=50 (drop >50) | 39.6 | 35.2 |
+| L=40 | 39.0 | 34.8 |
+| L=30 | 38.5 | 34.7 |
+
+**Filter never helps; tighter thresholds hurt more.** The pattern is
+identical across both champions, so it's a property of the model class,
+not of a specific prompt.
+
+### Why the filter fails
+
+Counts of predictions in the vlong bucket on the test set:
+
+| Champion | total preds | preds in >50 sents | share |
+|---|---:|---:|---:|
+| Llama prompts02 | 2162 | 38 | 1.8 % |
+| Llama prompts01 | 2549 | 49 | 1.9 % |
+
+**The FT LLM already self-suppresses on long sentences.** It almost
+never emits a positive label when the context is too long, and the
+few it does emit contain enough true positives that removing them
+loses recall without buying any precision.
+
+### Implication for the report
+
+The "vlong M=12.3" in the strata table is not a failure mode the
+LLM can be cheaply patched out of. The collapse is a recall problem
+(positives in long sentences are missed, predicted as null), not a
+precision problem (few wrong predictions to filter out). The fix
+would require *more* signal on long sentences, not less — e.g. a
+larger context window or a model with stronger long-range attention.
