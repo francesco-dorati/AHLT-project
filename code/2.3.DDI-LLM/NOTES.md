@@ -322,3 +322,109 @@ The story for the cross-system section:
   outperform the LLM's free-form classification head. A bigger LLM
   (7B+) at full precision might close the gap; a small LLM at 4-bit
   quant trained on 5000 examples cannot.
+
+## Phase G: prompts02 FT (advise/advice typo fix + stronger null emphasis)
+
+### Motivation
+
+The prompts01 FT champion's dominant failure is null→positive
+over-prediction (36.6 % of all null pairs). Two hypotheses behind
+prompts02 (already used in the FS sweep, never trained on):
+
+1. The original `prompts01` definition of the `advise` class contained
+   the typo "advise" misspelled as "advice" — the model literally
+   couldn't learn to emit the label string when its definition pointed
+   to a different word.
+2. The null definition in prompts01 was a single line; prompts02
+   strengthens it to explicitly tell the model *do not invent an
+   interaction*.
+
+### Setup
+
+Same as Phase D champion: `llama32B3`, 4-bit quant, LoRA r=32 (alpha=64),
+10 epochs configured. Training hit Boada's 2 GB disk quota at end of
+epoch 3 (same as the prior champion run — checkpoint footprint is
+~75 MB × 3 = 225 MB + base usage, exceeding quota during the save_model
+finalize). Recovery: `mv checkpoint-1878/* ../` to promote the
+epoch-3 adapter to top-level. Both champion runs are therefore
+3-epoch adapters trained from the same recipe — fair head-to-head.
+
+### Headline numbers
+
+| Config | devel M-F1 | test M-F1 |
+|---|---:|---:|
+| Llama r=32 prompts01 (prior champion) | 33.8 | 35.2 |
+| **Llama r=32 prompts02** | **41.6** | **39.8** |
+| Δ | **+7.8** | **+4.6** |
+
+This is a larger gap than r=8 → r=32 produced (which was +5 pp devel,
++4.7 pp test). Prompt quality matters more than LoRA rank at this
+scale.
+
+### Confusion matrix (test)
+
+```
+GOLD\PRED     advise    effect       int mechanism      null    Σ
+advise           163         8         0         5        33   209
+effect            14       247         0         6        26   293
+int                0         6        15         1        18    40
+mechanism          1        69         0       199        75   344
+null             331       682        35       380      3524  4952
+```
+
+Two diagnostics vs the prompts01 champion (`confmat-test-llama-r32.txt`):
+
+- **Total null→positive errors: 1428 vs 1811** (28.8 % vs 36.6 %).
+  The stronger null definition really did reduce
+  over-prediction by ~8 pp absolute. Most of the saving came from the
+  null→mechanism column: **380 vs 817**, a 54 % cut.
+- **null→advise now 331** (was negligible before the typo fix). The
+  model is now actually using the `advise` label, which is what pushed
+  advise per-class F1 to 45.4 % (up from a value where the model
+  basically didn't predict `advise` at all under prompts01).
+
+### Per-class F1 (test)
+
+| Class | P | R | F1 |
+|---|---:|---:|---:|
+| advise | 32.0 | 78.0 | **45.4** |
+| effect | 24.4 | 84.3 | 37.9 |
+| int | 30.0 | 37.5 | 33.3 |
+| mechanism | 33.7 | 57.8 | 42.6 |
+
+`mechanism` per-class F1 dropped (~52 → 42.6) because the model
+stopped using mechanism as the catch-all "I think there's something
+here" bucket. Net M-F1 is up because the gain on `advise` and the
+reduced FP count on `mechanism` more than offset.
+
+### Error stratification (test)
+
+| Sentence length | prompts01 M-F1 | prompts02 M-F1 | Δ |
+|---|---:|---:|---:|
+| short (≤10) | 49.3 | 45.1 | -4.2 |
+| medium (11-25) | 39.7 | 44.2 | +4.5 |
+| long (26-50) | 27.2 | 30.8 | +3.6 |
+| very long (>50) | 11.0 | 12.3 | +1.3 |
+
+The medium and long buckets gain the most. The very-long collapse
+persists — that's an architectural ceiling, not a prompt issue.
+
+| Source | prompts01 | prompts02 | Δ |
+|---|---:|---:|---:|
+| DrugBank | 35.7 | 39.8 | +4.1 |
+| MedLine | 39.8 | 44.0 | +4.2 |
+
+Both gain ~+4. Uniform improvement across sources.
+
+### Revised take-aways for the cross-system discussion
+
+- **Prompt quality is a first-class capacity knob for FT LLMs.** Going
+  from prompts01 → prompts02 gave +4.6 pp test M-F1, larger than the
+  r=8 → r=32 LoRA rank doubling. For the report: don't treat the prompt
+  template as fixed — it's part of the model.
+- The over-prediction story holds in shape but moderates in magnitude:
+  1428/4952 null pairs still get a positive label. The LLM is still
+  RM-dominated (precision << recall).
+- The LLM still trails ML (test 66.8) and NN (test 65.6) by 25-27 pp,
+  so the "3B LLM not the right tool at this scale" conclusion stands;
+  it just lands ~5 pp gentler than before.

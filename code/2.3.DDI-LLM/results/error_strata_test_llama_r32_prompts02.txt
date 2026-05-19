@@ -1,0 +1,12 @@
+
+=== Stratified by document source ===
+bucket                #pairs   advise-F1   effect-F1      int-F1  mechanism-F1     M-F1     m-F1
+DrugBank                5312       0.450       0.379       0.337       0.425    0.398    0.410
+MedLine                  526       0.667       0.372       0.286       0.436    0.440    0.404
+
+=== Stratified by sentence length ===
+bucket                #pairs   advise-F1   effect-F1      int-F1  mechanism-F1     M-F1     m-F1
+01-short(<=10)           238       0.828       0.447       0.000       0.531    0.451    0.524
+02-medium(11-25)        2174       0.510       0.423       0.368       0.467    0.442    0.447
+03-long(26-50)          2569       0.397       0.276       0.222       0.337    0.308    0.339
+04-vlong(>50)            857       0.000       0.133       0.000       0.357    0.123    0.310
