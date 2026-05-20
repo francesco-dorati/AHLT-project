@@ -14,7 +14,7 @@ Figures (PDF + PNG in report/):
 """
 import numpy as np
 from generate_plots_2_common import (
-    plt, save, CLASSES, CLASS_COLORS,
+    plt, save, CLASSES, CLASS_COLORS, palette,
     C_NN, C_BASE, C_BEST, C_GOOD, C_BAD, GREY)
 
 # =============================================================================
@@ -26,7 +26,7 @@ M_dev = [55.8, 64.8, 65.8, 62.8, 61.8, 62.0, 61.0, 64.7]
 ref_M = 55.8
 
 fig, ax = plt.subplots(figsize=(10.5, 4.8))
-colors = [GREY] + [C_NN]*7
+colors = [GREY] + palette(7, start=4)   # start=4 avoids the champion pink
 colors[2] = C_BEST   # mod2 best
 bars = ax.bar(mods, M_dev, color=colors, edgecolor='white')
 ax.axhline(ref_M, color=GREY, linestyle=':', alpha=0.7, label=f'ref baseline ({ref_M})')
@@ -54,7 +54,7 @@ arch  = ['mod2\nbaseline', 'no LSTM', 'no CNN', '2-layer\nLSTM', 'wide\nLSTM', '
 M_arch = [65.8, 11.6, 64.7, 62.3, 63.0, 61.0]
 
 fig, ax = plt.subplots(figsize=(9.5, 4.6))
-colors = [C_BEST, C_BAD] + [C_NN]*4
+colors = [C_BEST, C_BAD] + palette(4, start=4)
 bars = ax.bar(arch, M_arch, color=colors, edgecolor='white')
 for b, v in zip(bars, M_arch):
     ax.text(b.get_x()+b.get_width()/2, v+0.6, f'{v:.1f}', ha='center', fontsize=9,
@@ -77,7 +77,7 @@ hp   = ['default\n(bs16/ep10)', 'bs=32', 'bs=64', 'ep=20', 'drop=0.3', 'lr=5e-4'
 M_hp = [65.8, 64.5, 63.3, 61.0, 63.2, 63.8, 62.4]
 
 fig, ax = plt.subplots(figsize=(10, 4.5))
-colors = [C_BEST] + [C_NN]*6
+colors = [C_BEST] + palette(6, start=4)   # start=4 avoids the champion pink
 bars = ax.bar(hp, M_hp, color=colors, edgecolor='white')
 ax.axhline(65.8, color=C_BEST, linestyle=':', alpha=0.6, label='default (65.8)')
 for b, v in zip(bars, M_hp):

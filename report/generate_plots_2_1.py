@@ -14,7 +14,7 @@ Figures (PDF + PNG in report/):
 """
 import numpy as np
 from generate_plots_2_common import (
-    plt, save, CLASSES, CLASS_COLORS,
+    plt, save, CLASSES, CLASS_COLORS, palette,
     C_ML, C_BASE, C_BEST, C_GOOD, C_BAD, GREY)
 
 # =============================================================================
@@ -25,7 +25,7 @@ M_dev  = [64.3, 62.4, 64.2, 64.0, 64.1, 63.0, 65.2, 65.4]
 ref_M  = 64.3
 
 fig, ax = plt.subplots(figsize=(10, 4.8))
-colors = [C_ML]*6 + [C_BEST, C_BEST]
+colors = palette(6, start=4) + [C_BEST, C_BEST]   # start=4 avoids the champion pink
 bars = ax.bar(mods, M_dev, color=colors, edgecolor='white')
 ax.axhline(ref_M, color=GREY, linestyle=':', alpha=0.7, label=f'ref baseline ({ref_M})')
 for b, v in zip(bars, M_dev):
@@ -185,7 +185,7 @@ axL.legend(loc='upper right', fontsize=9)
 ln = ['short\n(≤10)', 'medium\n(11-25)', 'long\n(26-50)', 'very long\n(>50)']
 ln_M = [52.0, 70.7, 41.2, 45.7]
 xL = np.arange(len(ln))
-barsL = axR.bar(xL, ln_M, color=[C_ML, C_BEST, C_ML, C_ML], edgecolor='white')
+barsL = axR.bar(xL, ln_M, color=palette(4, start=4), edgecolor='white')
 for b, v in zip(barsL, ln_M):
     axR.text(b.get_x()+b.get_width()/2, v+0.8, f'{v:.1f}', ha='center', fontsize=9,
              fontweight='bold' if v == max(ln_M) else 'normal',

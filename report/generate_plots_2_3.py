@@ -15,7 +15,7 @@ Figures (PDF + PNG in report/):
 """
 import numpy as np
 from generate_plots_2_common import (
-    plt, save, CLASSES, CLASS_COLORS,
+    plt, save, CLASSES, CLASS_COLORS, palette,
     C_LLAMA, C_QWEN, C_FS, C_FT, C_BEST, C_GOOD, C_BAD, GREY)
 
 # =============================================================================
@@ -47,7 +47,7 @@ save(fig, 'fig23_fs_sweep')
 # =============================================================================
 configs = ['FS k=10\n(best FS)', 'FT r=8\nllama', 'FT r=32\nllama p01', 'FT r=32\nllama p02']
 vals    = [23.2, 28.9, 33.8, 41.6]
-colors  = [C_FS, C_FT, C_FT, C_BEST]
+colors  = palette(3) + [C_BEST]
 
 fig, ax = plt.subplots(figsize=(8.5, 4.6))
 bars = ax.bar(configs, vals, color=colors, edgecolor='white')
@@ -238,7 +238,7 @@ fig, (axL, axR) = plt.subplots(1, 2, figsize=(12, 4.6))
 ln = ['short\n(≤10)', 'medium\n(11-25)', 'long\n(26-50)', 'very long\n(>50)']
 ln_M = [45.1, 44.2, 30.8, 12.3]
 xL = np.arange(len(ln))
-barsL = axL.bar(xL, ln_M, color=[C_LLAMA, C_LLAMA, C_LLAMA, C_BAD], edgecolor='white')
+barsL = axL.bar(xL, ln_M, color=palette(3, start=4) + [C_BAD], edgecolor='white')
 for b, v in zip(barsL, ln_M):
     axL.text(b.get_x()+b.get_width()/2, v+0.8, f'{v:.1f}', ha='center', fontsize=9,
              fontweight='bold' if v == min(ln_M) else 'normal',
@@ -254,7 +254,7 @@ axL.set_title('By sentence length')
 src = ['DrugBank', 'MedLine']
 src_M = [39.8, 44.0]
 xS = np.arange(len(src))
-barsS = axR.bar(xS, src_M, color=C_LLAMA, edgecolor='white')
+barsS = axR.bar(xS, src_M, color=palette(2, start=1), edgecolor='white')
 for b, v in zip(barsS, src_M):
     axR.text(b.get_x()+b.get_width()/2, v+0.8, f'{v:.1f}', ha='center', fontsize=9)
 axR.set_xticks(xS); axR.set_xticklabels(src)

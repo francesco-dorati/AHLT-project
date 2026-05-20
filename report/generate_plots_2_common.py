@@ -35,6 +35,29 @@ CLASS_COLORS = {
 }
 CLASSES = ['advise', 'effect', 'int', 'mechanism']
 
+# ── Vibrant categorical palette for single-series bar charts ──────────
+# Used so every bar in a sweep gets its own distinct, consistent colour
+# instead of a monochrome wall. Colour-blind-aware, high saturation.
+PALETTE = [
+    '#2E86AB',  # blue
+    '#E69F00',  # amber
+    '#009E73',  # green
+    '#CC0066',  # hot-pink
+    '#5E3C99',  # purple
+    '#D55E00',  # orange
+    '#2A8C8C',  # teal
+    '#B22222',  # brick-red
+    '#0072B2',  # deep-blue
+    '#F18F01',  # tangerine
+    '#7B5E3B',  # brown
+    '#56B4E9',  # sky
+]
+
+
+def palette(n, start=0):
+    """Return n distinct colours cycling the categorical palette."""
+    return [PALETTE[(start + i) % len(PALETTE)] for i in range(n)]
+
 plt.rcParams.update({
     'figure.facecolor': 'white',
     'axes.facecolor': C_BG,
