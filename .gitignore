@@ -1,3 +1,17 @@
 */preprocessed/
 */models/
 *.feat
+
+# OS / Python junk
+.DS_Store
+__pycache__/
+
+# LaTeX build artifacts (report/)
+report/*.aux
+report/*.log
+report/*.fls
+report/*.fdb_latexmk
+report/*.out
+report/*.toc
+report/*.synctex.gz
+_minted-*/
