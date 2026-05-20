@@ -1,4 +1,5 @@
 import sys
+import os
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments, Trainer
 
@@ -203,7 +204,9 @@ class FineTuning() :
             fp16=False,
             bf16=True,
             learning_rate=2e-5,
-            num_train_epochs=10,
+            # [MOD-2.3] epochs read from env EPOCHS (default 10 = shipped baseline);
+            # used to cap training for the epoch ablation / matched-epoch comparisons
+            num_train_epochs=int(os.environ.get("EPOCHS", "10")),
             eval_strategy="epoch",
             save_total_limit = 2,
             load_best_model_at_end=True,

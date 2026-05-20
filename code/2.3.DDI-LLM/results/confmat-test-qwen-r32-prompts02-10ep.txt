@@ -1,0 +1,13 @@
+GOLD\PRED     advise    effect       int mechanism      null    Σ
+advise           130        19         3        33        24   209
+effect             7       239         2        40         5   293
+int                0         4        34         1         1    40
+mechanism          1        22         0       316         3   344
+null             363       935       618      1705      1328  4952
+
+Per-class (positive classes only):
+class         TP    FP    FN  P     R     F1
+advise       130   371    79  0.259 0.622 0.366
+effect       239   980    54  0.196 0.816 0.316
+int           34   623     6  0.052 0.850 0.098
+mechanism    316  1779    26  0.151 0.924 0.259

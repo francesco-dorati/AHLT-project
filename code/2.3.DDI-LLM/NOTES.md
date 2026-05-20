@@ -477,3 +477,65 @@ LLM can be cheaply patched out of. The collapse is a recall problem
 precision problem (few wrong predictions to filter out). The fix
 would require *more* signal on long sentences, not less — e.g. a
 larger context window or a model with stronger long-range attention.
+
+## Phase I: prompts02 on Qwen — opposite result + epoch confound
+
+Ran the same prompts02 recipe on `qwen25B3` r=32 to test whether the
+prompt-quality finding generalises across model families.
+
+### Headline (test M-F1)
+
+| Config | devel | test |
+|---|---:|---:|
+| Qwen prompts01 r=32 (prior) | 32.5 | 29.1 |
+| Qwen prompts02 r=32 (this run) | 28.8 | **26.0** |
+| Δ | −3.7 | **−3.1** |
+
+**prompts02 hurt Qwen — the opposite of Llama (which gained +4.6).**
+Same prompt, opposite sign across the two model families.
+
+### What happened: catastrophic over-prediction
+
+Qwen prompts02 confusion matrix (test):
+
+```
+GOLD\PRED     advise    effect       int mechanism      null    Σ
+advise           130        19         3        33        24   209
+effect             7       239         2        40         5   293
+int                0         4        34         1         1    40
+mechanism          1        22         0       316         3   344
+null             363       935       618      1705      1328  4952
+```
+
+- **3624 / 4952 null pairs (73.2 %) get a positive label** — vs Llama
+  prompts02's 28.8 % and Llama prompts01's 36.6 %. Qwen with this
+  prompt predicts a positive on 4477 / 5838 = 77 % of *all* pairs.
+- mechanism: P=15.1 %, R=92.4 % (1705 false positives from null alone).
+- int: P=5.2 % (the model emits `int` 657 times for 40 gold cases).
+
+This is the classic "predict the majority of *positives* to maximise
+recall" collapse — the model has stopped discriminating.
+
+### The confound: 10 epochs vs 3
+
+**This Qwen run completed all 10 configured epochs** (5h24m, no quota
+crash — disk had been freed beforehand and Qwen's adapter is smaller).
+Every prior r=32 run (both Llama champions, and almost certainly the
+Qwen prompts01 baseline) **crashed at epoch 3** on the disk quota and
+was recovered from the epoch-3 checkpoint.
+
+So the only *clean* prompt comparison is the Llama one (prompts01 vs
+prompts02, both 3 epochs). The Qwen comparison mixes two changes:
+prompt (01→02) **and** epochs (3→10). 10 epochs on a 3B model under
+85 % null is a textbook overfitting-to-positives setup, and the
+73 %-over-prediction signature looks far more like overfitting than a
+pure prompt effect.
+
+### Next: matched 3-epoch Qwen prompts02 (Phase J)
+
+Added an `EPOCHS` env var (`[MOD-2.3]`, model.py) mirroring `LORA_R`.
+Re-running Qwen prompts02 at `EPOCHS=3` will give two clean results in
+one job:
+1. **Prompt effect at fixed epochs** — Qwen 3ep prompts01 vs prompts02.
+2. **Epoch ablation at fixed prompt** — Qwen prompts02 3ep vs 10ep,
+   isolating how much of the collapse is just overfitting.
