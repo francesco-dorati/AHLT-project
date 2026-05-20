@@ -179,7 +179,7 @@ Best system (test macro-F1)& \textbf{2.1 ML} two-stage on \texttt{mod\_best2} = 
 Neural network (test)      & 2.2 BiLSTM + relative-position embedding = 65.6\,\% \\
 Fine-tuned LLM (test)      & 2.3 Llama-3.2-3B, LoRA $r{=}32$, \texttt{prompts02} = 39.8\,\% \\
 Rule-based floor (test)    & 2.0 cue-word baseline = 26.9\,\% \\
-Biggest lever, ML          & a two-feature combo + a two-stage classifier (+2.5\,pp over reference) \\
+Biggest lever, ML          & a two-feature combo + a two-stage classifier (the largest single jump, +1.1\,pp test) \\
 Biggest lever, NN          & input representation (prefix + entity-type marker, +10\,pp) \\
 Biggest lever, LLM         & LoRA rank \emph{and} prompt quality ($\sim$+5\,pp each) \\
 Headline cross-task lesson & on a \emph{relational} task, classical NLP clearly beats a small LLM \\
@@ -290,7 +290,7 @@ Test  & 1\,455 &  5\,838 & 209 &   293 &  40 &   344 &  4\,952 \\
 \multicolumn{2}{l}{\textbf{\% null}} & & \multicolumn{5}{r}{train 85.3\,\% \quad devel 84.4\,\% \quad test 84.8\,\%} \\
 \bottomrule
 \end{tabular}
-\caption{DDI-2013 corpus statistics. The \texttt{int} class is extremely rare (40--201 pairs) and \texttt{null} dominates every split, which is the central modelling challenge of the task. Contrast Task~1, where the rare class (\textit{drug\_n}) was still $\sim$5\,\% of entities; here \texttt{int} is $<$1\,\% of pairs.}
+\caption{DDI-2013 corpus statistics. The \texttt{int} class is extremely rare (40--201 pairs) and \texttt{null} dominates every split, which is the central modelling challenge of the task. Contrast Task~1, where the rare class (\textit{drug\_n}) was $\sim$4\,\% of entities; here \texttt{int} is $<$1\,\% of pairs.}
 \label{tab:dataset}
 \end{table}
 
@@ -554,9 +554,12 @@ $P(\text{positive})$ exceeds a threshold tuned on devel.
 \textbf{Findings.}
 \begin{itemize}
     \item \textbf{The two-stage router is the System 2.1 champion}:
-    devel M = 65.9, \textbf{test M = 66.8} --- a +2.5\,pp devel and
-    +0.9\,pp test gain over single-stage \texttt{mod\_best2}, the
-    largest single jump in the whole campaign.
+    devel M = 65.9, \textbf{test M = 66.8} --- a +1.1\,pp test gain over
+    single-stage \texttt{mod\_best2} (65.7) and the largest single jump
+    in the whole campaign. (The sweep table reports the development-time
+    figures, devel M = 66.0 / test M = 66.6 at $t{=}0.37$; the canonical
+    re-train used for the cross-system comparison gives 65.9 / 66.8, the
+    $\pm0.2$ being re-run variance.)
     \item \textbf{The optimal threshold is 0.37, not 0.5.} Because
     stage~1's ``positive'' class is rare, a 0.5 cut-off is too
     conservative; lowering it to 0.37 trades a little precision for a
@@ -678,9 +681,10 @@ BiLSTM(250$\to$200), then a 1-D convolution and a global max-pool, and a
 linear layer projects to the 5 classes. Critically, the network sees
 \emph{only} word/lemma/PoS sequences --- it has \textbf{none} of the
 dependency-path features that carry most of the DDI signal in 2.1. The
-reference reaches devel M-F1 = 55.8 (val-acc 88.35\,\%), fully
-\textbf{10\,pp below the ML reference}. That gap is the opportunity, and
-it already tells us where to look: \emph{representation}, not depth.
+reference reaches devel M-F1 = 55.8 (val-acc 88.35\,\%),
+\textbf{$\approx$8.5\,pp below the ML reference} (64.3) and 10\,pp below
+the eventual ML champion. That gap is the opportunity, and it already
+tells us where to look: \emph{representation}, not depth.
 
 \begin{table}[H]
 \centering\small
@@ -693,7 +697,7 @@ it already tells us where to look: \emph{representation}, not depth.
 F1 & 69.0 & 63.0 & 40.5 & 50.5 & 55.8 & 59.4 \\
 \bottomrule
 \end{tabular}
-\caption{Shipped-network per-class on devel. It trails 2.1-ML by $-$10\,pp on M-F1, with the gap concentrated in \texttt{int} (40.5 vs 69.2) and \texttt{mechanism} (50.5 vs 60.0) --- the two classes that most need syntactic context.}
+\caption{Shipped-network per-class on devel. It trails the 2.1-ML reference by $-$8.5\,pp on M-F1 (55.8 vs 64.3), with the gap concentrated in \texttt{int} (40.5 vs 69.2) and \texttt{mechanism} (50.5 vs 60.0) --- the two classes that most need syntactic context.}
 \label{tab:nnref}
 \end{table}
 
@@ -1005,8 +1009,9 @@ devel micro-F1 & 8.2 & 18.7 & 18.7 & 17.4 & 22.0 \\
 
 \textbf{Finding: few-shot is not enough for DDI.} At M$\approx$23 the
 best few-shot config trails the ML champion by \textbf{$-$44\,pp}. This
-is the \emph{first} divergence from Task~1, where few-shot already
-reached the high-40s. The relational, imbalanced nature of DDI is much
+is the \emph{first} divergence from Task~1, where few-shot was far more
+competitive (best NER few-shot reached test micro-F1 $\approx$49\,\%,
+macro $\approx$40\,\%). The relational, imbalanced nature of DDI is much
 harder to convey in a handful of in-context examples than the
 span-spotting of NER. Fine-tuning is mandatory.
 
