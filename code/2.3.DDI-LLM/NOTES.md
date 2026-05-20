@@ -539,3 +539,58 @@ one job:
 1. **Prompt effect at fixed epochs** — Qwen 3ep prompts01 vs prompts02.
 2. **Epoch ablation at fixed prompt** — Qwen prompts02 3ep vs 10ep,
    isolating how much of the collapse is just overfitting.
+
+## Phase J: matched 3-epoch Qwen prompts02 — confound resolved
+
+Re-ran Qwen prompts02 r=32 at `EPOCHS=3` (1h34m train).
+
+### Epoch ablation (Qwen prompts02 r=32, fixed prompt)
+
+| Epochs | devel M-F1 | test M-F1 | null→pos over-pred (test) |
+|---|---:|---:|---:|
+| 3 | 30.9 | 25.9 | 62.0 % (3071/4952) |
+| 10 | 28.8 | 26.0 | 73.2 % (3624/4952) |
+
+**The collapse is not overfitting.** 3-epoch and 10-epoch test M-F1 are
+identical (25.9 vs 26.0). More epochs push the over-prediction higher
+(62 → 73 %) but devel/test F1 barely move — the model is already in the
+majority-positive failure mode by epoch 3. The epoch confound from
+Phase I is therefore eliminated: the Qwen result stands at 3 epochs.
+
+### Clean prompt comparison (everything at 3 epochs)
+
+| Model | prompts01 | prompts02 | Δ test |
+|---|---:|---:|---:|
+| **Llama r=32** | 35.2 | **39.8** | **+4.6** |
+| **Qwen r=32** | 29.1 | 25.9 | **−3.2** |
+
+**The same prompt has opposite-signed effects across model families.**
+With epochs matched, prompts02 helps Llama and hurts Qwen.
+
+### The mechanism: opposite over-prediction response
+
+The prompts02 changes (advise/advice typo fix + stronger "do not invent
+an interaction" null definition) move the two models' null→positive
+over-prediction rates in opposite directions:
+
+| Model | prompts01 over-pred | prompts02 over-pred | direction |
+|---|---:|---:|:--|
+| Llama r=32 | 36.6 % | 28.8 % | ↓ (prompt worked) |
+| Qwen r=32 | ~49.6 % | ~64 % | ↑ (prompt backfired) |
+
+Llama *followed* the stronger null instruction and predicted positives
+less; Qwen *over-reacted* to the richer class definitions and predicted
+positives more. This is a concrete instance of **prompt brittleness
+across model families**: an instruction that improves one instruction-
+tuned 3B model degrades another, and you cannot tell which without
+running both.
+
+### Report take-aways (final 2.3 cross-model story)
+
+- Prompt design is a real capacity lever (Llama +4.6 > the r=8→r=32
+  LoRA gain) **but it is not transferable** — tune the prompt per model.
+- Qwen is the weaker base for this task at 4-bit/r=32: it over-predicts
+  more than Llama under every prompt, and the better prompt makes it
+  worse. Llama r=32 prompts02 (test 39.8) remains the 2.3 champion.
+- Neither model closes the gap to ML (66.8) / NN (65.6); the
+  positive/null boundary is the binding constraint for the FT-LLM.
