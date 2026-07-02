@@ -5,7 +5,7 @@ scikit-learn
 python-crfsuite
 torch==2.7.1
 torchinfo
-transformers==4.57.3
+transformers==5.3.0
 accelerate
 bitsandbytes
 peft
